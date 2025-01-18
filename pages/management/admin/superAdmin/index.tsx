@@ -30,6 +30,8 @@ import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 
 function AdminSuperAdminManagement() {
   const title = 'Admin Management';
@@ -39,8 +41,11 @@ function AdminSuperAdminManagement() {
   const [pageSize, setPageSize] = useState<number>(Pagination.pageSize);
   const [totalItem, setTotalItem] = useState<number>(0);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDialogBlock, setOpenDialogBlock] = useState(false);
+  const [openDialogUnBlock, setOpenDialogUnBlock] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [newRole, setNewRole] = useState<string>('');
+
   const handlePageChange = (_event: any, newPageNumber: number): void => {
     setPageNumber(newPageNumber);
   };
@@ -50,7 +55,6 @@ function AdminSuperAdminManagement() {
   };
 
   const theme = useTheme();
-
   const getAdmins = async () => {
     setDatasource(null);
     const res = await http.get(`SuperAdmin/Admin`);
@@ -61,16 +65,37 @@ function AdminSuperAdminManagement() {
   const onRoleChange = async () => {
     if (selectedUser && newRole) {
       try {
-        await http.put(
-          `SuperAdmin/assign-role/${selectedUser.id}`,
-          {
-            Role: newRole
-          }
-        );
+        await http.put(`SuperAdmin/assign-role/${selectedUser.id}`, {
+          Role: newRole
+        });
         setOpenDialog(false);
         getAdmins();
       } catch (error) {
         console.error('Error assigning role:', error);
+      }
+    }
+  };
+
+  const onBlockChange = async () => {
+    if (selectedUser) {
+      try {
+        await http.put(`SuperAdmin/block-user/${selectedUser.id}`,{});
+        setOpenDialogBlock(false);
+        getAdmins();
+      } catch (error) {
+        console.error('Error blocking user:', error);
+      }
+    }
+  };
+
+  const onUnBlockChange = async () => {
+    if (selectedUser) {
+      try {
+        await http.put(`SuperAdmin/unblock-user/${selectedUser.id}`,{});
+        setOpenDialogUnBlock(false);
+        getAdmins();
+      } catch (error) {
+        console.error('Error unblocking user:', error);
       }
     }
   };
@@ -86,6 +111,26 @@ function AdminSuperAdminManagement() {
     setNewRole('');
   };
 
+  const handleOpenDialogBlock = (user: any) => {
+    setSelectedUser(user);
+    setOpenDialogBlock(true);
+  };
+
+  const handleCloseDialogBlock = () => {
+    setOpenDialogBlock(false);
+    setSelectedUser(null);
+  };
+
+  const handleOpenDialogUnBlock = (user: any) => {
+    setSelectedUser(user);
+    setOpenDialogUnBlock(true);
+  };
+
+  const handleCloseDialogUnBlock = () => {
+    setOpenDialogUnBlock(false);
+    setSelectedUser(null);
+  };
+
   const onConfirm = async (id) => {
     await http.delete(`SuperAdmin/${id}`);
     getAdmins();
@@ -94,6 +139,7 @@ function AdminSuperAdminManagement() {
   useEffect(() => {
     getAdmins();
   }, [pageNumber, pageSize]);
+
   return (
     <>
       <Grid item sx={{ p: 3 }}>
@@ -129,6 +175,7 @@ function AdminSuperAdminManagement() {
                       </TableCell>
                       <TableCell>Username</TableCell>
                       <TableCell>Role</TableCell>
+                      <TableCell>Status</TableCell>
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -138,6 +185,26 @@ function AdminSuperAdminManagement() {
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{item.username}</TableCell>
                         <TableCell>{item.role}</TableCell>
+                        <TableCell>
+                          <Tooltip title="Block User" arrow>
+                            <IconButton
+                              onClick={() => handleOpenDialogBlock(item)}
+                              color="primary"
+                              size="small"
+                            >
+                              <LockIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Unblock User" arrow>
+                            <IconButton
+                              onClick={() => handleOpenDialogUnBlock(item)}
+                              color="primary"
+                              size="small"
+                            >
+                              <LockOpenIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
                         <TableCell align="right">
                           <Tooltip title="Edit Role" arrow>
                             <IconButton
@@ -213,6 +280,38 @@ function AdminSuperAdminManagement() {
           </Button>
           <Button onClick={onRoleChange} color="primary">
             Assign Role
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog to block user */}
+      <Dialog open={openDialogBlock} onClose={handleCloseDialogBlock}>
+        <DialogTitle>Confirm Block</DialogTitle>
+        <DialogContent>
+          Are you sure you want to block user "{selectedUser?.username}"?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialogBlock} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={onBlockChange} color="primary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog to unblock user */}
+      <Dialog open={openDialogUnBlock} onClose={handleCloseDialogUnBlock}>
+        <DialogTitle>Confirm Unblock</DialogTitle>
+        <DialogContent>
+          Are you sure you want to unblock user "{selectedUser?.username}"?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialogUnBlock} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={onUnBlockChange} color="primary">
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>

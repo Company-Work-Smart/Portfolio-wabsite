@@ -31,6 +31,7 @@ import { HttpClient } from '@/services/http-client';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useRouter } from 'next/router';
 import { datetimeDisplay } from '@/helpers/datetime';
+import { FaStar, FaRegStar } from 'react-icons/fa';
 
 function RoomAdminManagement() {
   const title = 'Room Management';
@@ -117,7 +118,6 @@ function RoomAdminManagement() {
     const item = datasource.find((data) => data.id === selectedItemId);
     router.push(`admin/available/${item.id}`);
   };
-  
 
   {
     /* Price Dialog */
@@ -180,6 +180,22 @@ function RoomAdminManagement() {
     router.push(`admin/amenity/${item.id}`);
   };
 
+  {
+    /* Rate */
+  }
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        <span key={i}>
+          {i < rating ? <FaStar style={{ color: 'gold' }} /> : <FaRegStar />}
+        </span>
+      );
+    }
+    return stars;
+  };
+
   useEffect(() => {
     getrooms();
   }, [pageNumber, pageSize, router.query.refresh]);
@@ -226,6 +242,7 @@ function RoomAdminManagement() {
                       <TableCell>Amenity</TableCell>
                       <TableCell>Image</TableCell>
                       <TableCell>available</TableCell>
+                      <TableCell>Rate</TableCell>
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -257,7 +274,7 @@ function RoomAdminManagement() {
                             <Button
                               color="primary"
                               size="small"
-                              style={{ marginLeft: '-2px' }}
+                              style={{ marginLeft: '-4px' }}
                               onClick={() => handleViewAmenity(item)}
                             >
                               View
@@ -286,6 +303,19 @@ function RoomAdminManagement() {
                               View
                             </Button>
                           </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body1">
+                            {item.rates && item.rates.length > 0
+                              ? renderStars(
+                                  item.rates.reduce(
+                                    (id, rate) =>
+                                      id + parseFloat(rate.rating),
+                                    0
+                                  ) / 10
+                                )
+                              : 'No Rating'}
+                          </Typography>
                         </TableCell>
                         <TableCell align="right">
                           <Tooltip title="Edit Item" arrow>
@@ -418,8 +448,7 @@ function RoomAdminManagement() {
                   <Typography
                     variant="body2"
                     sx={{
-                      color:
-                        available.status === 'Available' ? 'green' : 'red',
+                      color: available.status === 'Available' ? 'green' : 'red',
                       fontWeight: 'bold'
                     }}
                   >
@@ -434,16 +463,10 @@ function RoomAdminManagement() {
           <Button onClick={() => handleAddavailable()} color="primary">
             Add
           </Button>
-          <Button
-            href={`admin/available/edit/${available.id}`}
-            color="primary"
-          >
+          <Button href={`admin/available/edit/${available.id}`} color="primary">
             Edit
           </Button>
-          <Button
-            onClick={() => setAvailableOpenDialog(false)}
-            color="primary"
-          >
+          <Button onClick={() => setAvailableOpenDialog(false)} color="primary">
             Close
           </Button>
         </DialogActions>
@@ -587,9 +610,7 @@ function RoomAdminManagement() {
                           }}
                         />
                       ) : (
-                        <Typography variant="body2">
-                          No Image
-                        </Typography>
+                        <Typography variant="body2">No Image</Typography>
                       )}
                     </Box>
                   </ConfirmDialog>
@@ -608,8 +629,8 @@ function RoomAdminManagement() {
         </DialogActions>
       </Dialog>
 
-       {/* Amenity Dialog */}
-       <Dialog
+      {/* Amenity Dialog */}
+      <Dialog
         open={amenityopenDialog}
         onClose={() => setAmenityOpenDialog(false)}
         maxWidth="sm"

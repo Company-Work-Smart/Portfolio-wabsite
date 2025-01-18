@@ -1,8 +1,24 @@
-import { Box, Button, Card, Container, Grid, styled } from '@mui/material';
-import React, { FormEvent, ReactElement, useContext, useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  styled
+} from '@mui/material';
+import React, {
+  FormEvent,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
 import BaseLayout from 'src/layouts/BaseLayout';
 
-import Link from 'src/components/Link';
 import Head from 'next/head';
 
 import Logo from 'src/components/LogoSign';
@@ -36,9 +52,19 @@ function Overview() {
   const { showSnackbar } = useContext(SnackbarContext);
   const router = useRouter();
   const httpClient = new HttpClient();
+  const openDialog = () => setDialogOpen(true);
+  const closeDialog = () => setDialogOpen(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     username: '',
     password: ''
+  });
+
+  const [contactUs, setContactUs] = useState({
+    username: '',
+    email: '',
+    description: ''
   });
 
   const handleInput = (e: any) => {
@@ -50,10 +76,19 @@ function Overview() {
       [fieldName]: fieldValue
     }));
   };
+  const handleInputContactUs = (e: any) => {
+    const fieldName = e.target.name;
+    const fieldValue = e.target.value;
+
+    setContactUs((prevState) => ({
+      ...prevState,
+      [fieldName]: fieldValue
+    }));
+  };
 
   const submitForm = async (e: FormEvent) => {
     e.preventDefault();
-  
+
     try {
       const response = await httpClient.post(`AnonymousAuth/Login`, formData);
       if (typeof response === 'string') {
@@ -66,22 +101,47 @@ function Overview() {
         localStorage.setItem(AppKey.refreshToken, response.refreshToken);
         localStorage.setItem(AppKey.role, response.role);
         localStorage.setItem(AppKey.username, response.username);
-  
+
         showSnackbar({ type: 'success', message: 'Successfully logged in!' });
-  
-        const role = `${response.role[0].toLowerCase()}${response.role.substring(1)}`;
+
+        const role = `${response.role[0].toLowerCase()}${response.role.substring(
+          1
+        )}`;
         await router.push(`/dashboards/dashboard/${role}`);
       } else {
-        showSnackbar({ type: 'error', message: 'Invalid login response from server' });
+        showSnackbar({
+          type: 'error',
+          message: 'Invalid login response from server'
+        });
       }
     } catch (error) {
-      showSnackbar({ type: 'error', message: 'An error occurred during login' });
+      showSnackbar({
+        type: 'error',
+        message: 'An error occurred during login'
+      });
     }
   };
-  
 
-  useEffect(() => {
-  }, []);
+  const submitFormContactUs = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      await httpClient.post('AnonymousContactMe', contactUs);
+      showSnackbar({
+        type: 'success',
+        message: 'Your message has been sent successfully!'
+      });
+      setContactUs({ username: '', email: '', description: '' });
+      setDialogOpen(false);
+    } catch (error) {
+      showSnackbar({
+        type: 'error',
+        message:
+          'An error occurred while sending your message. Please try again.'
+      });
+    }
+  };
+
+  useEffect(() => {}, []);
   return (
     <OverviewWrapper>
       <Head>
@@ -99,13 +159,8 @@ function Overview() {
             >
               <Box />
               <Box>
-                <Button
-                  component={Link}
-                  href="/dashboards/crypto"
-                  variant="contained"
-                  sx={{ ml: 2 }}
-                >
-                  Live Preview
+                <Button variant="contained" sx={{ ml: 2 }} onClick={openDialog}>
+                  Contact Support
                 </Button>
               </Box>
             </Box>
@@ -119,7 +174,6 @@ function Overview() {
           alignItems="center"
           container
         >
-
           <Grid item xs={6} mx="auto">
             <form onSubmit={submitForm}>
               <TypographyH1 mb={8} variant="h1">
@@ -146,19 +200,68 @@ function Overview() {
                 />
               </Grid>
 
-              <Button
-                type="submit"
-                fullWidth
-                size="large"
-                variant="contained"
-              >
+              <Button type="submit" fullWidth size="large" variant="contained">
                 Sign In
               </Button>
             </form>
           </Grid>
-
         </Grid>
       </Container>
+
+      {/* Contact Us Dialog */}
+      <Dialog open={dialogOpen} onClose={closeDialog} fullWidth maxWidth="sm">
+        <DialogTitle>Contact Us</DialogTitle>
+        <form onSubmit={submitFormContactUs}>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  id="contact-username"
+                  label="Your Name"
+                  name="username"
+                  value={contactUs.username}
+                  onChange={handleInputContactUs}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  id="contact-email"
+                  label="Your Email"
+                  name="email"
+                  type="email"
+                  value={contactUs.email}
+                  onChange={handleInputContactUs}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  id="contact-description"
+                  label="Your Message"
+                  name="description"
+                  multiline
+                  rows={4}
+                  value={contactUs.description}
+                  onChange={handleInputContactUs}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeDialog} color="secondary">
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" color="primary">
+              Submit
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
     </OverviewWrapper>
   );
 }

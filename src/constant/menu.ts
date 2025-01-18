@@ -45,18 +45,23 @@ export const Menu: any[] = [
         roles: ['SuperAdmin']
       },
       {
-        title: 'Booking',
+        title: 'User Booking',
         url: '/management/booking/admin',
         roles: ['Admin']
       },
       {
-        title: 'Staff',
-        url: '/management/staff/superAdmin',
+        title: 'User Rate',
+        url: '/management/rate/admin',
+        roles: ['Admin']
+      },
+      {
+        title: 'Place',
+        url: '/management/place/superAdmin',
         roles: ['SuperAdmin']
       },
       {
-        title: 'Hospital',
-        url: '/management/hospital/superAdmin',
+        title: 'Contact Me',
+        url: '/management/contact/superAdmin',
         roles: ['SuperAdmin']
       },
     ]

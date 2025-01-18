@@ -1,8 +1,8 @@
-'use client';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import Head from 'next/head';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import {
-  Avatar,
+  Box,
   Card,
   CardHeader,
   Divider,
@@ -16,23 +16,24 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Tooltip
+  Tooltip,
+  Typography
 } from '@mui/material';
-import { ChangeEvent, useEffect, useState } from 'react';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
-import ConfirmDialog from '@/components/ConfirmDialog';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { datetimeDisplay } from '@/helpers/datetime';
 
-function StaffSuperAdminManagement() {
-  const title = 'Staff Management';
+function CarManagerManagement() {
+  const title = 'Car Management';
   const http = new HttpClient();
   const [datasource, setDatasource] = useState<any[]>(null);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(Pagination.pageSize);
   const [totalItem, setTotalItem] = useState<number>(0);
+
   const handlePageChange = (_event: any, newPageNumber: number): void => {
     setPageNumber(newPageNumber);
   };
@@ -41,23 +42,23 @@ function StaffSuperAdminManagement() {
     setPageSize(parseInt(event.target.value));
   };
 
+
   const getItems = async () => {
     setDatasource(null);
     const res = await http.get(
-      `SuperAdminStaff?pageNumber=${pageNumber + 1}&pageSize=${pageSize}`
+      `SuperAdminCar?pageNumber=${pageNumber + 1}&pageSize=${pageSize}`
     );
     setDatasource(res.data);
     setTotalItem(res.totalItems);
   };
 
-
   const onDelete = async (id) => {
-    await http.delete(`SuperAdminStaff/${id}`);
+    await http.delete(`SuperAdminCar/${id}`);
     getItems();
   };
 
   const onRestore = async (id) => {
-    await http.delete(`SuperAdminStaff/Restore/${id}`);
+    await http.delete(`SuperAdminCar/Restore/${id}`);
     getItems();
   };
 
@@ -86,6 +87,10 @@ function StaffSuperAdminManagement() {
                 />
               )}
               <CardHeader
+                action={
+                  <Box>
+                  </Box>
+                }
                 title={title}
               />
               <Divider />
@@ -93,13 +98,12 @@ function StaffSuperAdminManagement() {
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell width={12} align="center">
+                      <TableCell width={12} align="right">
                         No
                       </TableCell>
-                      <TableCell>Username</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Phone</TableCell>
-                      <TableCell>Hospital</TableCell>
+                      <TableCell>code</TableCell>
+                      <TableCell>plate number</TableCell>
+                      <TableCell>availability</TableCell>
                       <TableCell width={120}>Created At</TableCell>
                       <TableCell width={120}>Updated At</TableCell>
                       <TableCell width={120}>Deleted At</TableCell>
@@ -110,27 +114,24 @@ function StaffSuperAdminManagement() {
                     {datasource?.map((item, index) => {
                       return (
                         <TableRow hover key={item.id}>
-                          <TableCell align='center'>
-                            <strong>{pageNumber * pageSize + index + 1}</strong>
-                          </TableCell>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{item.code}</TableCell>
+                          <TableCell>{item.platNo}</TableCell>
                           <TableCell>
-                            <Grid container spacing={1} alignItems={'center'}>
-                              <Grid item>
-                                <Avatar variant="rounded" alt={item.namename} src={item.username} />
-                              </Grid>
-                              <Grid item>
-                                <strong>{item.username ?? '-'}</strong>
-                              </Grid>
-                            </Grid>
+                            <Typography
+                              style={{
+                                color: item.available ? 'green' : 'red',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {item.available ? 'Available' : 'Unavailable'}
+                            </Typography>
                           </TableCell>
-                          <TableCell>{item.email ?? '-'}</TableCell>
-                          <TableCell>{item.phone ?? '-'}</TableCell>
-                          <TableCell>{item.hospital ?? '-'}</TableCell>
                           <TableCell align="center"> {datetimeDisplay(item.createdAt)}</TableCell>
                           <TableCell align="center">{datetimeDisplay(item.updatedAt)}</TableCell>
                           <TableCell align="center">{datetimeDisplay(item.deletedAt)}</TableCell>
                           <TableCell align={'center'}>
-                            { item.deletedAt == null &&
+                            {item.deletedAt == null &&
                               <Tooltip title="Delete Item" arrow>
                                 <span>
                                   <ConfirmDialog
@@ -147,7 +148,7 @@ function StaffSuperAdminManagement() {
                                 </span>
                               </Tooltip>
                             }
-                            { item.deletedAt != null &&
+                            {item.deletedAt != null &&
                               <Tooltip title="Restore" arrow>
                                 <span>
                                   <ConfirmDialog
@@ -171,22 +172,17 @@ function StaffSuperAdminManagement() {
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Grid container p={2}>
-                <Grid item xs={2}>
-
-                </Grid>
-                <Grid item xs={10}>
-                  <TablePagination
-                    component="div"
-                    count={totalItem}
-                    onPageChange={handlePageChange}
-                    onRowsPerPageChange={handleLimitChange}
-                    page={pageNumber}
-                    rowsPerPage={pageSize}
-                    rowsPerPageOptions={Pagination.pageSizeOptions}
-                  />
-                </Grid>
-              </Grid>
+              <Box p={2}>
+                <TablePagination
+                  component="div"
+                  count={totalItem}
+                  onPageChange={handlePageChange}
+                  onRowsPerPageChange={handleLimitChange}
+                  page={pageNumber}
+                  rowsPerPage={pageSize}
+                  rowsPerPageOptions={Pagination.pageSizeOptions}
+                />
+              </Box>
             </Card>
           </Grid>
         </Grid>
@@ -195,8 +191,8 @@ function StaffSuperAdminManagement() {
   );
 }
 
-StaffSuperAdminManagement.getLayout = (page) => (
+CarManagerManagement.getLayout = (page) => (
   <SidebarLayout>{page}</SidebarLayout>
 );
 
-export default StaffSuperAdminManagement;
+export default CarManagerManagement;

@@ -17,22 +17,38 @@ import {
   TableRow,
   Tooltip,
   Snackbar,
-  Alert
+  Alert,
+  DialogTitle,
+  MenuItem,
+  TextField,
+  DialogActions,
+  DialogContent,
+  Dialog,
+  Button
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import { datetimeDisplay } from '@/helpers/datetime';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import CancelIcon from '@mui/icons-material/Cancel';
+
 import ConfirmDialog from '@/components/ConfirmDialog';
 
-function StaffAdminManagement() {
+function AdminManagement() {
   const title = 'Booking Management';
   const http = new HttpClient();
   const [datasource, setDatasource] = useState<any[]>(null);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(Pagination.pageSize);
   const [totalItem, setTotalItem] = useState<number>(0);
+  const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  const [status, setStatus] = useState<string>('');
+  const [openDialog, setOpenDialog] = useState(false);
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [newDataCount, setNewDataCount] = useState(0);
 
@@ -54,7 +70,7 @@ function StaffAdminManagement() {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('New Items Available', {
         body: message,
-        icon: '/icon.png', // Replace with the path to your app icon
+        icon: '/icon.png'
       });
     }
   };
@@ -67,8 +83,6 @@ function StaffAdminManagement() {
       const newItemsCount = res.length - datasource.length;
       setNewDataCount(newItemsCount);
       setOpenSnackbar(true);
-
-      // Trigger browser notification
       triggerBrowserNotification(`${newItemsCount} new items available!`);
     }
     setDatasource(res);
@@ -78,6 +92,27 @@ function StaffAdminManagement() {
   const onConfirm = async (id: string) => {
     await http.delete(`AdminBooking/${id}`);
     getItems();
+  };
+
+  const onStatusChange = async () => {
+    if (selectedRoom && status) {
+      await http.put(`AdminBooking/status/${selectedRoom.id}`, {
+        status: status
+      });
+      setOpenDialog(false);
+      getItems();
+    }
+  };
+
+  const handleOpenDialog = (room: any) => {
+    setSelectedRoom(room);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedRoom(null);
+    setStatus('');
   };
 
   const handleCloseSnackbar = () => {
@@ -136,6 +171,7 @@ function StaffAdminManagement() {
                       <TableCell>Max Occupancy</TableCell>
                       <TableCell>checkIn</TableCell>
                       <TableCell>checkOut</TableCell>
+                      <TableCell>Status</TableCell>
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -156,7 +192,35 @@ function StaffAdminManagement() {
                           <TableCell>
                             {datetimeDisplay(item.checkOut)}
                           </TableCell>
+                          <TableCell>
+                            {item.status === 'Agreed' ? (
+                              <CheckCircleIcon
+                                color="primary"
+                                style={{ marginLeft: '11px' }}
+                              />
+                            ) : item.status === 'Pending' ? (
+                              <HourglassEmptyIcon
+                                color="warning"
+                                style={{ marginLeft: '11px' }}
+                              />
+                            ) : (
+                              <CancelIcon
+                                color="error"
+                                style={{ marginLeft: '11px' }}
+                              />
+                            )}
+                          </TableCell>
+
                           <TableCell align="right">
+                            <Tooltip title="Edit Status" arrow>
+                              <IconButton
+                                onClick={() => handleOpenDialog(item)}
+                                color="primary"
+                                size="small"
+                              >
+                                <EditTwoToneIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
                             <Tooltip title="Delete Item" arrow>
                               <span>
                                 <ConfirmDialog
@@ -194,12 +258,36 @@ function StaffAdminManagement() {
           </Grid>
         </Grid>
       </Grid>
+
+      {/* Dialog to assign role */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Assign Role</DialogTitle>
+        <DialogContent>
+          <TextField
+            select
+            fullWidth
+            label="Status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            margin="normal"
+          >
+            <MenuItem value="Agreed">Agreed</MenuItem>
+            <MenuItem value="Rejected">Rejected</MenuItem>
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={onStatusChange} color="primary">
+            Assign Status
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
 
-StaffAdminManagement.getLayout = (page) => (
-  <SidebarLayout>{page}</SidebarLayout>
-);
+AdminManagement.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
 
-export default StaffAdminManagement;
+export default AdminManagement;

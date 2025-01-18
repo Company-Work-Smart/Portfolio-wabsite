@@ -1,6 +1,7 @@
-'use client';
-
-import Head from 'next/head';
+import { useState, useEffect, useContext } from 'react';
+import { HttpClient } from '@/services/http-client';
+import { useRouter } from 'next/router';
+import { SnackbarContext } from '@/contexts/SnackbarContext';
 import {
   Box,
   Button,
@@ -9,14 +10,11 @@ import {
   CardHeader,
   Divider,
   Grid,
+  Input,
   LinearProgress,
   Typography
 } from '@mui/material';
-import { useState, useEffect, useContext } from 'react';
-import { useRouter } from 'next/router';
 import SidebarLayout from '@/layouts/SidebarLayout';
-import { HttpClient } from '@/services/http-client';
-import { SnackbarContext } from '@/contexts/SnackbarContext';
 
 function AdminAdminFormManagement() {
   const http = new HttpClient();
@@ -24,14 +22,15 @@ function AdminAdminFormManagement() {
   const { id } = router.query;
   const title = `Admin Form`;
 
+  const [loading, setLoading] = useState(false);
   const { showSnackbar } = useContext(SnackbarContext);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   const [formData, setFormData] = useState({
     roomId: '',
-    images: null as File | null
+    images: null
   });
-
-  const [dragging, setDragging] = useState<boolean>(false);
 
   useEffect(() => {
     if (id && id !== '0') {
@@ -43,60 +42,91 @@ function AdminAdminFormManagement() {
     }
   }, [id]);
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files ? e.target.files[0] : null;
-    setFormData((prevState) => ({
-      ...prevState,
-      images: file
-    }));
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: file
+      }));
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      showSnackbar({
+        type: 'error',
+        message: 'Please select a valid image file.'
+      });
+    }
   };
 
-  const handleFileDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files ? e.dataTransfer.files[0] : null;
-    setFormData((prevState) => ({
-      ...prevState,
-      images: file
-    }));
-    setDragging(false);
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+
+    const file = event.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: file
+      }));
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      showSnackbar({
+        type: 'error',
+        message: 'Please drop a valid image file.'
+      });
+    }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragging(true);
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(true);
   };
 
-  const handleDragLeave = () => {
-    setDragging(false);
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
   };
 
   const submitForm = async () => {
-    if (!formData.images) {
+    if (!formData.images || !formData.roomId.trim()) {
       showSnackbar({
         type: 'error',
-        message: 'Please select an image to upload'
+        message: 'Room ID and image file are required.'
       });
       return;
     }
 
-    setLoading(true);
-    const formDataToSend = new FormData();
-    formDataToSend.append('roomId', formData.roomId);
-    formDataToSend.append('images', formData.images);
+    console.log(formData.roomId);
+    console.log(formData.images);
 
-    
-    await http.post('AdminImage', formDataToSend);
-    console.log(formDataToSend.append('roomId', formData.roomId));
-    setLoading(false);
+    const formPayload = new FormData();
+    formPayload.append('RoomId', formData.roomId);
+    formPayload.append('Images', formData.images);
+
+    setLoading(true);
+    try {
+      await http.uploadFile('AdminImage', formPayload);
+      showSnackbar({
+        type: 'success',
+        message: 'File uploaded successfully!'
+      });
+      setFormData({ roomId: '', images: null });
+      setImagePreview(null);
+    } catch (error) {
+      showSnackbar({
+        type: 'error',
+        message: 'File upload failed. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <Head>
-        <title>
-          {title} {id}
-        </title>
-      </Head>
       <Grid item sx={{ p: 3 }}>
         <Grid
           container
@@ -134,46 +164,54 @@ function AdminAdminFormManagement() {
                   noValidate
                   autoComplete="off"
                 >
+                  {/* Drag-and-Drop Area */}
                   <Box
-                    sx={{
-                      border: `2px dashed ${
-                        formData.images
-                          ? 'green'
-                          : dragging
-                          ? 'blue'
-                          : '#cccccc'
-                      }`,
-                      borderRadius: 2,
-                      p: 2,
-                      textAlign: 'center',
-                      cursor: 'pointer'
-                    }}
-                    onDrop={handleFileDrop}
+                    onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
+                    sx={{
+                      border: `2px dashed ${isDragging ? '#4caf50' : '#ccc'}`,
+                      backgroundColor: isDragging ? '#e8f5e9' : '#f9f9f9',
+                      padding: '20px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      borderRadius: '8px',
+                      transition: 'border-color 0.3s, background-color 0.3s'
+                    }}
                   >
-                    <Typography variant="body1">
-                      {formData.images
-                        ? `File: ${formData.images.name}`
-                        : 'Drag & drop an image here or click to select'}
+                    <Typography>
+                      Drag and drop an image here, or click to select a file
                     </Typography>
-                    <input
+                    <Input
                       type="file"
+                      id="images"
+                      name="images"
+                      onChange={handleFileChange}
                       style={{ display: 'none' }}
-                      onChange={handleFileInputChange}
-                      accept="image/*"
-                      id="file-upload"
                     />
-                    <label htmlFor="file-upload">
-                      <Button
-                        variant="contained"
-                        component="span"
-                        sx={{ mt: 2 }}
-                      >
+                    <label htmlFor="images">
+                      <Button variant="outlined" component="span">
                         Choose File
                       </Button>
                     </label>
+                    {formData.images && (
+                      <Typography mt={1}>{formData.images.name}</Typography>
+                    )}
                   </Box>
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <Box mt={2} textAlign="center">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '100%',
+                          height: 'auto',
+                          borderRadius: '8px'
+                        }}
+                      />
+                    </Box>
+                  )}
                 </Box>
               </CardContent>
             </Card>

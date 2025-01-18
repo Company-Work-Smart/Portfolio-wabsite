@@ -1,1 +1,0 @@
-export const StaffStatuses: any[] = ['Aprrove', 'Request', 'Reject'];

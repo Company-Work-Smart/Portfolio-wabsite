@@ -1,0 +1,1 @@
+export const UserStatuses: any[] = ['Aprrove', 'Request', 'Reject'];

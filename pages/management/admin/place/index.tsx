@@ -32,7 +32,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { useRouter } from 'next/router';
 
 function AdminAdminManagement() {
-  const title = 'Admin Management';
+  const title = 'Place Management';
   const http = new HttpClient();
   const router = useRouter();
   const [datasource, setDatasource] = useState<any[]>(null);
