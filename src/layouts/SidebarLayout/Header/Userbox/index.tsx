@@ -1,11 +1,10 @@
-import {useEffect, useRef, useState} from 'react';
-
+import { useEffect, useRef, useState } from 'react';
 import NextLink from 'next/link';
-
 import {
   Avatar,
   Box,
   Button,
+  CardMedia,
   Divider,
   Hidden,
   lighten,
@@ -15,16 +14,14 @@ import {
   Popover,
   Typography
 } from '@mui/material';
-
 import InboxTwoToneIcon from '@mui/icons-material/InboxTwoTone';
-import {styled} from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
-import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
-import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
-import {AppKey} from "@/constant/key";
-import ConfirmDialog from "@/components/ConfirmDialog";
-import {useRouter} from "next/router";
+import { AppKey } from '@/constant/key';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useRouter } from 'next/router';
+import { HttpClient } from '@/services/http-client';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -62,25 +59,41 @@ const UserBoxDescription = styled(Typography)(
 );
 
 interface UserBoxProps {
+  userId?: string;
   username?: string;
-  photo?: string;
   role?: string;
 }
 
 function HeaderUserbox() {
   const [user, setUser] = useState<UserBoxProps>();
-  const router = useRouter()
-  
-  useEffect(() => {
-    setUser({
-      username: localStorage.getItem(AppKey.username),
-      photo: localStorage.getItem(AppKey.photo),
-      role: localStorage.getItem(AppKey.role)
-    })
-  }, [])
-
+  const router = useRouter();
+  const http = new HttpClient();
+  const [admin, setAdmin] = useState<any>(null);
+  const [superAdmin, setSuperAdmin] = useState<any>(null);
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
+
+  const getUser = async () => {
+    if (user?.role.toLowerCase() == 'admin') {
+      const res = await http.get(`AdminAdmin/${user?.userId}`);
+      setAdmin(res);
+    } else if (user?.role.toLowerCase() == 'superadmin') {
+      const res = await http.get(`SuperAdmin/${user?.userId}`);
+      setSuperAdmin(res);
+    }
+  };
+
+  useEffect(() => {
+    setUser({
+      userId: localStorage.getItem(AppKey.userId),
+      username: localStorage.getItem(AppKey.username),
+      role: localStorage.getItem(AppKey.role)
+    });
+  }, []);
+
+  useEffect(() => {
+    getUser();
+  }, [user]);
 
   const handleOpen = (): void => {
     setOpen(true);
@@ -91,21 +104,54 @@ function HeaderUserbox() {
   };
 
   const onSignOut = async () => {
+    localStorage.removeItem(AppKey.userId);
     localStorage.removeItem(AppKey.username);
     localStorage.removeItem(AppKey.role);
     localStorage.removeItem(AppKey.accessToken);
     localStorage.removeItem(AppKey.refreshToken);
-    handleClose();
     await router.push('/');
-  }
+  };
 
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-        <Avatar variant="rounded" alt={user?.username} src={user?.photo}/>
+        {admin ? (
+          <>
+            <CardMedia
+              component="img"
+              sx={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '40px',
+                aspectRatio: '1',
+                objectFit: 'cover',
+                cursor: 'pointer'
+              }}
+              image={admin?.photo || '/static/user-modified.png'}
+            />
+          </>
+        ) : superAdmin ? (
+          <>
+            <CardMedia
+              component="img"
+              sx={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '40px',
+                aspectRatio: '1',
+                objectFit: 'cover',
+                cursor: 'pointer'
+              }}
+              image={superAdmin?.photo || '/static/user-modified.png'}
+            />
+          </>
+        ) : null}
+
         <Hidden mdDown>
           <UserBoxText>
-            <UserBoxLabel variant="body1">{user?.username}</UserBoxLabel>
+            <UserBoxLabel variant="body1">
+              {user?.username.toUpperCase()}
+            </UserBoxLabel>
             <UserBoxDescription variant="body2">
               {user?.role?.toUpperCase()}
             </UserBoxDescription>
@@ -129,7 +175,7 @@ function HeaderUserbox() {
         }}
       >
         <MenuUserBox sx={{ minWidth: 210 }} display="flex">
-          <Avatar variant="rounded" alt={user?.username} src={user?.photo}/>
+          <Avatar variant="rounded" />
           <UserBoxText>
             <UserBoxLabel variant="body1">{user?.username}</UserBoxLabel>
             <UserBoxDescription variant="body2">
@@ -139,34 +185,54 @@ function HeaderUserbox() {
         </MenuUserBox>
         <Divider sx={{ mb: 0 }} />
         <List sx={{ p: 1 }} component="nav">
-          <NextLink href="/management/profile" passHref>
-            <ListItem button>
-              <AccountBoxTwoToneIcon fontSize="small" />
-              <ListItemText primary="My Profile" />
-            </ListItem>
-          </NextLink>
-          <NextLink href="/applications/messenger" passHref>
-            <ListItem button>
-              <InboxTwoToneIcon fontSize="small" />
-              <ListItemText primary="Messenger" />
-            </ListItem>
-          </NextLink>
-          <NextLink href="/management/profile/settings" passHref>
-            <ListItem button>
-              <AccountTreeTwoToneIcon fontSize="small" />
-              <ListItemText primary="Account Settings" />
-            </ListItem>
-          </NextLink>
-        </List>
-        <Divider />
-        <Box sx={{ m: 1 }}>
-          <ConfirmDialog message="Are you sure to Sign Out?" onConfirm={onSignOut}>
+          {user?.role?.toLowerCase() === 'admin' ? (
+            <>
+              <NextLink href="/applications/admin/profile" passHref>
+                <ListItem button>
+                  <AccountBoxTwoToneIcon fontSize="small" />
+                  <ListItemText primary="My Profile" />
+                </ListItem>
+              </NextLink>
+            </>
+          ) : user?.role?.toLowerCase() === 'superadmin' ? (
+            <>
+              <NextLink href="/applications/superAdmin/profile" passHref>
+                <ListItem button>
+                  <AccountBoxTwoToneIcon fontSize="small" />
+                  <ListItemText primary="My Profile" />
+                </ListItem>
+              </NextLink>
+            </>
+          ) : null}
+          {user?.role?.toLowerCase() === 'admin' ? (
+            <>
+              <NextLink href="/applications/admin/messenger" passHref>
+                <ListItem button>
+                  <InboxTwoToneIcon fontSize="small" />
+                  <ListItemText primary="Messenger" />
+                </ListItem>
+              </NextLink>
+            </>
+          ) : user?.role?.toLowerCase() === 'superadmin' ? (
+            <>
+              <NextLink href="/applications/superAdmin/messenger" passHref>
+                <ListItem button>
+                  <InboxTwoToneIcon fontSize="small" />
+                  <ListItemText primary="Messenger" />
+                </ListItem>
+              </NextLink>
+            </>
+          ) : null}
+          <Divider />
+          <ConfirmDialog
+            message="Are you sure to Sign Out?"
+            onConfirm={onSignOut}
+          >
             <Button color="primary" fullWidth>
-              <LockOpenTwoToneIcon sx={{mr: 1}}/>
-              Sign out
+              Sign Out
             </Button>
           </ConfirmDialog>
-        </Box>
+        </List>
       </Popover>
     </>
   );

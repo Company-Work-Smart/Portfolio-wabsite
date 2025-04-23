@@ -18,6 +18,9 @@ import TrendingUp from '@mui/icons-material/TrendingUp';
 import Text from 'src/components/Text';
 import { Chart } from 'src/components/Chart';
 import type { ApexOptions } from 'apexcharts';
+import { useEffect, useState } from 'react';
+import { HttpClient } from '@/services/http-client';
+import { useRouter } from 'next/router';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -57,6 +60,10 @@ const ListItemAvatarWrapper = styled(ListItemAvatar)(
 
 function AccountBalance() {
   const theme = useTheme();
+  const http = new HttpClient();
+  const router = useRouter();
+  const [datasource, setDatasource] = useState<any[]>(null);
+  const [totalItem, setTotalItem] = useState<number>(0);
 
   const chartOptions: ApexOptions = {
     chart: {
@@ -126,209 +133,241 @@ function AccountBalance() {
   };
 
   const chartSeries = [10, 20, 25, 45];
+  const totalAmount = datasource?.reduce(
+    (sum, item) => sum + parseFloat(item.amount),
+    0
+  );
+
+  const BalencePayment = async () => {
+    const res = await http.get(`SuperAdminPayment`);
+    setDatasource(res.item);
+    setTotalItem(res.total);
+  };
+
+  useEffect(() => {
+    BalencePayment();
+    const interval = setInterval(() => {
+      BalencePayment();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [router.query.refresh]);
 
   return (
-    <Card>
-      <Grid spacing={0} container>
-        <Grid item xs={12} md={6}>
-          <Box p={4}>
-            <Typography
-              sx={{
-                pb: 3
-              }}
-              variant="h4"
-            >
-              Account Balance
-            </Typography>
-            <Box>
-              <Typography variant="h1" gutterBottom>
-                $54,584.23
-              </Typography>
+    <>
+      <Card>
+        <Grid spacing={0} container>
+          <Grid item xs={12} md={6}>
+            <Box p={4}>
               <Typography
-                variant="h4"
-                fontWeight="normal"
-                color="text.secondary"
-              >
-                1.0045983485234 BTC
-              </Typography>
-              <Box
-                display="flex"
                 sx={{
-                  py: 4
+                  pb: 3
                 }}
-                alignItems="center"
+                variant="h4"
               >
-                <AvatarSuccess
-                  sx={{
-                    mr: 2
-                  }}
-                  variant="rounded"
+                Account Balance
+              </Typography>
+              <Box>
+                <Typography variant="h1" gutterBottom>
+                  ${totalAmount?.toFixed(2)}
+                </Typography>
+                <Typography
+                  variant="h4"
+                  fontWeight="normal"
+                  color="text.secondary"
                 >
-                  <TrendingUp fontSize="large" />
-                </AvatarSuccess>
-                <Box>
-                  <Typography variant="h4">+ $3,594.00</Typography>
-                  <Typography variant="subtitle2" noWrap>
-                    this month
-                  </Typography>
+                  {totalItem} Admin
+                </Typography>
+                <Box
+                  display="flex"
+                  sx={{
+                    py: 4
+                  }}
+                  alignItems="center"
+                >
+                  <AvatarSuccess
+                    sx={{
+                      mr: 2
+                    }}
+                    variant="rounded"
+                  >
+                    <TrendingUp fontSize="large" />
+                  </AvatarSuccess>
+                  <Box>
+                    <Typography variant="h4">+ $3,594.00</Typography>
+                    <Typography variant="subtitle2" noWrap>
+                      this month
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
+              </Box>             
+              <Grid container spacing={3}>
+                <Grid sm item>
+                  <Button fullWidth variant="outlined">
+                    Send
+                  </Button>
+                </Grid>
+                <Grid sm item>
+                  <Button fullWidth variant="contained">
+                    Receive
+                  </Button>
+                </Grid>
+              </Grid>
             </Box>
-            <Grid container spacing={3}>
-              <Grid sm item>
-                <Button fullWidth variant="outlined">
-                  Send
-                </Button>
-              </Grid>
-              <Grid sm item>
-                <Button fullWidth variant="contained">
-                  Receive
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
-        </Grid>
-        <Grid
-          sx={{
-            position: 'relative'
-          }}
-          display="flex"
-          alignItems="center"
-          item
-          xs={12}
-          md={6}
-        >
-          <Box
-            component="span"
+          </Grid>
+          <Grid
             sx={{
-              display: { xs: 'none', md: 'inline-block' }
+              position: 'relative'
             }}
+            display="flex"
+            alignItems="center"
+            item
+            xs={12}
+            md={6}
           >
-            <Divider absolute orientation="vertical" />
-          </Box>
-          <Box py={4} pr={4} flex={1}>
-            <Grid container spacing={0}>
-              <Grid
-                xs={12}
-                sm={5}
-                item
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Chart
-                  height={250}
-                  options={chartOptions}
-                  series={chartSeries}
-                  type="donut"
-                />
-              </Grid>
-              <Grid xs={12} sm={7} item display="flex" alignItems="center">
-                <List
-                  disablePadding
-                  sx={{
-                    width: '100%'
-                  }}
+            <Box
+              component="span"
+              sx={{
+                display: { xs: 'none', md: 'inline-block' }
+              }}
+            >
+              <Divider absolute orientation="vertical" />
+            </Box>
+            <Box py={4} pr={4} flex={1}>
+              <Grid container spacing={0}>
+                <Grid
+                  xs={12}
+                  sm={5}
+                  item
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
                 >
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="BTC"
-                        src="/static/images/placeholders/logo/bitcoin.png"
+                  <Chart
+                    height={250}
+                    options={chartOptions}
+                    series={chartSeries}
+                    type="donut"
+                  />
+                </Grid>
+                <Grid xs={12} sm={7} item display="flex" alignItems="center">
+                  <List
+                    disablePadding
+                    sx={{
+                      width: '100%'
+                    }}
+                  >
+                    <ListItem disableGutters>
+                      <ListItemAvatarWrapper>
+                        <img
+                          alt="BTC"
+                          src="/static/images/placeholders/logo/bitcoin.png"
+                        />
+                      </ListItemAvatarWrapper>
+                      <ListItemText
+                        primary="BTC"
+                        primaryTypographyProps={{
+                          variant: 'h5',
+                          noWrap: true
+                        }}
+                        secondary="Bitcoin"
+                        secondaryTypographyProps={{
+                          variant: 'subtitle2',
+                          noWrap: true
+                        }}
                       />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="BTC"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Bitcoin"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        20%
-                      </Typography>
-                      <Text color="success">+2.54%</Text>
-                    </Box>
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="XRP"
-                        src="/static/images/placeholders/logo/ripple.png"
+                      <Box>
+                        <Typography align="right" variant="h4" noWrap>
+                          20%
+                        </Typography>
+                        <Text color="success">+2.54%</Text>
+                      </Box>
+                    </ListItem>
+                    <ListItem disableGutters>
+                      <ListItemAvatarWrapper>
+                        <img
+                          alt="XRP"
+                          src="/static/images/placeholders/logo/ripple.png"
+                        />
+                      </ListItemAvatarWrapper>
+                      <ListItemText
+                        primary="XRP"
+                        primaryTypographyProps={{
+                          variant: 'h5',
+                          noWrap: true
+                        }}
+                        secondary="Ripple"
+                        secondaryTypographyProps={{
+                          variant: 'subtitle2',
+                          noWrap: true
+                        }}
                       />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="XRP"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Ripple"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        10%
-                      </Typography>
-                      <Text color="error">-1.22%</Text>
-                    </Box>
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="ADA"
-                        src="/static/images/placeholders/logo/cardano.png"
+                      <Box>
+                        <Typography align="right" variant="h4" noWrap>
+                          10%
+                        </Typography>
+                        <Text color="error">-1.22%</Text>
+                      </Box>
+                    </ListItem>
+                    <ListItem disableGutters>
+                      <ListItemAvatarWrapper>
+                        <img
+                          alt="ADA"
+                          src="/static/images/placeholders/logo/cardano.png"
+                        />
+                      </ListItemAvatarWrapper>
+                      <ListItemText
+                        primary="ADA"
+                        primaryTypographyProps={{
+                          variant: 'h5',
+                          noWrap: true
+                        }}
+                        secondary="Cardano"
+                        secondaryTypographyProps={{
+                          variant: 'subtitle2',
+                          noWrap: true
+                        }}
                       />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="ADA"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Cardano"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        40%
-                      </Typography>
-                      <Text color="success">+10.50%</Text>
-                    </Box>
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="ETH"
-                        src="/static/images/placeholders/logo/ethereum.png"
+                      <Box>
+                        <Typography align="right" variant="h4" noWrap>
+                          40%
+                        </Typography>
+                        <Text color="success">+10.50%</Text>
+                      </Box>
+                    </ListItem>
+                    <ListItem disableGutters>
+                      <ListItemAvatarWrapper>
+                        <img
+                          alt="ETH"
+                          src="/static/images/placeholders/logo/ethereum.png"
+                        />
+                      </ListItemAvatarWrapper>
+                      <ListItemText
+                        primary="ETH"
+                        primaryTypographyProps={{
+                          variant: 'h5',
+                          noWrap: true
+                        }}
+                        secondary="Ethereum"
+                        secondaryTypographyProps={{
+                          variant: 'subtitle2',
+                          noWrap: true
+                        }}
                       />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="ETH"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Ethereum"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        30%
-                      </Typography>
-                      <Text color="error">-12.38%</Text>
-                    </Box>
-                  </ListItem>
-                </List>
+                      <Box>
+                        <Typography align="right" variant="h4" noWrap>
+                          30%
+                        </Typography>
+                        <Text color="error">-12.38%</Text>
+                      </Box>
+                    </ListItem>
+                  </List>
+                </Grid>
               </Grid>
-            </Grid>
-          </Box>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
-    </Card>
+      </Card>
+    </>
   );
 }
 

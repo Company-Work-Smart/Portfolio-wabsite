@@ -27,8 +27,9 @@ function RoomAdminFormManagement() {
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     placeId: '',
-    type: '',
-    maxOccupancy: ''
+    adult: '',
+    children: '',
+    size: ''
   });
 
   useEffect(() => {
@@ -47,24 +48,23 @@ function RoomAdminFormManagement() {
   const getplaces = async () => {
     setDatasource(null);
     const res = await http.get(`AdminPlace`);
-    setDatasource(res);
+    setDatasource(res.item);
   };
 
   const submitForm = async (e: FormEvent) => {
-     e.preventDefault();
-     setLoading(true);
- 
-     if (id && id !== '0') {
-       await http.put(`AdminRoom/${id}`, formData);
-       const path = `/management/room/admin`;
-       await router.push(`${path}?refresh=true`);
-     } else {
-       await http.post(`AdminRoom`, formData);
-       const path = `/management/room/admin`;
-       await router.push(`${path}?refresh=true`);
-     }
-     setLoading(false);
-   };
+    e.preventDefault();
+    setLoading(true);
+
+    if (id && id !== '0') {
+      const res = await http.put(`AdminRoom/${id}`, formData);
+      console.log(res);
+      await router.push(`/management/room/admin?refresh=true`);
+    } else {
+      await http.post(`AdminRoom`, formData);
+      await router.push(`/management/room/admin?refresh=true`);
+    }
+    setLoading(false);
+  };
 
   const handleInput = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -142,17 +142,25 @@ function RoomAdminFormManagement() {
                   <TextField
                     required
                     fullWidth
-                    label="Type"
-                    name="type"
-                    value={formData.type}
+                    label="Adult"
+                    name="adult"
+                    value={formData.adult}
                     onChange={handleInput}
                   />
                   <TextField
                     required
                     fullWidth
-                    label="Max Occupancy"
-                    name="maxOccupancy"
-                    value={formData.maxOccupancy}
+                    label="Children"
+                    name="children"
+                    value={formData.children}
+                    onChange={handleInput}
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    label="Size Room"
+                    name="size"
+                    value={formData.size}
                     onChange={handleInput}
                   />
                 </Box>

@@ -1,7 +1,7 @@
 {
-  "name": "reservation",
+  "name": "jabjit",
   "version": "1.0.0",
-  "title": "Reservation",
+  "title": "jabjit",
   "description": "High performance React template built with lots of powerful MUI (Material-UI) components across multiple product niches for fast & perfect apps development processes",
   "author": {
     "name": "BloomUI.com",
@@ -21,6 +21,8 @@
     "@mui/material": "^5.16.13",
     "@mui/styles": "5.8.0",
     "@mui/x-date-pickers": "^5.0.0",
+    "@paddle/paddle-js": "^1.4.0",
+    "@paddle/paddle-node-sdk": "^2.5.1",
     "@react-google-maps/api": "^2.19.3",
     "@types/node": "17.0.39",
     "@types/nprogress": "0.2.0",
@@ -56,6 +58,7 @@
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json}\" --config ./.prettierrc"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.16",
     "eslint": "8.17.0",
     "eslint-config-next": "12.1.6",
     "eslint-config-prettier": "8.5.0",

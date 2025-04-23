@@ -1,4 +1,13 @@
-import {Avatar, styled, Tooltip, tooltipClasses, TooltipProps,} from '@mui/material';
+import { AppKey } from '@/constant/key';
+import { UserBoxProps } from '@/constant/my-app';
+import {
+  Avatar,
+  styled,
+  Tooltip,
+  tooltipClasses,
+  TooltipProps
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 import Link from 'src/components/Link';
 
 const LogoWrapper = styled(Link)(
@@ -30,14 +39,49 @@ const TooltipWrapper = styled(({ className, ...props }: TooltipProps) => (
 }));
 
 function Logo() {
+  const [user, setUser] = useState<UserBoxProps>({});
+
+  useEffect(() => {
+    setUser({
+      role: localStorage.getItem(AppKey.role)
+    });
+  }, []);
   return (
-    <TooltipWrapper
-      title="Reservation System"
-      arrow
-    >
-      <LogoWrapper href="/">
-        <Avatar variant="square" sx={{ width: 80, height: 80 }} alt="logo" src="/static/logoApp.png"/>
-      </LogoWrapper>
+    <TooltipWrapper title="JabJit Booking" arrow>
+      {user?.role?.toLowerCase() === 'admin' ? (
+        <>
+          <LogoWrapper href="/dashboards/dashboard/admin">
+            <Avatar
+              variant="square"
+              sx={{ width: 80, height: 80 }}
+              alt="logo"
+              src="/static/logoApp.png"
+            />
+          </LogoWrapper>
+        </>
+      ) : user?.role?.toLowerCase() === 'superadmin' ? (
+        <>
+          <LogoWrapper href="/dashboards/dashboard/superAdmin">
+            <Avatar
+              variant="square"
+              sx={{ width: 80, height: 80 }}
+              alt="logo"
+              src="/static/logoApp.png"
+            />
+          </LogoWrapper>
+        </>
+      ) : (
+        <>
+          <LogoWrapper href="/">
+            <Avatar
+              variant="square"
+              sx={{ width: 80, height: 80 }}
+              alt="logo"
+              src="/static/logoApp.png"
+            />
+          </LogoWrapper>
+        </>
+      )}
     </TooltipWrapper>
   );
 }

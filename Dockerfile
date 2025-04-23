@@ -9,6 +9,6 @@ RUN npm run build
 # WORKDIR /app
 # COPY --from=builder /app/out /app
 
-# EXPOSE 3000
+EXPOSE 3000
 
 CMD [ "npm", "run", "dev" ]

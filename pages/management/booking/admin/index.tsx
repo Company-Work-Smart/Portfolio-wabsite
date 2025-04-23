@@ -16,15 +16,14 @@ import {
   TablePagination,
   TableRow,
   Tooltip,
-  Snackbar,
-  Alert,
   DialogTitle,
   MenuItem,
   TextField,
   DialogActions,
   DialogContent,
   Dialog,
-  Button
+  Button,
+  Chip
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Pagination } from '@/constant/gagination';
@@ -32,15 +31,15 @@ import { HttpClient } from '@/services/http-client';
 import { datetimeDisplay } from '@/helpers/datetime';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import CancelIcon from '@mui/icons-material/Cancel';
 
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { useRouter } from 'next/router';
+import { getStatusColor } from '@/helpers';
 
 function AdminManagement() {
   const title = 'Booking Management';
   const http = new HttpClient();
+  const router = useRouter();
   const [datasource, setDatasource] = useState<any[]>(null);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(Pagination.pageSize);
@@ -48,9 +47,6 @@ function AdminManagement() {
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
   const [status, setStatus] = useState<string>('');
   const [openDialog, setOpenDialog] = useState(false);
-
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [newDataCount, setNewDataCount] = useState(0);
 
   const handlePageChange = (_event: any, newPageNumber: number): void => {
     setPageNumber(newPageNumber);
@@ -60,38 +56,18 @@ function AdminManagement() {
     setPageSize(parseInt(event.target.value));
   };
 
-  const requestNotificationPermission = async () => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      await Notification.requestPermission();
-    }
-  };
-
-  const triggerBrowserNotification = (message: string) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('New Items Available', {
-        body: message,
-        icon: '/icon.png'
-      });
-    }
-  };
-
-  const getItems = async () => {
+  const getBooking = async () => {
     const res = await http.get(
       `AdminBooking?pageNumber=${pageNumber + 1}&pageSize=${pageSize}`
     );
-    if (datasource && res.length > datasource.length) {
-      const newItemsCount = res.length - datasource.length;
-      setNewDataCount(newItemsCount);
-      setOpenSnackbar(true);
-      triggerBrowserNotification(`${newItemsCount} new items available!`);
-    }
-    setDatasource(res);
-    setTotalItem(res.totalItems);
+
+    setDatasource(res.item);
+    setTotalItem(res.total);
   };
 
   const onConfirm = async (id: string) => {
     await http.delete(`AdminBooking/${id}`);
-    getItems();
+    getBooking();
   };
 
   const onStatusChange = async () => {
@@ -100,7 +76,7 @@ function AdminManagement() {
         status: status
       });
       setOpenDialog(false);
-      getItems();
+      getBooking();
     }
   };
 
@@ -115,33 +91,19 @@ function AdminManagement() {
     setStatus('');
   };
 
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
-
   useEffect(() => {
-    requestNotificationPermission();
-    getItems();
-  }, [pageNumber, pageSize]);
+    getBooking();
+    const interval = setInterval(() => {
+      getBooking();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [pageNumber, pageSize, router.query.refresh]);
 
   return (
     <>
       <Head>
         <title>{title}</title>
       </Head>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity="info"
-          sx={{ width: '100%' }}
-        >
-          {newDataCount} new {newDataCount > 1 ? 'items' : 'item'} available!
-        </Alert>
-      </Snackbar>
       <Grid item sx={{ p: 3 }}>
         <Grid
           container
@@ -167,8 +129,11 @@ function AdminManagement() {
                         No
                       </TableCell>
                       <TableCell>Username</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Max Occupancy</TableCell>
+                      <TableCell>Phone Number</TableCell>
+                      <TableCell>Adult</TableCell>
+                      <TableCell>Children</TableCell>
+                      <TableCell>Size</TableCell>
+                      <TableCell>Room</TableCell>
                       <TableCell>checkIn</TableCell>
                       <TableCell>checkOut</TableCell>
                       <TableCell>Status</TableCell>
@@ -181,34 +146,21 @@ function AdminManagement() {
                         <TableRow hover key={item.id}>
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{item.username}</TableCell>
-                          <TableCell>
-                            {item.type} {item.type > 1 ? 'Beds' : 'Bed'}
-                          </TableCell>
-                          <TableCell>
-                            {item.maxOccupancy}{' '}
-                            {item.maxOccupancy > 1 ? 'Adults' : 'Adult'}
-                          </TableCell>
+                          <TableCell>{item.tel}</TableCell>
+                          <TableCell>{item.adult}</TableCell>
+                          <TableCell>{item.children}</TableCell>
+                          <TableCell>{item.size} m²</TableCell>
+                          <TableCell>{item.number}</TableCell>
                           <TableCell>{datetimeDisplay(item.checkIn)}</TableCell>
                           <TableCell>
                             {datetimeDisplay(item.checkOut)}
                           </TableCell>
                           <TableCell>
-                            {item.status === 'Agreed' ? (
-                              <CheckCircleIcon
-                                color="primary"
-                                style={{ marginLeft: '11px' }}
-                              />
-                            ) : item.status === 'Pending' ? (
-                              <HourglassEmptyIcon
-                                color="warning"
-                                style={{ marginLeft: '11px' }}
-                              />
-                            ) : (
-                              <CancelIcon
-                                color="error"
-                                style={{ marginLeft: '11px' }}
-                              />
-                            )}
+                            <Chip
+                              label={item.status}
+                              color={getStatusColor(item.status)}
+                              variant="outlined"
+                            />
                           </TableCell>
 
                           <TableCell align="right">
@@ -261,7 +213,7 @@ function AdminManagement() {
 
       {/* Dialog to assign role */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Assign Role</DialogTitle>
+        <DialogTitle>Assign Status</DialogTitle>
         <DialogContent>
           <TextField
             select
@@ -271,8 +223,8 @@ function AdminManagement() {
             onChange={(e) => setStatus(e.target.value)}
             margin="normal"
           >
-            <MenuItem value="Agreed">Agreed</MenuItem>
-            <MenuItem value="Rejected">Rejected</MenuItem>
+            <MenuItem value="Approved">Approved</MenuItem>
+            <MenuItem value="Reject">Reject</MenuItem>
           </TextField>
         </DialogContent>
         <DialogActions>

@@ -1,9 +1,9 @@
-import React, {FC, ReactNode, useContext, useEffect} from 'react';
+import React, { FC, ReactNode, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import {Alert, Box} from '@mui/material';
-import {SnackbarContext} from "@/contexts/SnackbarContext";
-import {AppKey} from "@/constant/key";
-import {useRouter} from "next/router";
+import { Alert, Box } from '@mui/material';
+import { SnackbarContext } from '@/contexts/SnackbarContext';
+import { AppKey } from '@/constant/key';
+import { useRouter } from 'next/router';
 
 interface BaseLayoutProps {
   children?: ReactNode;
@@ -11,17 +11,20 @@ interface BaseLayoutProps {
 
 const BaseLayout: FC<BaseLayoutProps> = ({ children }) => {
   const router = useRouter();
-  const {snackbar, closeSnackbar} = useContext(SnackbarContext);
+  const { snackbar, closeSnackbar } = useContext(SnackbarContext);
   useEffect(() => {
     const accessToken = localStorage.getItem(AppKey.accessToken) ?? '';
     if (accessToken.length > 50) {
       const roleStr = localStorage.getItem(AppKey.role) ?? '';
       const role = `${roleStr[0].toLowerCase()}${roleStr.substring(1)}`;
-      router.push(`/dashboards/dashboard/${role}`).finally();
+      if (role == 'user') {
+        router.push(`/`).finally();
+      } else {
+        router.push(`/dashboards/dashboard/${role}`).finally();
+      }
     }
   }, []);
   return (
-
     <Box
       sx={{
         display: 'flex',
@@ -30,9 +33,19 @@ const BaseLayout: FC<BaseLayoutProps> = ({ children }) => {
       }}
     >
       {snackbar && (
-        <Alert style={{position: 'fixed', zIndex: 9999, margin: 12, marginLeft: '50%', transform: 'translate(-50%, 0)'}}
-               severity={snackbar.type}
-               onClose={closeSnackbar}>{snackbar.message}</Alert>
+        <Alert
+          style={{
+            position: 'fixed',
+            zIndex: 9999,
+            margin: 12,
+            marginLeft: '50%',
+            transform: 'translate(-50%, 0)'
+          }}
+          severity={snackbar.type}
+          onClose={closeSnackbar}
+        >
+          {snackbar.message}
+        </Alert>
       )}
       {children}
     </Box>

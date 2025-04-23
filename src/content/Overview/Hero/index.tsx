@@ -107,7 +107,7 @@ function Hero() {
         <Grid item md={10} lg={8} mx="auto">
           <LabelWrapper color="success">Version 1.0.0</LabelWrapper>
           <TypographyH1 sx={{ mb: 2 }} variant="h1">
-          Reservation Free White Next.js Typescript Admin Dashboard
+          JabJit Free White Next.js Typescript Admin Dashboard
           </TypographyH1>
           <TypographyH2
             sx={{ lineHeight: 1.5, pb: 4 }}
@@ -182,7 +182,7 @@ function Hero() {
                   <b>Built with Typescript</b>
                 </Box>
                 <Typography component="span" variant="subtitle2">
-                  Reservation Free White features a modern technology stack and is
+                  JabJit Free White features a modern technology stack and is
                   built with React + Typescript.
                 </Typography>
               </Typography>

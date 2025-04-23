@@ -16,12 +16,14 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Tooltip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Typography
+  Typography,
+  Paper,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -31,9 +33,11 @@ import { HttpClient } from '@/services/http-client';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useRouter } from 'next/router';
 import { datetimeDisplay } from '@/helpers/datetime';
-import { FaStar, FaRegStar } from 'react-icons/fa';
+import { PeopleRate } from '@/helpers/render';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { renderStars } from '@/content/Widgets/Favorite/rating';
 
-function RoomAdminManagement() {
+function RoomManagement() {
   const title = 'Room Management';
   const http = new HttpClient();
   const router = useRouter();
@@ -44,10 +48,9 @@ function RoomAdminManagement() {
   const [availableopenDialog, setAvailableOpenDialog] = useState(false);
   const [amenityopenDialog, setAmenityOpenDialog] = useState(false);
   const [priceopenDialog, setPriceOpenDialog] = useState(false);
-
   const [imageopenDialog, setImageOpenDialog] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState<string>('');
-
+  const [selectId, setSelectId] = useState<string>('');
+  const [searchPlace, setSearchPlace] = useState('');
   const [available, setAvailable] = useState<any>({
     id: '',
     checkIn: '',
@@ -77,45 +80,46 @@ function RoomAdminManagement() {
 
   const handlePageChange = (_event: any, newPageNumber: number): void => {
     setPageNumber(newPageNumber);
+    getRooms();
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setPageSize(parseInt(event.target.value));
+    getRooms();
   };
 
   {
     /* Room Dialog */
   }
-  const getrooms = async () => {
-    setDatasource(null);
+  const getRooms = async () => {
     const res = await http.get(
       `AdminRoom?pageNumber=${pageNumber + 1}&pageSize=${pageSize}`
     );
-    setDatasource(res);
-    setTotalItem(res.totalItem);
+    setDatasource(res.item);
+    setTotalItem(res.total);
   };
 
   const onConfirm = async (id: string) => {
     await http.delete(`AdminRoom/${id}`);
-    getrooms();
+    await getRooms();
   };
 
   {
     /* available Dialog */
   }
   const handleViewavailable = (e: any) => {
-    setSelectedItemId(e.id);
+    setSelectId(e.id);
     setAvailable({
       id: e.available?.id || '0',
-      checkIn: e.available?.checkIn || 'N/A',
-      checkOut: e.available?.checkOut || 'N/A',
-      status: e.available?.status || 'N/A'
+      checkIn: e.available?.checkIn || '',
+      checkOut: e.available?.checkOut || '',
+      status: e.available?.status || ''
     });
     setAvailableOpenDialog(true);
   };
 
   const handleAddavailable = () => {
-    const item = datasource.find((data) => data.id === selectedItemId);
+    const item = datasource.find((data) => data.id === selectId);
     router.push(`admin/available/${item.id}`);
   };
 
@@ -123,7 +127,7 @@ function RoomAdminManagement() {
     /* Price Dialog */
   }
   const handleViewPrice = (e: any) => {
-    setSelectedItemId(e.id);
+    setSelectId(e.id);
     setPrice({
       id: e.price?.id || '0',
       pricing: e.price?.pricing || '0',
@@ -134,7 +138,7 @@ function RoomAdminManagement() {
   };
 
   const handleAddPrice = () => {
-    const item = datasource.find((data) => data.id === selectedItemId);
+    const item = datasource.find((data) => data.id === selectId);
     router.push(`admin/price/${item.id}`);
   };
 
@@ -142,7 +146,7 @@ function RoomAdminManagement() {
     /* Image Dialog */
   }
   const handleViewImage = (e: any) => {
-    setSelectedItemId(e.id);
+    setSelectId(e.id);
     setImage(e.images || []);
     setImageOpenDialog(true);
   };
@@ -152,10 +156,11 @@ function RoomAdminManagement() {
     setImage((prevImage) =>
       prevImage.filter((imageItem) => imageItem.id !== id)
     );
+    await getRooms();
   };
 
   const handleAddImage = () => {
-    const item = datasource.find((data) => data.id === selectedItemId);
+    const item = datasource.find((data) => data.id === selectId);
     router.push(`admin/image/${item.id}`);
   };
 
@@ -163,7 +168,7 @@ function RoomAdminManagement() {
     /* Amenities Dialog */
   }
   const handleViewAmenity = (e: any) => {
-    setSelectedItemId(e.id);
+    setSelectId(e.id);
     setAmenity(e.amenities || []);
     setAmenityOpenDialog(true);
   };
@@ -173,31 +178,21 @@ function RoomAdminManagement() {
     setAmenity((prevamenities) =>
       prevamenities.filter((amenitiesItem) => amenitiesItem.id !== id)
     );
+    await getRooms();
   };
 
   const handleAddAmenity = () => {
-    const item = datasource.find((data) => data.id === selectedItemId);
+    const item = datasource.find((data) => data.id === selectId);
     router.push(`admin/amenity/${item.id}`);
   };
 
-  {
-    /* Rate */
-  }
-
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <span key={i}>
-          {i < rating ? <FaStar style={{ color: 'gold' }} /> : <FaRegStar />}
-        </span>
-      );
-    }
-    return stars;
-  };
 
   useEffect(() => {
-    getrooms();
+    getRooms();
+    const interval = setInterval(() => {
+      getRooms();
+    }, 1000);
+    return () => clearInterval(interval);
   }, [pageNumber, pageSize, router.query.refresh]);
 
   return (
@@ -206,6 +201,22 @@ function RoomAdminManagement() {
         <title>{title}</title>
       </Head>
       <Grid item sx={{ p: 3 }}>
+        <Select
+          value={searchPlace}
+          onChange={(e) => setSearchPlace(e.target.value)}
+          displayEmpty
+          sx={{ marginBottom: 2, display: 'flex', justifyContent: 'center' }}
+        >
+          <MenuItem value="">All Places</MenuItem>
+          {datasource &&
+            [...new Set(datasource.map((item) => item.place.name))].map(
+              (name, index) => (
+                <MenuItem key={index} value={name}>
+                  {name}
+                </MenuItem>
+              )
+            )}
+        </Select>
         <Grid
           container
           direction="row"
@@ -231,70 +242,83 @@ function RoomAdminManagement() {
                 title={title}
               />
               <Divider />
-              <TableContainer style={{ height: 'calc(100vh - 298px)' }}>
+
+              <TableContainer style={{ height: 'calc(92vh - 298px)' }}>
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
                       <TableCell>No</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Max Occupancy</TableCell>
+                      <TableCell>Name Place</TableCell>
+                      <TableCell>Adult</TableCell>
+                      <TableCell>Children</TableCell>
+                      <TableCell>Size</TableCell>
                       <TableCell>Price</TableCell>
                       <TableCell>Amenity</TableCell>
                       <TableCell>Image</TableCell>
-                      <TableCell>available</TableCell>
+                      <TableCell>Available</TableCell>
                       <TableCell>Rate</TableCell>
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {datasource?.map((item, index) => (
-                      <TableRow hover key={item.id}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>
-                          {item.type} {item.type > 1 ? 'Beds' : 'Bed'}
-                        </TableCell>
-                        <TableCell>
-                          {item.maxOccupancy}{' '}
-                          {item.maxOccupancy > 1 ? 'Adults' : 'Adult'}
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="View Price" arrow>
+                    {datasource
+                      ?.filter((item) =>
+                        searchPlace ? item.place.name === searchPlace : true
+                      )
+                      .map((item, index) => (
+                        <TableRow hover key={item.id}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{item?.place.name}</TableCell>
+                          <TableCell>
+                            {item.adult} {item.adult > 1 ? ' adults' : ' adult'}
+                          </TableCell>
+                          <TableCell>
+                            {item.children}{' '}
+                            {item.children > 1 ? ' childrens' : ' children'}
+                          </TableCell>
+                          <TableCell>{item.size} m²</TableCell>
+                          <TableCell>
                             <Button
                               color="primary"
                               size="small"
-                              style={{ marginLeft: '-13px' }}
+                              sx={{
+                                ml: '-10px',
+                                textAlign: 'left',
+                                justifyContent: 'flex-start'
+                              }}
                               onClick={() => handleViewPrice(item)}
                             >
                               View
                             </Button>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="View Amenity" arrow>
+                          </TableCell>
+                          <TableCell>
                             <Button
                               color="primary"
                               size="small"
-                              style={{ marginLeft: '-4px' }}
+                              sx={{
+                                textAlign: 'left',
+                                justifyContent: 'flex-start'
+                              }}
                               onClick={() => handleViewAmenity(item)}
                             >
                               View
                             </Button>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="View Image" arrow>
+                          </TableCell>
+                          <TableCell>
                             <Button
                               color="primary"
                               size="small"
-                              style={{ marginLeft: '-13px' }}
+                              sx={{
+                                ml: '-7px',
+                                textAlign: 'left',
+                                justifyContent: 'flex-start'
+                              }}
                               onClick={() => handleViewImage(item)}
                             >
                               View
                             </Button>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="View Available" arrow>
+                          </TableCell>
+                          <TableCell>
                             <Button
                               color="primary"
                               size="small"
@@ -302,23 +326,21 @@ function RoomAdminManagement() {
                             >
                               View
                             </Button>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body1">
-                            {item.rates && item.rates.length > 0
-                              ? renderStars(
-                                  item.rates.reduce(
-                                    (id, rate) =>
-                                      id + parseFloat(rate.rating),
-                                    0
-                                  ) / 10
-                                )
-                              : 'No Rating'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Tooltip title="Edit Item" arrow>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body1">
+                              {item.rates && item.rates.length > 0
+                                ? renderStars(
+                                    item.rates.reduce(
+                                      (id, rate) =>
+                                        id + parseFloat(rate.rating),
+                                      0
+                                    ) / PeopleRate.number
+                                  )
+                                : renderStars(PeopleRate.default)}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">
                             <IconButton
                               href={`admin/${item.id}`}
                               color="primary"
@@ -326,22 +348,17 @@ function RoomAdminManagement() {
                             >
                               <EditTwoToneIcon fontSize="small" />
                             </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete Item" arrow>
-                            <span>
-                              <ConfirmDialog
-                                message="Are you sure to delete this item?"
-                                onConfirm={() => onConfirm(item.id)}
-                              >
-                                <IconButton color="error" size="small">
-                                  <DeleteTwoToneIcon fontSize="small" />
-                                </IconButton>
-                              </ConfirmDialog>
-                            </span>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            <ConfirmDialog
+                              message="Are you sure to delete this item?"
+                              onConfirm={() => onConfirm(item.id)}
+                            >
+                              <IconButton color="error" size="small">
+                                <DeleteTwoToneIcon fontSize="small" />
+                              </IconButton>
+                            </ConfirmDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -422,7 +439,7 @@ function RoomAdminManagement() {
                       Check-Out
                     </Typography>
                     <Typography variant="body2">
-                      {datetimeDisplay(available.checkOut)}
+                      {datetimeDisplay(available?.checkOut)}
                     </Typography>
                   </Box>
                 </Box>
@@ -638,35 +655,40 @@ function RoomAdminManagement() {
       >
         <DialogTitle sx={{ textAlign: 'center' }}>Amenity Details</DialogTitle>
         <DialogContent>
-          <Box sx={{ maxHeight: '400px', overflowY: 'auto' }}>
-            <Grid container spacing={2}>
-              {amenity.map((AmenityItem, index) => (
-                <Grid item xs={12} sm={4} key={index}>
-                  <ConfirmDialog
-                    message="Are you sure to delete this item?"
-                    onConfirm={() => onConfirmAmenity(AmenityItem.id)}
-                  >
-                    <Box
-                      sx={{
-                        padding: 1,
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                        {AmenityItem.item}
-                      </Typography>
-                    </Box>
-                  </ConfirmDialog>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
+          <TableContainer
+            component={Paper}
+            sx={{ maxHeight: '400px', overflowY: 'auto' }}
+          >
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="left">
+                    <b>Item</b>
+                  </TableCell>
+                  <TableCell align="right">
+                    <b>Action</b>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {amenity.map((AmenityItem, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{AmenityItem.item}</TableCell>
+                    <TableCell align="right">
+                      <ConfirmDialog
+                        message="Are you sure to delete this item?"
+                        onConfirm={() => onConfirmAmenity(AmenityItem.id)}
+                      >
+                        <IconButton color="error">
+                          <DeleteIcon />
+                        </IconButton>
+                      </ConfirmDialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => handleAddAmenity()} color="primary">
@@ -681,6 +703,5 @@ function RoomAdminManagement() {
   );
 }
 
-RoomAdminManagement.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
-
-export default RoomAdminManagement;
+RoomManagement.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
+export default RoomManagement;

@@ -154,62 +154,53 @@ function SidebarMenu() {
   const { closeSidebar } = useContext(SidebarContext);
   const router = useRouter();
   const currentRoute = router.pathname;
-  const menus = Menu
-  const [role] = React.useState((): string => {
-    if (typeof window !== 'undefined') {
-      const from_localStorage = window.localStorage.getItem('role')
-      if (from_localStorage === null || from_localStorage === undefined) {
-        return null
-      }
 
-      return `${from_localStorage}` ? from_localStorage : null
+  const [role, setRole] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const fromLocalStorage = window.localStorage.getItem('role');
+      setRole(fromLocalStorage);
     }
-    return ''
-  });
+  }, []);
+
   return (
     <>
       <MenuWrapper>
-        {menus.filter(f => f.roles?.includes(role)).map((menu) => {
-          return (
-            <List key={menu.group}
-                  component="div"
-                  subheader={
-                    <ListSubheader component="div" disableSticky>
-                      {menu.group}
-                    </ListSubheader>
-                  }
-            >
-              <SubMenuWrapper>
-                <List component="div">
-                  {
-                    menu.children.filter(f => f.roles?.includes(role)).map((menuItem) => {
-                      return (
-                        <ListItem component="div" key={menuItem.url}>
-                          <NextLink href={menuItem.url} passHref>
-                            <Button
-                              className={
-                                currentRoute === menuItem.url ? 'active' : ''
-                              }
-                              disableRipple
-                              component="a"
-                              onClick={closeSidebar}
-                              startIcon={<BrightnessLowTwoToneIcon/>}
-                            >
-                              {menuItem.title}
-                            </Button>
-                          </NextLink>
-                        </ListItem>
-                      )
-                    })
-                  }
-                </List>
-              </SubMenuWrapper>
-            </List>
-          )
-        })}
+        {Menu.filter(f => f.roles?.includes(role)).map((menu) => (
+          <List key={menu.group}
+                component="div"
+                subheader={
+                  <ListSubheader component="div" disableSticky>
+                    {menu.group}
+                  </ListSubheader>
+                }
+          >
+            <SubMenuWrapper>
+              <List component="div">
+                {menu.children.filter(f => f.roles?.includes(role)).map((menuItem) => (
+                  <ListItem component="div" key={menuItem.url}>
+                    <NextLink href={menuItem.url} passHref>
+                      <Button
+                        className={currentRoute === menuItem.url ? 'active' : ''}
+                        disableRipple
+                        component="a"
+                        onClick={closeSidebar}
+                        startIcon={<BrightnessLowTwoToneIcon />}
+                      >
+                        {menuItem.title}
+                      </Button>
+                    </NextLink>
+                  </ListItem>
+                ))}
+              </List>
+            </SubMenuWrapper>
+          </List>
+        ))}
       </MenuWrapper>
     </>
   );
 }
 
 export default SidebarMenu;
+

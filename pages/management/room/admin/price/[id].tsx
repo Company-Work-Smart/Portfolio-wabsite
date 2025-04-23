@@ -17,11 +17,11 @@ import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
 import SidebarLayout from '@/layouts/SidebarLayout';
 
-function AdminAdminFormManagement() {
+function PriceManagement() {
   const http = new HttpClient();
   const router = useRouter();
   const { id } = router.query;
-  const title = `Admin Form`;
+  const title = `Price Form`;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState({
@@ -137,8 +137,8 @@ function AdminAdminFormManagement() {
   );
 }
 
-AdminAdminFormManagement.getLayout = (page) => (
+PriceManagement.getLayout = (page) => (
   <SidebarLayout>{page}</SidebarLayout>
 );
 
-export default AdminAdminFormManagement;
+export default PriceManagement;

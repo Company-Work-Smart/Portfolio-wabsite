@@ -18,7 +18,7 @@ function Footer() {
       >
         <Box>
           <Typography variant="subtitle1">
-            &copy; 2025 - Reservation
+            &copy; 2025 JabJit Booking
           </Typography>
         </Box>
         <Typography
@@ -33,7 +33,7 @@ function Footer() {
             target="_blank"
             rel="noopener noreferrer"
           >
-           Reservation.com
+           jabjit.com
           </Link>
         </Typography>
       </Box>

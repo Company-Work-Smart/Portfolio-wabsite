@@ -16,11 +16,11 @@ import { useState, useEffect, FormEvent } from 'react';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
 import SidebarLayout from '@/layouts/SidebarLayout';
-function AdminAdminFormManagement() {
+function PriceFormManagement() {
   const http = new HttpClient();
   const router = useRouter();
   const { id } = router.query;
-  const title = `Admin Form`;
+  const title = `Price Form`;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState({
@@ -49,7 +49,7 @@ function AdminAdminFormManagement() {
 
   const submitForm = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);   
+    setLoading(true);
     if (id && id !== '0') {
       await http.put(`AdminPrice/${id}`, formData);
       setLoading(false);
@@ -114,7 +114,7 @@ function AdminAdminFormManagement() {
                   noValidate
                   autoComplete="off"
                 >
-                   <TextField
+                  <TextField
                     required
                     fullWidth
                     label="Price"
@@ -148,8 +148,8 @@ function AdminAdminFormManagement() {
   );
 }
 
-AdminAdminFormManagement.getLayout = (page) => (
+PriceFormManagement.getLayout = (page) => (
   <SidebarLayout>{page}</SidebarLayout>
 );
 
-export default AdminAdminFormManagement;
+export default PriceFormManagement;

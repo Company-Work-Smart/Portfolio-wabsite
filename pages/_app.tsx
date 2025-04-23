@@ -1,19 +1,19 @@
-import {ReactElement, ReactNode} from 'react';
+import { ReactElement, ReactNode } from 'react';
 
-import type {NextPage} from 'next';
-import type {AppProps} from 'next/app';
+import type { NextPage } from 'next';
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import ThemeProvider from 'src/theme/ThemeProvider';
 import CssBaseline from '@mui/material/CssBaseline';
-import {CacheProvider, EmotionCache} from '@emotion/react';
+import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from 'src/createEmotionCache';
-import {SidebarProvider} from 'src/contexts/SidebarContext';
+import { SidebarProvider } from 'src/contexts/SidebarContext';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import {SnackbarProvider} from "@/contexts/SnackbarContext";
+import { SnackbarProvider } from '@/contexts/SnackbarContext';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -21,12 +21,12 @@ type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
 
-interface ReservationProps extends AppProps {
+interface JabJitProps extends AppProps {
   emotionCache?: EmotionCache;
   Component: NextPageWithLayout;
 }
 
-function Reservation(props: ReservationProps) {
+function JabJit(props: JabJitProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page) => page);
 
@@ -37,17 +37,18 @@ function Reservation(props: ReservationProps) {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>Reservation Admin Dashboard</title>
+        <title>JabJit Admin Dashboard</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
+        
       </Head>
       <SnackbarProvider>
         <SidebarProvider>
           <ThemeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <CssBaseline/>
+              <CssBaseline />
               {getLayout(<Component {...pageProps} />)}
             </LocalizationProvider>
           </ThemeProvider>
@@ -57,4 +58,4 @@ function Reservation(props: ReservationProps) {
   );
 }
 
-export default Reservation;
+export default JabJit;

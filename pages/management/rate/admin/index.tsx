@@ -24,7 +24,7 @@ import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useRouter } from 'next/router';
-import { FaStar, FaRegStar } from 'react-icons/fa'; 
+import { renderStars } from '@/content/Widgets/Favorite/rating';
 
 function RoomAdminManagement() {
   const title = 'Rate Management';
@@ -43,35 +43,23 @@ function RoomAdminManagement() {
     setPageSize(parseInt(event.target.value));
   };
 
-  const getrates = async () => {
+  const getRates = async () => {
     setDatasource(null);
     const res = await http.get(
       `AdminRate?pageNumber=${pageNumber + 1}&pageSize=${pageSize}`
     );
     setDatasource(res);
-    setTotalItem(res.totalItem);
+    setTotalItem(res.length);
   };
 
   const onConfirm = async (id: string) => {
     await http.delete(`AdminRate/${id}`);
-    getrates();
+    getRates();
   };
 
   useEffect(() => {
-    getrates();
+    getRates();
   }, [pageNumber, pageSize, router.query.refresh]);
-
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <span key={i}>
-          {i < rating ? <FaStar style={{ color: 'gold' }} /> : <FaRegStar />}
-        </span>
-      );
-    }
-    return stars;
-  };
 
   return (
     <>

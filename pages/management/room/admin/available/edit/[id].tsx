@@ -8,8 +8,12 @@ import {
   CardContent,
   CardHeader,
   Divider,
+  FormControl,
   Grid,
+  InputLabel,
   LinearProgress,
+  MenuItem,
+  Select,
   TextField
 } from '@mui/material';
 import { useState, useEffect, FormEvent } from 'react';
@@ -20,11 +24,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { Dayjs } from 'dayjs';
 import SidebarLayout from '@/layouts/SidebarLayout';
-function AdminAdminFormManagement() {
+function AvailableFormManagement() {
   const http = new HttpClient();
   const router = useRouter();
   const { id } = router.query;
-  const title = `Admin Form`;
+  const title = `Available Form`;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState({
@@ -123,13 +127,22 @@ function AdminAdminFormManagement() {
               <CardContent>
                 <Box
                   component="form"
-                  sx={{ '& .MuiTextField-root': { m: 1, width: '45ch' } }}
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                    justifyContent: 'space-between',
+                    '& .MuiTextField-root, & .MuiFormControl-root': {
+                      flex: '1 1 250px',
+                      minWidth: '200px'
+                    }
+                  }}
                   noValidate
                   autoComplete="off"
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DesktopDatePicker
-                      label="CheckIn"
+                      label="Check-In"
                       inputFormat="YYYY-MM-DD"
                       value={dayjs(formData.checkIn)}
                       onChange={(newValue) =>
@@ -140,7 +153,7 @@ function AdminAdminFormManagement() {
                       )}
                     />
                     <DesktopDatePicker
-                      label="CheckOut"
+                      label="Check-Out"
                       inputFormat="YYYY-MM-DD"
                       value={dayjs(formData.checkOut)}
                       onChange={(newValue) =>
@@ -151,14 +164,19 @@ function AdminAdminFormManagement() {
                       )}
                     />
                   </LocalizationProvider>
-                  <TextField
-                    required
-                    fullWidth
-                    label="Status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInput}
-                  />
+
+                  <FormControl required fullWidth>
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInput}
+                      label="Status"
+                    >
+                      <MenuItem value="Available">Available</MenuItem>
+                      <MenuItem value="Unavailable">Unavailable</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
               </CardContent>
             </Card>
@@ -169,8 +187,8 @@ function AdminAdminFormManagement() {
   );
 }
 
-AdminAdminFormManagement.getLayout = (page) => (
+AvailableFormManagement.getLayout = (page) => (
   <SidebarLayout>{page}</SidebarLayout>
 );
 
-export default AdminAdminFormManagement;
+export default AvailableFormManagement;

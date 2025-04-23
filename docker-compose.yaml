@@ -1,10 +1,10 @@
 version: '3.9'
 
 services:
-  reservationfrontend:
+  jabjit:
     build: .
     restart: always
-    container_name: reservationfrontend
+    container_name: jabjit
     ports:
       - "8000:3000"
 

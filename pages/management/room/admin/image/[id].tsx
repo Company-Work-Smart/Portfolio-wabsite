@@ -10,13 +10,12 @@ import {
   CardHeader,
   Divider,
   Grid,
-  Input,
   LinearProgress,
   Typography
 } from '@mui/material';
 import SidebarLayout from '@/layouts/SidebarLayout';
 
-function AdminAdminFormManagement() {
+function ImageManagement() {
   const http = new HttpClient();
   const router = useRouter();
   const { id } = router.query;
@@ -24,12 +23,12 @@ function AdminAdminFormManagement() {
 
   const [loading, setLoading] = useState(false);
   const { showSnackbar } = useContext(SnackbarContext);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
   const [formData, setFormData] = useState({
     roomId: '',
-    images: null
+    images: [] as File[]
   });
 
   useEffect(() => {
@@ -42,87 +41,97 @@ function AdminAdminFormManagement() {
     }
   }, [id]);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setFormData((prevState) => ({
-        ...prevState,
-        images: file
-      }));
-      setImagePreview(URL.createObjectURL(file));
-    } else {
-      showSnackbar({
-        type: 'error',
-        message: 'Please select a valid image file.'
-      });
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const validImages = Array.from(files).filter((file) =>
+        file.type.startsWith('image/')
+      );
+
+      if (validImages.length > 0) {
+        setFormData((prevState) => ({
+          ...prevState,
+          images: [...prevState.images, ...validImages]
+        }));
+
+        const previews = validImages.map((file) => URL.createObjectURL(file));
+        setImagePreviews((prevPreviews) => [...prevPreviews, ...previews]);
+      } else {
+        showSnackbar({
+          type: 'error',
+          message: 'Please select valid image files.'
+        });
+      }
     }
   };
 
-  const handleDrop = (event) => {
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     setIsDragging(false);
 
-    const file = event.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setFormData((prevState) => ({
-        ...prevState,
-        images: file
-      }));
-      setImagePreview(URL.createObjectURL(file));
-    } else {
-      showSnackbar({
-        type: 'error',
-        message: 'Please drop a valid image file.'
-      });
+    const files = event.dataTransfer.files;
+    if (files) {
+      const validImages = Array.from(files).filter((file) =>
+        file.type.startsWith('image/')
+      );
+
+      if (validImages.length > 0) {
+        setFormData((prevState) => ({
+          ...prevState,
+          images: [...prevState.images, ...validImages]
+        }));
+
+        const previews = validImages.map((file) => URL.createObjectURL(file));
+        setImagePreviews((prevPreviews) => [...prevPreviews, ...previews]);
+      } else {
+        showSnackbar({
+          type: 'error',
+          message: 'Please drop valid image files.'
+        });
+      }
     }
   };
 
-  const handleDragOver = (event) => {
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (event) => {
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     setIsDragging(false);
   };
 
   const submitForm = async () => {
-    if (!formData.images || !formData.roomId.trim()) {
+    if (!formData.images.length || !formData.roomId.trim()) {
       showSnackbar({
         type: 'error',
-        message: 'Room ID and image file are required.'
+        message: 'Room ID and at least one image file are required.'
       });
       return;
     }
 
-    console.log(formData.roomId);
-    console.log(formData.images);
-
     const formPayload = new FormData();
     formPayload.append('RoomId', formData.roomId);
-    formPayload.append('Images', formData.images);
+
+    formData.images.forEach((image) => {
+      formPayload.append('Images', image);
+    });
 
     setLoading(true);
-    try {
-      await http.uploadFile('AdminImage', formPayload);
-      showSnackbar({
-        type: 'success',
-        message: 'File uploaded successfully!'
-      });
-      setFormData({ roomId: '', images: null });
-      setImagePreview(null);
-    } catch (error) {
-      showSnackbar({
-        type: 'error',
-        message: 'File upload failed. Please try again.'
-      });
-    } finally {
-      setLoading(false);
-    }
+    await http.postuploadFile('AdminImage', formPayload);
+
+    showSnackbar({
+      type: 'success',
+      message: 'File uploaded successfully!'
+    });
+    setFormData({ roomId: '', images: [] });
+    setImagePreviews([]);
+    await router.push(`/management/room/admin?refresh=true`);
+    setLoading(false);
   };
 
   return (
@@ -164,7 +173,6 @@ function AdminAdminFormManagement() {
                   noValidate
                   autoComplete="off"
                 >
-                  {/* Drag-and-Drop Area */}
                   <Box
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
@@ -180,37 +188,44 @@ function AdminAdminFormManagement() {
                     }}
                   >
                     <Typography>
-                      Drag and drop an image here, or click to select a file
+                      Drag and drop images here, or click to select files
                     </Typography>
-                    <Input
+                    <input
                       type="file"
                       id="images"
                       name="images"
                       onChange={handleFileChange}
                       style={{ display: 'none' }}
+                      multiple
                     />
                     <label htmlFor="images">
                       <Button variant="outlined" component="span">
-                        Choose File
+                        Choose Files
                       </Button>
                     </label>
-                    {formData.images && (
-                      <Typography mt={1}>{formData.images.name}</Typography>
+                    {formData.images.length > 0 && (
+                      <Typography mt={1}>
+                        {formData.images.map((file) => file.name).join(', ')}
+                      </Typography>
                     )}
                   </Box>
-                  {/* Image Preview */}
-                  {imagePreview && (
-                    <Box mt={2} textAlign="center">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        style={{
-                          maxWidth: '100%',
-                          height: 'auto',
-                          borderRadius: '8px'
-                        }}
-                      />
-                    </Box>
+                  {/* Image Previews */}
+                  {imagePreviews.length > 0 && (
+                    <Grid container spacing={2} mt={2}>
+                      {imagePreviews.map((preview, index) => (
+                        <Grid item xs={4} key={index}>
+                          <img
+                            src={preview}
+                            alt={`Preview ${index}`}
+                            style={{
+                              width: '100%',
+                              height: 'auto',
+                              borderRadius: '8px'
+                            }}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
                   )}
                 </Box>
               </CardContent>
@@ -222,8 +237,8 @@ function AdminAdminFormManagement() {
   );
 }
 
-AdminAdminFormManagement.getLayout = (page) => (
+ImageManagement.getLayout = (page) => (
   <SidebarLayout>{page}</SidebarLayout>
 );
 
-export default AdminAdminFormManagement;
+export default ImageManagement;

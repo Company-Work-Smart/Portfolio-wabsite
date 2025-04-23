@@ -1,38 +1,43 @@
 export const Menu: any[] = [
   {
-    group: "Dashboard",
-    roles: ['Admin', 'SuperAdmin', 'Manager'],
+    group: 'Dashboard',
+    roles: ['SuperAdmin', 'Admin'],
     children: [
-      {
-        title: 'Dashboard',
-        url: '/dashboards/dashboard/admin',
-        roles: ['Admin']
-      },
+      // ===== Super Admin ===== //
       {
         title: 'Dashboard',
         url: '/dashboards/dashboard/superAdmin',
         roles: ['SuperAdmin']
       },
+      // ===== Admin ===== //
       {
         title: 'Dashboard',
-        url: '/dashboards/dashboard/manager',
-        roles: ['Manager']
-      },
+        url: '/dashboards/dashboard/admin',
+        roles: ['Admin']
+      }
     ]
   },
   {
-    group: "Management",
-    roles: ['Admin', 'SuperAdmin', 'Manager'],
+    group: 'Management',
+    roles: ['SuperAdmin', 'Admin'],
     children: [
-      {
-        title: 'Place',
-        url: '/management/admin/place',
-        roles: ['Admin']
-      },
+      // ===== Super Admin ===== //
       {
         title: 'Admin',
-        url: '/management/admin/superAdmin',
+        url: '/management/superAdmin/admin',
         roles: ['SuperAdmin']
+      },
+      {
+        title: 'User',
+        url: '/management/superAdmin/user',
+        roles: ['SuperAdmin']
+      },
+
+      // ===== Admin ===== //
+      {
+        title: 'Place',
+        url: '/management/place/admin',
+        roles: ['Admin']
       },
       {
         title: 'Room',
@@ -40,30 +45,53 @@ export const Menu: any[] = [
         roles: ['Admin']
       },
       {
-        title: 'User',
-        url: '/management/user/superAdmin',
-        roles: ['SuperAdmin']
-      },
-      {
         title: 'User Booking',
         url: '/management/booking/admin',
         roles: ['Admin']
+      }
+      // {
+      //   title: 'User Rate',
+      //   url: '/management/rate/admin',
+      //   roles: ['Admin']
+      // },
+    ]
+  },
+  {
+    group: 'Feature',
+    roles: ['SuperAdmin', 'Admin'],
+    children: [
+      // ===== Super Admin ===== //
+      {
+        title: 'Review',
+        url: '/feature/video/superAdmin',
+        roles: ['SuperAdmin']
       },
       {
-        title: 'User Rate',
-        url: '/management/rate/admin',
-        roles: ['Admin']
-      },
-      {
-        title: 'Place',
-        url: '/management/place/superAdmin',
+        title: 'Billing',
+        url: '/feature/payment/superAdmin',
         roles: ['SuperAdmin']
       },
       {
         title: 'Contact Me',
-        url: '/management/contact/superAdmin',
+        url: '/feature/contact/superAdmin',
         roles: ['SuperAdmin']
       },
+      // ===== Admin ===== //
+      {
+        title: 'Review',
+        url: '/feature/video/admin',
+        roles: ['Admin']
+      },
+      {
+        title: 'Billing',
+        url: '/feature/payment/admin',
+        roles: ['Admin']
+      },
+      {
+        title: 'Support',
+        url: '/feature/contact/admin',
+        roles: ['Admin']
+      }
     ]
   }
 ];

@@ -15,19 +15,27 @@ export class HttpClient {
       'Bearer ' + localStorage.getItem(AppKey.accessToken);
   }
 
-  async get(path: string): ResponseType {
-    const payload = {
-      method: 'GET'
-    };
-    return await this.handleError(path, payload);
-  }
-
-  async uploadFile(path: string, request: FormData): ResponseType {
+  async postuploadFile(path: string, request: FormData): ResponseType {
     const payload = {
       method: 'POST',
       body: request
     };
     return await this.handleError(path, payload, false);
+  }
+
+  async putuploadFile(path: string, request: FormData): ResponseType {
+    const payload = {
+      method: 'PUT',
+      body: request
+    };
+    return await this.handleError(path, payload, false);
+  }
+
+  async get(path: string): ResponseType {
+    const payload = {
+      method: 'GET'
+    };
+    return await this.handleError(path, payload);
   }
 
   async post(path: string, request: any): ResponseType {
@@ -72,17 +80,16 @@ export class HttpClient {
     }
 
     const response = await fetch(this.buildUrl(path), payload);
-
     if (response.status === 200) return await response.json();
     if (response.status === 401 || response.status === 403) {
       localStorage.removeItem(AppKey.accessToken);
       localStorage.removeItem(AppKey.refreshToken);
       localStorage.removeItem(AppKey.role);
       localStorage.removeItem(AppKey.username);
-      localStorage.removeItem(AppKey.photo);
-      window.location.href = '/';
+      localStorage.removeItem(AppKey.userId);
+      window.location.href = '/auth/login';
       return null;
     }
-    return await response.text(); 
+    return await response.text();
   }
 }

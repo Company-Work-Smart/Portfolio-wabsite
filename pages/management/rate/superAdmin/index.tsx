@@ -42,7 +42,6 @@ function CarManagerManagement() {
     setPageSize(parseInt(event.target.value));
   };
 
-
   const getItems = async () => {
     setDatasource(null);
     const res = await http.get(
@@ -86,13 +85,7 @@ function CarManagerManagement() {
                   style={{ position: 'absolute', width: '100%' }}
                 />
               )}
-              <CardHeader
-                action={
-                  <Box>
-                  </Box>
-                }
-                title={title}
-              />
+              <CardHeader action={<Box></Box>} title={title} />
               <Divider />
               <TableContainer style={{ height: 'calc(100vh - 298px)' }}>
                 <Table stickyHeader>
@@ -107,7 +100,9 @@ function CarManagerManagement() {
                       <TableCell width={120}>Created At</TableCell>
                       <TableCell width={120}>Updated At</TableCell>
                       <TableCell width={120}>Deleted At</TableCell>
-                      <TableCell width={100} align={'center'}>Action</TableCell>
+                      <TableCell width={100} align={'center'}>
+                        Action
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -127,44 +122,45 @@ function CarManagerManagement() {
                               {item.available ? 'Available' : 'Unavailable'}
                             </Typography>
                           </TableCell>
-                          <TableCell align="center"> {datetimeDisplay(item.createdAt)}</TableCell>
-                          <TableCell align="center">{datetimeDisplay(item.updatedAt)}</TableCell>
-                          <TableCell align="center">{datetimeDisplay(item.deletedAt)}</TableCell>
+                          <TableCell align="center">
+                            {' '}
+                            {datetimeDisplay(item.createdAt)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {datetimeDisplay(item.updatedAt)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {datetimeDisplay(item.deletedAt)}
+                          </TableCell>
                           <TableCell align={'center'}>
-                            {item.deletedAt == null &&
+                            {item.deletedAt == null && (
                               <Tooltip title="Delete Item" arrow>
                                 <span>
                                   <ConfirmDialog
                                     message="Are you sure to delete this item?"
                                     onConfirm={() => onDelete(item.id)}
                                   >
-                                    <IconButton
-                                      color="warning"
-                                      size="small"
-                                    >
+                                    <IconButton color="warning" size="small">
                                       <DeleteTwoToneIcon fontSize="small" />
                                     </IconButton>
                                   </ConfirmDialog>
                                 </span>
                               </Tooltip>
-                            }
-                            {item.deletedAt != null &&
+                            )}
+                            {item.deletedAt != null && (
                               <Tooltip title="Restore" arrow>
                                 <span>
                                   <ConfirmDialog
                                     message="Are you sure to restore this item?"
                                     onConfirm={() => onRestore(item.id)}
                                   >
-                                    <IconButton
-                                      color="info"
-                                      size="small"
-                                    >
+                                    <IconButton color="info" size="small">
                                       <RestoreFromTrashIcon fontSize="small" />
                                     </IconButton>
                                   </ConfirmDialog>
                                 </span>
                               </Tooltip>
-                            }
+                            )}
                           </TableCell>
                         </TableRow>
                       );
