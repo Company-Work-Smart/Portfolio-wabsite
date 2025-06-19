@@ -47,7 +47,7 @@ const BillingManagement = () => {
   const [user, setUser] = useState<UserBoxProps>({});
   const [datasource, setDatasource] = useState<any[]>([]);
   const [datasourceUser, setDatasourceUser] = useState<any>({});
-  const { sendNotification } = useNotification();
+  const { sendNotification1day } = useNotification();
 
   const getPayment = async () => {
     const res = await http.get(`AdminPayment`);
@@ -94,7 +94,7 @@ const BillingManagement = () => {
 
     const diffInDays = now >= warning;
     if (diffInDays) {
-      sendNotification(
+      sendNotification1day(
         'Your plan will expire soon!',
         `Your subscription expires in ${diffInDays} day(s). Please renew.`,
         'feature/payment/admin/makepayment'

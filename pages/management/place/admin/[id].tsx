@@ -159,12 +159,12 @@ function AdminAdminFormManagement() {
                   />
 
                   <FormControl sx={{ flex: 1, minWidth: 250 }} required>
-                    <InputLabel>Category</InputLabel>
+                    <InputLabel>Province</InputLabel>
                     <Select
                       name="category"
                       value={formData.category}
                       onChange={handleInput}
-                      label="Category"
+                      label="Province"
                     >
                       {provinces.map((province) => (
                         <MenuItem key={province} value={province}>

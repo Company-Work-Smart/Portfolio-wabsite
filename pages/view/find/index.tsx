@@ -1,8 +1,3 @@
-import {
-  ButtonSearch,
-  PeopleRate,
-  useManualLoad
-} from '@/helpers/render';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import {
   Typography,
@@ -14,8 +9,10 @@ import {
   Card,
   IconButton,
   Autocomplete,
-  TextField
+  TextField,
+  Button
 } from '@mui/material';
+import { ButtonSearch } from '@/helpers/render';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
@@ -27,10 +24,13 @@ import appColor from '@/theme/appColor';
 import { calculateNights } from '@/helpers/calulate';
 import FooterPage from '@/layouts/PageLayout/Fooder';
 import Head from 'next/head';
-import { AppKey } from '@/constant/key';
-import { toggleFavorite } from '@/content/Widgets/Favorite';
 import { provinces } from '@/helpers';
-import RatingDialog, { renderStars } from '@/content/Widgets/Favorite/rating';
+import RatingDialog, {
+  PeopleRate,
+  renderStars
+} from '@/content/Widgets/Favorite/rating';
+import { toggleFavorite } from '@/content/Widgets/Favorite';
+import LoadingPage from '@/layouts/PageLayout/Loading';
 
 function FindPage() {
   const title = 'Find Page';
@@ -42,31 +42,23 @@ function FindPage() {
   const [dataRate, setDataRate] = useState([]);
   const [ratingId, setRatingId] = useState({});
   const [roomId, setRoomId] = useState({});
+  const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState<number>(Pagination.pageSize);
-  const [pageNumberR, setPageNumberR] = useState(1);
-  const [isFavorite, setIsFavorite] = useState<{ [key: string]: boolean }>({});
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const { pageNumber } = useManualLoad({
-    onLoadMore: () => {
-      getRooms();
-      getFavorite();
-    }
-  });
+  const [hasMoreRF, setHasMoreRF] = useState(true);
 
   const getRooms = async () => {
-    if (!hasMore || loading) return;
+    if (loading || !hasMore) return;
     setLoading(true);
     const res = await http.get(
       `UserRoom?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    console.log(res.length);
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDatasource((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMore(false);
+    else setPageNumber((prev) => prev + 1);
     setLoading(false);
   };
 
@@ -75,24 +67,14 @@ function FindPage() {
   };
 
   const getRate = async () => {
-    if (!hasMore) return;
+    if (!hasMoreRF) return;
     const res = await http.get(
-      `UserRate?pageNumber=${pageNumberR}&pageSize=${pageSize}`
+      `UserRate?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataRate((prev) => [...prev, ...res]);
-    setPageNumberR((prev) => prev + 1);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
-
-  useEffect(() => {
-    getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleRate = async (roomId: string, rateId: string) => {
     setRatingId(rateId);
@@ -100,38 +82,24 @@ function FindPage() {
   };
 
   const getFavorite = async () => {
-    if (!hasMore || loading) return;
-    setLoading(true);
+    if (!hasMoreRF) return;
     const res = await http.get(
       `UserFavorite?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataFavorite((prev) => [...prev, ...res]);
-    setLoading(false);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  const Favorite = async (roomId: string, favoriteId: string) => {
-    const { updatedFavorites, wasAdded } = await toggleFavorite(
-      roomId,
-      favoriteId,
-      isFavorite
-    );
-    if (updatedFavorites) {
-      setIsFavorite(updatedFavorites);
-
-      if (wasAdded) {
-        await router.push(`/view/favorite?refresh=true`);
-      }
-    }
+  const Favorites = async (roomId: string, favoriteId: string) => {
+    await toggleFavorite(roomId, favoriteId);
+    router.push(`/view/favorite`);
   };
 
   useEffect(() => {
-    const savedFavorites = localStorage.getItem(AppKey.isFavorite);
-    if (savedFavorites) {
-      setIsFavorite(JSON.parse(savedFavorites));
-    }
+    getRooms();
+    getRate();
+    getFavorite();
   }, []);
 
   return (
@@ -146,11 +114,12 @@ function FindPage() {
           py: 10
         }}
       >
-        <Typography variant="h2" gutterBottom>
-          Welcome to Our Platform
+        <Typography variant="h3" gutterBottom>
+          Welcome to our room - your comfort starts here!
         </Typography>
         <Typography variant="h6" color="textSecondary" paragraph>
-          Discover amazing features and seamless booking experiences.
+          Welcome to our place - thoughtfully prepared for your comfort and
+          convenience.
         </Typography>
         <FormControl
           variant="outlined"
@@ -230,7 +199,7 @@ function FindPage() {
                             const favorite = dataFavorite.find(
                               (fav) => fav.room?.id === room?.id
                             );
-                            Favorite(room.id, favorite?.id);
+                            Favorites(room.id, favorite?.id);
                           }}
                           sx={{
                             position: 'absolute',
@@ -241,11 +210,16 @@ function FindPage() {
                             '&:hover': { backgroundColor: 'white' }
                           }}
                         >
-                          {isFavorite[room.id] ? (
-                            <FavoriteIcon color="error" />
-                          ) : (
-                            <FavoriteBorderIcon />
-                          )}
+                          {(() => {
+                            const favorite = dataFavorite.find(
+                              (fav) => fav.room?.id === room?.id
+                            );
+                            if (favorite?.save) {
+                              return <FavoriteIcon color="error" />;
+                            } else {
+                              return <FavoriteBorderIcon />;
+                            }
+                          })()}
                         </IconButton>
 
                         <CardMedia
@@ -295,8 +269,8 @@ function FindPage() {
                               variant="body2"
                               color="text.secondary"
                               sx={{
-                                display: 'flex',
-                                justifyContent: 'start'
+                                display: 'block',
+                                textAlign: 'left'
                               }}
                             >
                               {room?.place?.location?.address}
@@ -361,8 +335,7 @@ function FindPage() {
                               <Box
                                 sx={{
                                   display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 1
+                                  textAlign: 'end'
                                 }}
                               >
                                 {room.price.discount &&
@@ -373,9 +346,7 @@ function FindPage() {
                                       sx={{
                                         textDecoration: 'line-through',
                                         color: appColor.textprice,
-                                        fontSize: 12,
-                                        display: 'flex',
-                                        justifyContent: 'end'
+                                        fontSize: 12
                                       }}
                                     >
                                       $
@@ -386,32 +357,35 @@ function FindPage() {
                                     <Typography
                                       sx={{
                                         color: appColor.textblack,
-                                        fontSize: 12,
-                                        display: 'flex',
-                                        justifyContent: 'end'
+                                        fontSize: 12
                                       }}
                                     >
                                       $
-                                      {Number(
-                                        room.price.discount
+                                      {(
+                                        Number(room.price.pricing) -
+                                        Number(room.price.discount) -
+                                        Number(room.price.taxes)
                                       ).toLocaleString()}
-                                      /night
+                                      {Number(room.price.taxes) > 0
+                                        ? ' /night (incl. tax)'
+                                        : ' /night'}
                                     </Typography>
                                   </>
                                 ) : (
                                   <Typography
                                     sx={{
                                       color: appColor.textblack,
-                                      fontSize: 12,
-                                      display: 'flex',
-                                      justifyContent: 'end'
+                                      fontSize: 12
                                     }}
                                   >
                                     $
-                                    {Number(
-                                      room.price.pricing
+                                    {(
+                                      Number(room.price.pricing) -
+                                      Number(room.price.taxes)
                                     ).toLocaleString()}
-                                    /night
+                                    {Number(room.price.taxes) > 0
+                                      ? ' /night (incl. tax)'
+                                      : ' /night'}
                                   </Typography>
                                 )}
                               </Box>
@@ -435,6 +409,17 @@ function FindPage() {
               </Grid>
             </Box>
           </>
+        )}
+        {loading && <LoadingPage />}
+        {!loading && hasMore && (
+          <Button
+            variant="contained"
+            onClick={() => getRooms()}
+            disabled={loading}
+            style={{ marginTop: '16px' }}
+          >
+            Load More
+          </Button>
         )}
       </Box>
       <FooterPage />

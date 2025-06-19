@@ -22,7 +22,7 @@ import {
 
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { HttpClient } from '@/services/http-client';
-import { datetimeDisplay } from '@/helpers/datetime';
+import { datetimeAvailable } from '@/helpers/datetime';
 import appColor from '@/theme/appColor';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -108,6 +108,7 @@ function RecentActivity() {
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
+                <TableCell>Bed</TableCell>
                 <TableCell>Adult</TableCell>
                 <TableCell>Children</TableCell>
                 <TableCell>Size</TableCell>
@@ -119,8 +120,17 @@ function RecentActivity() {
               {datasource && datasource.length > 0 ? (
                 datasource.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell>{item.room.adult} adult</TableCell>
-                    <TableCell>{item.room.children} children</TableCell>
+                    <TableCell>
+                      {item.room.bed} {item.room.bed > 1 ? ' beds' : ' bed'}
+                    </TableCell>
+                    <TableCell>
+                      {item.room.adult}
+                      {item.room.adult > 1 ? ' adults' : ' adult'}
+                    </TableCell>
+                    <TableCell>
+                      {item.room.children}
+                      {item.room.children > 1 ? ' childrens' : ' children'}
+                    </TableCell>
                     <TableCell>{item.room.size} m²</TableCell>
                     <TableCell>{item.number}</TableCell>
                     <TableCell align="right">
@@ -166,8 +176,8 @@ function RecentActivity() {
               {datasource && datasource.length > 0 ? (
                 datasource.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell>{datetimeDisplay(item.checkIn)}</TableCell>
-                    <TableCell>{datetimeDisplay(item.checkOut)}</TableCell>
+                    <TableCell>{datetimeAvailable(item.checkIn)}</TableCell>
+                    <TableCell>{datetimeAvailable(item.checkOut)}</TableCell>
                     <TableCell>
                       <Chip
                         label={item.status}

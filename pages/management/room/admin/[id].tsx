@@ -27,6 +27,7 @@ function RoomAdminFormManagement() {
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     placeId: '',
+    bed: '',
     adult: '',
     children: '',
     size: ''
@@ -139,6 +140,14 @@ function RoomAdminFormManagement() {
                       </MenuItem>
                     ))}
                   </TextField>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Type Bed"
+                    name="bed"
+                    value={formData.bed}
+                    onChange={handleInput}
+                  />
                   <TextField
                     required
                     fullWidth

@@ -4,15 +4,18 @@ import FooterPage from '@/layouts/PageLayout/Fooder';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import { useRouter } from 'next/router';
 import appColor from '@/theme/appColor';
+import { MyData } from '@/hook/data/data1';
 
 const PrivacyPolicy = () => {
   const router = useRouter();
+
   return (
     <>
       <Box
         sx={{
           background: appColor.background,
-          textAlign: 'center'
+          textAlign: 'center',
+          pb: 4
         }}
       >
         <Box
@@ -103,125 +106,41 @@ const PrivacyPolicy = () => {
                 px: 2
               }}
             >
-              Learn more about how JabJit collects and uses data and your rights
-              as a JabJit user.
+              Below is the Privacy Policy rewritten as flowing paragraphs. Feel
+              free to adjust any specifics to match your actual practices.
             </Typography>
           </Box>
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              fontSize: { xs: '1.2rem', sm: '1.5rem' },
-              display: 'flex',
-              justifyContent: 'start',
-              textAlign: 'left'
-            }}
-          >
-            INTRODUCTION
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '1rem',
-              display: 'flex',
-              justifyContent: 'start',
-              textAlign: 'left',
-              pt: 2
-            }}
-          >
-            Dribbble Holdings Limited (the “Dribbble Group”) is comprised of
-            several companies, which together provide tools to help the world's
-            designers to create, develop and promote their talents (each a
-            “Service” and collectively, the “Services”). The companies within
-            the Dribbble Group each act as the data controller for personal data
-            processed in respect of their Services (each a “Group Company” and
-            together the “Group Companies”) and referred to as “our,” “we,” or
-            “us” below. The data controllers for each Service are:
-          </Typography>
 
-          <Typography
-            sx={{
-              fontSize: '1rem',
-              display: 'flex',
-              justifyContent: 'start',
-              textAlign: 'left',
-              pt: 2
-            }}
-          >
-            We know that you care about how your information is used and shared.
-            This Privacy Policy provides details of the way in which the Group
-            Companies process personal data in line with their obligations under
-            relevant data protection law, including the European Union’s General
-            Data Protection Regulation (the “GDPR”), the California Consumer
-            Privacy Act (the “CCPA”), and other applicable laws (collectively,
-            “Data Protection Law”).
-          </Typography>
-
-          <Typography
-            sx={{
-              fontSize: '1rem',
-              display: 'flex',
-              justifyContent: 'start',
-              textAlign: 'left',
-              pt: 2
-            }}
-          >
-            This Privacy Policy explains what information of yours will be
-            collected by the Group Companies when you use our Services, how the
-            information will be used, and how you can control the collection,
-            correction and/or deletion of information. Note that certain third
-            parties may be able to identify you across sites and services and
-            over time using the information they process, however, any such
-            processing not done at the direction of us is outside the scope of
-            this Privacy Policy. We are not responsible for the privacy
-            policies, content or security of any linked third party websites or
-            services. We recommend that you check the privacy and security
-            policies of each and every website and service that you visit.
-          </Typography>
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              fontSize: { xs: '1.2rem', sm: '1.5rem' },
-              display: 'flex',
-              justifyContent: 'start',
-              textAlign: 'left',
-              pt: 2
-            }}
-          >
-            INFORMATION WE PROCESS.
-          </Typography>
-
-          <Typography
-            sx={{
-              fontSize: '1rem',
-              display: 'flex',
-              justifyContent: 'start',
-              textAlign: 'left',
-              pt: 2
-            }}
-          >
-            The types of information we process depends on how you use our
-            Services. Many of our Services require users to set up an account,
-            which involves the collection and processing of your name and email
-            address. Other Services may require the collection of additional
-            information. For example, Dribbble helps to connect its community of
-            designers with people and companies in need of their skills. In
-            order to do so, Dribbble collects payments data and other
-            information required to comply with relevant legal obligations.
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '1rem',
-              display: 'flex',
-              justifyContent: 'start',
-              textAlign: 'left',
-              pt: 2
-            }}
-          >
-            The following table explains the types of information we collect and
-            how we collect it. These categories of data may collectively be
-            referred to as “Your Information”.
-          </Typography>
+          {MyData.map((item, index) => (
+            <>
+              <Typography
+                key={index}
+                variant="h4"
+                gutterBottom
+                sx={{
+                  fontSize: { xs: '1rem', sm: '1.1rem' },
+                  display: 'flex',
+                  justifyContent: 'start',
+                  textAlign: 'left',
+                  pt:5
+                }}
+              >
+                {item.title.toUpperCase()}
+              </Typography>
+              <Typography
+                key={index}
+                sx={{
+                  fontSize: '1rem',
+                  display: 'flex',
+                  justifyContent: 'start',
+                  textAlign: 'left',
+                  pt: 1
+                }}
+              >
+                {item.description}
+              </Typography>
+            </>
+          ))}
         </Container>
       </Box>
       <FooterPage />

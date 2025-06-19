@@ -23,9 +23,13 @@ import {
   DialogContent,
   Dialog,
   Button,
-  Chip
+  Chip,
+  InputAdornment,
+  FormControl
 } from '@mui/material';
+import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import { ChangeEvent, useEffect, useState } from 'react';
+import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import { datetimeDisplay } from '@/helpers/datetime';
@@ -35,6 +39,7 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useRouter } from 'next/router';
 import { getStatusColor } from '@/helpers';
+// import { useNotification } from '@/helpers/notification';
 
 function AdminManagement() {
   const title = 'Booking Management';
@@ -46,7 +51,10 @@ function AdminManagement() {
   const [totalItem, setTotalItem] = useState<number>(0);
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
   const [status, setStatus] = useState<string>('');
+  const [assignedNumbers, setAssignedNumbers] = useState<string[]>([]);
+  // const { sendNotification } = useNotification();
   const [openDialog, setOpenDialog] = useState(false);
+  const [searchName, setSearchName] = useState('');
 
   const handlePageChange = (_event: any, newPageNumber: number): void => {
     setPageNumber(newPageNumber);
@@ -63,6 +71,11 @@ function AdminManagement() {
 
     setDatasource(res.item);
     setTotalItem(res.total);
+    // sendNotification(
+    //   'New room booking',
+    //   `A user has just booked a room. Please review the booking details.`,
+    //   'feature/payment/admin/makepayment'
+    // );
   };
 
   const onConfirm = async (id: string) => {
@@ -71,8 +84,9 @@ function AdminManagement() {
   };
 
   const onStatusChange = async () => {
-    if (selectedRoom && status) {
+    if (selectedRoom && status && assignedNumbers.length > 0) {
       await http.put(`AdminBooking/status/${selectedRoom.id}`, {
+        number: assignedNumbers,
         status: status
       });
       setOpenDialog(false);
@@ -105,6 +119,23 @@ function AdminManagement() {
         <title>{title}</title>
       </Head>
       <Grid item sx={{ p: 3 }}>
+        <FormControl
+          variant="outlined"
+          sx={{ marginBottom: 2, display: 'flex', justifyContent: 'center' }}
+        >
+          <TextField
+            placeholder="Search username..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchTwoToneIcon />
+                </InputAdornment>
+              )
+            }}
+          />
+        </FormControl>
         <Grid
           container
           direction="row"
@@ -130,65 +161,97 @@ function AdminManagement() {
                       </TableCell>
                       <TableCell>Username</TableCell>
                       <TableCell>Phone Number</TableCell>
+                      <TableCell>Type Bed</TableCell>
                       <TableCell>Adult</TableCell>
                       <TableCell>Children</TableCell>
                       <TableCell>Size</TableCell>
-                      <TableCell>Room</TableCell>
+                      <TableCell>Number Room</TableCell>
                       <TableCell>checkIn</TableCell>
                       <TableCell>checkOut</TableCell>
                       <TableCell>Status</TableCell>
+                      <TableCell>Chat</TableCell>
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {datasource?.map((item, index) => {
-                      return (
-                        <TableRow hover key={item.id}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{item.username}</TableCell>
-                          <TableCell>{item.tel}</TableCell>
-                          <TableCell>{item.adult}</TableCell>
-                          <TableCell>{item.children}</TableCell>
-                          <TableCell>{item.size} m²</TableCell>
-                          <TableCell>{item.number}</TableCell>
-                          <TableCell>{datetimeDisplay(item.checkIn)}</TableCell>
-                          <TableCell>
-                            {datetimeDisplay(item.checkOut)}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={item.status}
-                              color={getStatusColor(item.status)}
-                              variant="outlined"
-                            />
-                          </TableCell>
-
-                          <TableCell align="right">
-                            <Tooltip title="Edit Status" arrow>
-                              <IconButton
-                                onClick={() => handleOpenDialog(item)}
-                                color="primary"
-                                size="small"
-                              >
-                                <EditTwoToneIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete Item" arrow>
-                              <span>
-                                <ConfirmDialog
-                                  message="Are you sure to delete this item?"
-                                  onConfirm={() => onConfirm(item.id)}
+                    {datasource
+                      ?.filter(
+                        (item) =>
+                          !searchName.trim() ||
+                          item.username
+                            .toLowerCase()
+                            .includes(searchName.toLowerCase())
+                      )
+                      .map((item, index) => {
+                        return (
+                          <TableRow hover key={item.id}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{item.username}</TableCell>
+                            <TableCell>{item.tel}</TableCell>
+                            <TableCell>
+                              {item.bed} {item.bed > 1 ? ' beds' : ' bed'}
+                            </TableCell>
+                            <TableCell>
+                              {item.adult}
+                              {item.adult > 1 ? ' adults' : ' adult'}
+                            </TableCell>
+                            <TableCell>
+                              {item.children}
+                              {item.children > 1 ? ' childrens' : ' children'}
+                            </TableCell>
+                            <TableCell>{item.size} m²</TableCell>
+                            <TableCell>{item.number.join(', ')}</TableCell>
+                            <TableCell>{datetimeDisplay(item.checkIn)}</TableCell>
+                            <TableCell>{datetimeDisplay(item.checkOut)}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={item.status}
+                                color={getStatusColor(item.status)}
+                                variant="outlined"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Tooltip title="Messager" arrow>
+                                <IconButton
+                                  onClick={() =>
+                                    router.push(
+                                      `/applications/admin/messenger/${item.userId}`
+                                    )
+                                  }
+                                  color="primary"
+                                  size="small"
                                 >
-                                  <IconButton color="error" size="small">
-                                    <DeleteTwoToneIcon fontSize="small" />
-                                  </IconButton>
-                                </ConfirmDialog>
-                              </span>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                                  <ContactPhoneIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+
+                            <TableCell align="right">
+                              <Tooltip title="Edit Status" arrow>
+                                <IconButton
+                                  onClick={() => handleOpenDialog(item)}
+                                  color="primary"
+                                  size="small"
+                                >
+                                  <EditTwoToneIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete Item" arrow>
+                                <span>
+                                  <ConfirmDialog
+                                    message="Are you sure to delete this item?"
+                                    onConfirm={() => onConfirm(item.id)}
+                                  >
+                                    <IconButton color="error" size="small">
+                                      <DeleteTwoToneIcon fontSize="small" />
+                                    </IconButton>
+                                  </ConfirmDialog>
+                                </span>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -215,6 +278,24 @@ function AdminManagement() {
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Assign Status</DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            required
+            id="outlined-required"
+            label="Number Room"
+            name="number"
+            type="text"
+            placeholder="Enter room numbers e.g. 001 002 003"
+            onChange={(e) => {
+              const value = e.target.value;
+              const numbers = value
+                .split(/[\s,]+/)
+                .map((n) => n.trim())
+                .filter((n) => n !== '');
+              setAssignedNumbers(numbers);
+            }}
+          />
+
           <TextField
             select
             fullWidth

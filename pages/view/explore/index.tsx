@@ -18,7 +18,7 @@ import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
 import { calculateNights } from '@/helpers/calulate';
-import { PeopleRate, useGuestCount, useManualLoad } from '@/helpers/render';
+import { useGuestCount } from '@/helpers/render';
 import appColor from '@/theme/appColor';
 import LoadingPage from '@/layouts/PageLayout/Loading';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -27,8 +27,10 @@ import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { toggleFavorite } from '@/content/Widgets/Favorite';
-import { AppKey } from '@/constant/key';
-import RatingDialog, { renderStars } from '@/content/Widgets/Favorite/rating';
+import RatingDialog, {
+  PeopleRate,
+  renderStars
+} from '@/content/Widgets/Favorite/rating';
 
 function ExplorePage() {
   const title = 'Explore Page';
@@ -41,109 +43,72 @@ function ExplorePage() {
   const [ratingId, setRatingId] = useState({});
   const [roomId, setRoomId] = useState({});
   const [pageSize] = useState<number>(Pagination.pageSize);
-  const [pageNumberR, setPageNumberR] = useState(1);
-  const [isFavorite, setIsFavorite] = useState<{ [key: string]: boolean }>({});
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [open, setOpen] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [hasMoreRF, setHasMoreRF] = useState(true);
   const {
     adult,
     setAdult,
-    children,
-    setChildren,
+    bed,
+    setBed,
     date,
     increaseAdult,
     decreaseAdult,
-    increaseChildren,
-    decreaseChildren,
+    increaseBed,
+    decreaseBed,
     dateChange
   } = useGuestCount();
 
-  const { pageNumber } = useManualLoad({
-    onLoadMore: () => {
-      getRooms();
-      getFavorite();
-    }
-  });
-
   const getRooms = async () => {
-    if (!hasMore || loading) return;
+    if (loading || !hasMore) return;
     setLoading(true);
     const res = await http.get(
       `UserRoom?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
-    console.log(res);
     setDatasource((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMore(false);
+    else setPageNumber((prev) => prev + 1);
     setLoading(false);
-  };
-
-  const handleRoom = (id: any) => {
-    router.push(`/view/detail/room/${id}`);
   };
 
   const getRate = async () => {
-    if (!hasMore) return;
+    if (!hasMoreRF) return;
     const res = await http.get(
-      `UserRate?pageNumber=${pageNumberR}&pageSize=${pageSize}`
+      `UserRate?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataRate((prev) => [...prev, ...res]);
-    setPageNumberR((prev) => prev + 1);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  useEffect(() => {
-    getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   const handleRate = async (roomId: string, rateId: string) => {
-    setRatingId(rateId);
     setRoomId(roomId);
+    setRatingId(rateId);
   };
 
   const getFavorite = async () => {
-    if (!hasMore || loading) return;
-    setLoading(true);
+    if (!hasMoreRF) return;
     const res = await http.get(
       `UserFavorite?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataFavorite((prev) => [...prev, ...res]);
-    setLoading(false);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  const Favorite = async (roomId: string, favoriteId: string) => {
-    const { updatedFavorites, wasAdded } = await toggleFavorite(
-      roomId,
-      favoriteId,
-      isFavorite
-    );
-
-    if (updatedFavorites) {
-      setIsFavorite(updatedFavorites);
-
-      if (wasAdded) {
-        await router.push(`/view/favorite?refresh=true`);
-      }
-    }
+  const Favorites = async (roomId: string, favoriteId: string) => {
+    await toggleFavorite(roomId, favoriteId);
+    router.push(`/view/favorite`);
   };
 
   useEffect(() => {
-    const savedFavorites = localStorage.getItem(AppKey.isFavorite);
-    if (savedFavorites) {
-      setIsFavorite(JSON.parse(savedFavorites));
-    }
+    getRooms();
+    getRate();
+    getFavorite();
   }, []);
+
   return (
     <>
       <Head>
@@ -179,6 +144,35 @@ function ExplorePage() {
               height: 60
             }}
           >
+            <IconButton onClick={decreaseBed} size="small">
+              <RemoveIcon />
+            </IconButton>
+            <TextField
+              value={
+                bed
+                  ? `${Number(bed)} Bed${Number(bed) > 1 ? 's' : ''}`
+                  : 'All Bed'
+              }
+              onChange={(e) => setBed(e.target.value)}
+              variant="outlined"
+              size="small"
+              sx={{ width: '300px', textAlign: 'center' }}
+            />
+            <IconButton onClick={increaseBed} size="small">
+              <AddIcon />
+            </IconButton>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '4px',
+              width: 300,
+              height: 60
+            }}
+          >
             <IconButton onClick={decreaseAdult} size="small">
               <RemoveIcon />
             </IconButton>
@@ -194,38 +188,6 @@ function ExplorePage() {
               sx={{ width: '300px', textAlign: 'center' }}
             />
             <IconButton onClick={increaseAdult} size="small">
-              <AddIcon />
-            </IconButton>
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              padding: '4px',
-              width: 300,
-              height: 60
-            }}
-          >
-            <IconButton onClick={decreaseChildren} size="small">
-              <RemoveIcon />
-            </IconButton>
-            <TextField
-              value={
-                children
-                  ? `${Number(children)} Children${
-                      Number(children) > 1 ? 's' : ''
-                    }`
-                  : 'All Childrens'
-              }
-              onChange={(e) => setChildren(e.target.value)}
-              variant="outlined"
-              size="small"
-              sx={{ width: '300px', textAlign: 'center' }}
-            />
-            <IconButton onClick={increaseChildren} size="small">
               <AddIcon />
             </IconButton>
           </Box>
@@ -263,9 +225,11 @@ function ExplorePage() {
               ?.filter(
                 (item) =>
                   (!adult || item.adult === adult) &&
-                  (!children || item.children === children) &&
+                  (!bed || item.bed === bed) &&
                   (!date ||
-                    dayjs(item.available.checkIn).format('YYYY/MM/DD') === date)
+                    (item.available &&
+                      dayjs(item.available.checkIn).format('YYYY/MM/DD') ===
+                        date))
               )
               .map((room, index) => {
                 if (unique.has(room?.place?.name)) return null;
@@ -301,7 +265,9 @@ function ExplorePage() {
                             : '/static/none_image.png'
                         }
                         alt={room?.place?.name}
-                        onClick={() => handleRoom(room.id)}
+                        onClick={() =>
+                          router.push(`/view/detail/room/${room.id}`)
+                        }
                       />
                       <IconButton
                         aria-label="add to favorites"
@@ -309,7 +275,7 @@ function ExplorePage() {
                           const favorite = dataFavorite.find(
                             (fav) => fav.room?.id === room?.id
                           );
-                          Favorite(room.id, favorite?.id);
+                          Favorites(room.id, favorite?.id);
                         }}
                         sx={{
                           position: 'absolute',
@@ -320,11 +286,16 @@ function ExplorePage() {
                           '&:hover': { backgroundColor: 'white' }
                         }}
                       >
-                        {isFavorite[room.id] ? (
-                          <FavoriteIcon color="error" />
-                        ) : (
-                          <FavoriteBorderIcon />
-                        )}
+                        {(() => {
+                          const favorite = dataFavorite.find(
+                            (fav) => fav.room?.id === room?.id
+                          );
+                          if (favorite?.save) {
+                            return <FavoriteIcon color="error" />;
+                          } else {
+                            return <FavoriteBorderIcon />;
+                          }
+                        })()}
                       </IconButton>
                     </Box>
 
@@ -382,8 +353,7 @@ function ExplorePage() {
                           gap: 1
                         }}
                       >
-                        {room?.place?.location?.address} •{' '}
-                        {room?.place?.location?.city}{' '}
+                        {room?.place?.location?.address}
                         <Typography
                           component="a"
                           href={`https://www.google.com/maps?q=${room?.place?.location?.latitude},${room?.place?.location?.longitude}`}
@@ -499,7 +469,7 @@ function ExplorePage() {
                             <Typography variant="body1">none</Typography>
                           )}
                         </Typography>
-                        , {room.adult} Adult{room.adult > 1 ? 's' : ''}
+                        , {room.bed} Bed{room.bed > 1 ? 's' : ''}
                       </Typography>
                       <Typography
                         variant="h6"
@@ -540,7 +510,7 @@ function ExplorePage() {
                                   $
                                   {(
                                     Number(room.price.pricing) -
-                                    Number(room.price.discount) +
+                                    Number(room.price.discount) -
                                     Number(room.price.taxes)
                                   ).toLocaleString()}
                                   {Number(room.price.taxes) > 0
@@ -557,7 +527,7 @@ function ExplorePage() {
                               >
                                 $
                                 {(
-                                  Number(room.price.pricing) +
+                                  Number(room.price.pricing) -
                                   Number(room.price.taxes)
                                 ).toLocaleString()}
                                 {Number(room.price.taxes) > 0
@@ -595,7 +565,9 @@ function ExplorePage() {
                           borderRadius: '8px',
                           width: '100%'
                         }}
-                        onClick={() => handleRoom(room.id)}
+                        onClick={() =>
+                          router.push(`/view/detail/room/${room.id}`)
+                        }
                       >
                         See availability
                       </Button>
@@ -606,6 +578,16 @@ function ExplorePage() {
           </Grid>
         </Box>
         {loading && <LoadingPage />}
+        {!loading && hasMore && (
+          <Button
+            variant="contained"
+            onClick={() => getRooms()}
+            disabled={loading}
+            style={{ marginTop: '16px' }}
+          >
+            Load More
+          </Button>
+        )}
       </Box>
 
       <FooterPage />

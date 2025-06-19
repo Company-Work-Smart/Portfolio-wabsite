@@ -8,7 +8,8 @@ import {
   IconButton,
   Dialog,
   DialogContent,
-  Divider
+  Divider,
+  DialogTitle
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -19,9 +20,9 @@ import { useEffect, useRef, useState } from 'react';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
 import { toggleFavorite } from '../Favorite';
-import { AppKey } from '@/constant/key';
 import { Pagination } from '@/constant/gagination';
 import RatingDialog, { renderStars } from '../Favorite/rating';
+import CloseIcon from '@mui/icons-material/Close';
 
 function WatchListImage() {
   const http = new HttpClient();
@@ -34,12 +35,12 @@ function WatchListImage() {
   const [roomId, setRoomId] = useState({});
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState<{ [key: string]: boolean }>({});
   const thumbnailsRef = useRef(null);
   const [pageSize] = useState<number>(Pagination.pageSize);
   const [pageNumber, setPageNumber] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMoreRF, setHasMoreRF] = useState(true);
   const [openRate, setOpenRate] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   const visibleThumbnails = 5;
   const imagesList = datasource?.images
@@ -80,73 +81,35 @@ function WatchListImage() {
     return imagesList.slice(start, end);
   };
 
-  const getFavorite = async () => {
-    if (!hasMore) return;
-    const res = await http.get(
-      `UserFavorite?pageNumber=${pageNumber}&pageSize=${pageSize}`
-    );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
-    setDataFavorite((prev) => [...prev, ...res]);
-    setPageNumber((prev) => prev + 1);
-  };
-
-  useEffect(() => {
-    getFavorite();
-    const interval = setInterval(() => {
-      getFavorite();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   const getRate = async () => {
-    if (!hasMore) return;
+    if (!hasMoreRF) return;
     const res = await http.get(
       `UserRate?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataRate((prev) => [...prev, ...res]);
-    setPageNumber((prev) => prev + 1);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
-
-  useEffect(() => {
-    getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleRate = async (roomId: string, rateId: string) => {
-    setRatingId(rateId);
     setRoomId(roomId);
+    setRatingId(rateId);
   };
 
-  const Favorite = async (roomId: string, favoriteId: string) => {
-    const { updatedFavorites, wasAdded } = await toggleFavorite(
-      roomId,
-      favoriteId,
-      isFavorite
+  const getFavorite = async () => {
+    if (!hasMoreRF) return;
+    const res = await http.get(
+      `UserFavorite?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-
-    if (updatedFavorites) {
-      setIsFavorite(updatedFavorites);
-
-      if (wasAdded) {
-        await router.push(`/view/favorite?refresh=true`);
-      }
-    }
+    setDataFavorite((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem(AppKey.isFavorite);
-    if (savedFavorites) {
-      setIsFavorite(JSON.parse(savedFavorites));
-    }
-  }, []);
+  const Favorites = async (roomId: string, favoriteId: string) => {
+    await toggleFavorite(roomId, favoriteId);
+    router.push(`/view/favorite`);
+  };
 
   const handleOpen = (index) => {
     setCurrentIndex(index);
@@ -168,6 +131,11 @@ function WatchListImage() {
       getItem(id);
     }
   }, [id]);
+
+  useEffect(() => {
+    getRate();
+    getFavorite();
+  }, []);
 
   return (
     <>
@@ -194,7 +162,7 @@ function WatchListImage() {
                     const favorite = dataFavorite.find(
                       (fav) => fav.room?.id === datasource?.id
                     );
-                    Favorite(datasource.id, favorite?.id);
+                    Favorites(datasource.id, favorite?.id);
                   }}
                   sx={{
                     position: 'absolute',
@@ -205,11 +173,16 @@ function WatchListImage() {
                     '&:hover': { backgroundColor: 'white' }
                   }}
                 >
-                  {isFavorite[datasource.id] ? (
-                    <FavoriteIcon color="error" />
-                  ) : (
-                    <FavoriteBorderIcon />
-                  )}
+                  {(() => {
+                    const favorite = dataFavorite.find(
+                      (fav) => fav.room?.id === datasource?.id
+                    );
+                    if (favorite?.save) {
+                      return <FavoriteIcon color="error" />;
+                    } else {
+                      return <FavoriteBorderIcon />;
+                    }
+                  })()}
                 </IconButton>
               </Grid>
               <Grid item xs={4} container direction="column" spacing={1}>
@@ -420,9 +393,39 @@ function WatchListImage() {
                 onClose={() => setOpenRate(false)}
               />
             </Box>
-            <Typography variant="body1" sx={{ textAlign: 'left', my: 2 }}>
-              {datasource?.place?.description}
-            </Typography>
+            <Box display="flex">
+              <Typography
+                variant="body1"
+                sx={{ textAlign: 'left', my: 2, pr: 2 }}
+              >
+                {datasource?.place?.description}
+              </Typography>
+
+              {datasource?.place?.videos?.length > 0 ? (
+                <>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      textAlign: 'left',
+                      my: 2,
+                      cursor: 'pointer',
+                      color: appColor.info
+                    }}
+                    onClick={() => {
+                      const firstUrl = datasource.place.videos[0].videos?.[0];
+                      if (firstUrl) {
+                        setSelectedVideo(firstUrl);
+                      }
+                    }}
+                  >
+                    Preview
+                  </Typography>
+                </>
+              ) : (
+                <></>
+              )}
+            </Box>
+
             <Divider />
             <Typography variant="h6" mt={1} fontWeight="bold">
               Most popular facilities
@@ -523,6 +526,39 @@ function WatchListImage() {
           </Box>
         </Card>
       </Grid>
+      <Dialog
+        open={Boolean(selectedVideo)}
+        onClose={() => setSelectedVideo(null)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Video Preview
+          <IconButton
+            aria-label="close"
+            onClick={() => setSelectedVideo(null)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {selectedVideo && (
+            <video
+              controls
+              autoPlay
+              style={{ width: '100%', height: 'auto', borderRadius: '10px' }}
+            >
+              <source src={selectedVideo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

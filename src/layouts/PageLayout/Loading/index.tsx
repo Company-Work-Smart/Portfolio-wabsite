@@ -1,55 +1,61 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import appColor from '@/theme/appColor';
 
 export const LoadingPage = () => {
+  const colors = [
+    appColor.loading1,
+    appColor.loading2,
+    appColor.loading3,
+    appColor.loading4,
+    appColor.loading5
+  ];
+
   return (
     <Box
       sx={{
+        backgroundColor: appColor.background,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        pt:8,
+        p: 2
       }}
     >
       <Box
+        sx={{
+          display: 'flex',
+          gap: 3
+        }}
       >
-        {Array.from({ length: 8 }, (_, index) => (
+        {colors.map((color, index) => (
           <Box
             key={index}
             sx={{
-              position: 'absolute',
-              width: '5px',
-              height: '16px',
+              width: 10,
+              height: 10,
               borderRadius: '50%',
-              backgroundColor: appColor.black,
-              opacity: 0.2 + index * 0.1,
-              animation: `loadingDots 1.5s linear infinite ${index * 0.1875}s`,
-              transformOrigin: '-10px -20px',
-              transform: `rotate(${index * 45}deg) translateY(-42px)`
+              backgroundColor: color,
+              animation: `bounce 1s infinite ease-in-out`,
+              animationDelay: `${index * 0.2}s`
             }}
           />
         ))}
         <style>
           {`
-            @keyframes loadingDots {
-              0% {
-                opacity: 0.2;
+            @keyframes bounce {
+              0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
               }
               50% {
+                transform: scale(1.5);
                 opacity: 1;
-              }
-              100% {
-                opacity: 0.2;
               }
             }
           `}
         </style>
       </Box>
-      <Typography variant="h6" sx={{ mt: 3 }}>
-        Loading, please wait ...
-      </Typography>
     </Box>
   );
 };

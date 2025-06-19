@@ -9,15 +9,16 @@ import {
   Box,
   Autocomplete,
   TextField,
+  Button
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
 import appColor from '@/theme/appColor';
-import { ButtonSearch, useManualLoad } from '@/helpers/render';
+import { ButtonSearch } from '@/helpers/render';
 import LoadingPage from '@/layouts/PageLayout/Loading';
 import { provinces } from '@/helpers';
 
@@ -28,27 +29,26 @@ function ProvincePage() {
   const unique = new Set();
   const [datasource, setDatasource] = useState([]);
   const [pageSize] = useState<number>(Pagination.pageSize);
+  const [pageNumber, setPageNumber] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
   const getPlace = async () => {
-    if (!hasMore || loading) return;
+    if (loading || !hasMore) return;
     setLoading(true);
     const res = await http.get(
-      `AnonymousPlace?pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `UserPlace?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDatasource((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMore(false);
+    else setPageNumber((prev) => prev + 1);
     setLoading(false);
   };
-  const { pageNumber } = useManualLoad({ onLoadMore: getPlace });
 
-  const handleProvince = (id: string) => {
-    router.push(`/view/place/${id}`);
-  };
+  useEffect(() => {
+    getPlace();
+  }, []);
 
   return (
     <>
@@ -152,7 +152,7 @@ function ProvincePage() {
                         </Typography>
 
                         <CardMedia
-                          onClick={() => handleProvince(place.id)}
+                          onClick={() => router.push(`/view/place/${place.id}`)}
                           component="img"
                           sx={{
                             width: '100%',
@@ -176,8 +176,18 @@ function ProvincePage() {
               })}
           </Grid>
         </Box>
-        
         {loading && <LoadingPage />}
+        {!loading && hasMore && (
+          <Button
+            variant="contained"
+            onClick={() => getPlace()}
+            disabled={loading}
+            style={{ marginTop: '16px' }}
+          >
+            Load More
+          </Button>
+        )}
+
       </Box>
       <FooterPage />
     </>

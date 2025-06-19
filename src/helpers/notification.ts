@@ -21,6 +21,23 @@ export const useNotification = () => {
     }
   };
 
+  const sendNotification1day = (title: string, message: string, path: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    const lastAlertDate = localStorage.getItem('lastExpireAlert');
+    if (lastAlertDate === today) return;
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification(title, {
+        body: message,
+        icon: '/static/logoApp.png'
+      });
+      notification.onclick = () => {
+        window.open(`${window.location.origin}/${path}`, '_blank');
+      };
+      localStorage.setItem('lastExpireAlert', today);
+    }
+  };
+
   const requestNotificationPermission = useCallback(() => {
     if ('Notification' in window) {
       Notification.requestPermission().then(function (permission) {
@@ -39,5 +56,5 @@ export const useNotification = () => {
     }
   }, []);
 
-  return { requestNotificationPermission, sendNotification };
+  return { requestNotificationPermission, sendNotification,sendNotification1day };
 };

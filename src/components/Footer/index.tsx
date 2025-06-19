@@ -28,12 +28,8 @@ function Footer() {
           variant="subtitle1"
         >
           Crafted by{' '}
-          <Link
-            href="https://api.archtist-studio.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-           jabjit.com
+          <Link href={"https://jabjit.site"} target="_blank" rel="noopener noreferrer">
+            jabjit.com
           </Link>
         </Typography>
       </Box>

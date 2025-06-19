@@ -175,7 +175,7 @@ function AccountBalance() {
                   fontWeight="normal"
                   color="text.secondary"
                 >
-                  {totalItem} Admin
+                  {totalItem} Balance
                 </Typography>
                 <Box
                   display="flex"
@@ -193,13 +193,15 @@ function AccountBalance() {
                     <TrendingUp fontSize="large" />
                   </AvatarSuccess>
                   <Box>
-                    <Typography variant="h4">+ $3,594.00</Typography>
+                    <Typography variant="h4">
+                      + ${totalAmount?.toFixed(2)}
+                    </Typography>
                     <Typography variant="subtitle2" noWrap>
                       this month
                     </Typography>
                   </Box>
                 </Box>
-              </Box>             
+              </Box>
               <Grid container spacing={3}>
                 <Grid sm item>
                   <Button fullWidth variant="outlined">

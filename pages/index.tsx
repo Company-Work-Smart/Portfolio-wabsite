@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import {
-  Typography,
-  Button,
-  Box,
-} from '@mui/material';
+import { Typography, Button, Box } from '@mui/material';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import FooterPage from '@/layouts/PageLayout/Fooder';
 import { HttpClient } from '@/services/http-client';
@@ -17,9 +13,9 @@ import { useRouter } from 'next/router';
 function HomePage() {
   const title = 'HomePage';
   const http = new HttpClient();
+  const unique = new Set();
   const router = useRouter();
   const [datasource, setDatasource] = useState([]);
-  const unique = new Set();
 
   const getPlace = async () => {
     const res = await http.get(`AnonymousPlace`);
@@ -62,7 +58,7 @@ function HomePage() {
             fontSize: { xs: '0.8rem', sm: '1rem' },
             maxWidth: 700,
             mx: 'auto',
-            px:2
+            px: 2
           }}
         >
           Explore your trip with the most talented and accomplished reservation
@@ -78,15 +74,6 @@ function HomePage() {
             gap: 2
           }}
         >
-          <Button
-            variant="contained"
-            sx={{
-              borderRadius: '10px',
-              width: { xs: '100%', sm: 'auto' }
-            }}
-          >
-            Popular
-          </Button>
           <Box
             sx={{
               display: 'flex',
@@ -117,16 +104,6 @@ function HomePage() {
               );
             })}
           </Box>
-
-          <Button
-            variant="contained"
-            sx={{
-              borderRadius: '10px',
-              width: { xs: '100%', sm: 'auto' }
-            }}
-          >
-            Filters
-          </Button>
         </Box>
 
         <ProvincePage />

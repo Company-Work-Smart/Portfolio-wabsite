@@ -48,7 +48,7 @@ function AdminAdminFormManagement() {
     longitude: ''
   });
 
-  const [Position, setPosition] = useState(defaultCenter);
+  const [position, setPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
 
@@ -220,11 +220,11 @@ function AdminAdminFormManagement() {
 
                     <GoogleMap
                       mapContainerStyle={containerStyle}
-                      center={Position}
+                      center={position}
                       zoom={12}
                       onClick={handleMapClick}
                     >
-                      <Marker position={Position} />
+                      <Marker position={position} />
                     </GoogleMap>
                   </LoadScript>
                 </Box>

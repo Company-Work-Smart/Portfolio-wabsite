@@ -25,6 +25,7 @@ import {
   useTheme
 } from '@mui/material';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { Pagination } from '@/constant/gagination';
@@ -138,10 +139,6 @@ function AdminSuperAdminManagement() {
 
   useEffect(() => {
     getAdmins();
-    const interval = setInterval(() => {
-      getAdmins();
-    }, 1000);
-    return () => clearInterval(interval);
   }, [pageNumber, pageSize]);
 
   return (
@@ -180,7 +177,9 @@ function AdminSuperAdminManagement() {
                       <TableCell>Username</TableCell>
                       <TableCell>Email</TableCell>
                       <TableCell>Role</TableCell>
+                      <TableCell>Contact</TableCell>
                       <TableCell>Status</TableCell>
+                     
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -191,6 +190,19 @@ function AdminSuperAdminManagement() {
                         <TableCell>{item.username}</TableCell>
                         <TableCell>{item.email}</TableCell>
                         <TableCell>{item.role}</TableCell>
+                        <TableCell>
+                          <Tooltip title="Contact" arrow>
+                            <IconButton
+                              onClick={() =>  router.push(
+                                `/applications/superAdmin/messenger/${item.id}`
+                              )}
+                              color="primary"
+                              size="small"
+                            >
+                              <LocalPostOfficeIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
                         <TableCell>
                           <Tooltip
                             title={

@@ -5,40 +5,57 @@ import { HttpClient } from '@/services/http-client';
 import { AppKey } from '@/constant/key';
 import appColor from '@/theme/appColor';
 
-const http = new HttpClient();
+export const PeopleRate = {
+  number: 100,
+  default: 1
+};
 
 const RatingDialog = ({ roomId, rateId, open, onClose }) => {
-  const [userId, setUserId] = useState<string | null>(null);
+  const http = new HttpClient();
   const [selectedRating, setSelectedRating] = useState(0);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setUserId(localStorage.getItem(AppKey.userId));
+      const uid = localStorage.getItem(AppKey.userId);
+      setUserId(uid);
     }
   }, []);
 
-  if (!userId) return null; 
+  useEffect(() => {
+    if (!open) return;
+    setSelectedRating(0);
+  }, [open]);
 
   const toggleRating = async (rating: number) => {
-    if (!roomId) return;
+    if (!userId) return;
+
+    setSelectedRating(rating);
+
+    const rate = await http.get(`UserRate`);
+    const isRate = rate.find((item: any) => item.id === rateId);
 
     try {
-      setSelectedRating(rating);
-      if (rateId) {
-        await http.put(`UserRate/${rateId}`, { rating: rating.toString() });
+      if (isRate) {
+        await http.put(`UserRate/${isRate.id}`, {
+          rating: rating.toString()
+        });
       } else {
         await http.post(`UserRate`, {
           userId,
           roomId,
-          rating: rating.toString(),
+          rating: rating.toString()
         });
       }
-
-      onClose();
     } catch (error) {
-      console.error('Error toggling rating:', error);
+      console.error('Rating error:', error);
+    } finally {
+      onClose();
+      setSelectedRating(0);
     }
   };
+
+  if (!userId) return null;
 
   return (
     <Dialog open={open} onClose={onClose}>

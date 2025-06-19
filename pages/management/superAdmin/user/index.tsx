@@ -25,17 +25,20 @@ import {
   useTheme
 } from '@mui/material';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
 import { HttpClient } from '@/services/http-client';
 import { Pagination } from '@/constant/gagination';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
+import { useRouter } from 'next/router';
 
 const UserSuperAdminManagement = () => {
   const title = 'User Management';
   const { showSnackbar } = useContext(SnackbarContext);
   const http = new HttpClient();
+    const router = useRouter();
   const [datasource, setDatasource] = useState<any[]>(null);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(Pagination.pageSize);
@@ -94,10 +97,6 @@ const UserSuperAdminManagement = () => {
 
   useEffect(() => {
     getUsers();
-    const interval = setInterval(() => {
-      getUsers();
-    }, 1000);
-    return () => clearInterval(interval);
   }, [pageNumber, pageSize]);
 
   return (
@@ -136,6 +135,7 @@ const UserSuperAdminManagement = () => {
                       <TableCell>Username</TableCell>
                       <TableCell>Email</TableCell>
                       <TableCell>Role</TableCell>
+                      <TableCell>Contact</TableCell>
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -146,6 +146,21 @@ const UserSuperAdminManagement = () => {
                         <TableCell>{item.username}</TableCell>
                         <TableCell>{item.email}</TableCell>
                         <TableCell>{item.role}</TableCell>
+                        <TableCell>
+                          <Tooltip title="Contact" arrow>
+                            <IconButton
+                              onClick={() =>
+                                router.push(
+                                  `/applications/superAdmin/messenger/${item.id}`
+                                )
+                              }
+                              color="primary"
+                              size="small"
+                            >
+                              <LocalPostOfficeIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
                         <TableCell align="right">
                           <Tooltip title="Edit Role" arrow>
                             <IconButton

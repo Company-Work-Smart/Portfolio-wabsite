@@ -2,6 +2,7 @@ import React from 'react';
 import { AppBar, Typography, Box, Grid, Container } from '@mui/material';
 import appColor from '@/theme/appColor';
 import { useRouter } from 'next/router';
+import { MyApp } from '@/constant/my-app';
 
 function FooterPage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ function FooterPage() {
               Manage your trips
             </Typography>
             <Typography
-             onClick={() => router.push(`/view/support`)}
+              onClick={() => router.push(`/view/support`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -80,6 +81,7 @@ function FooterPage() {
               Discover
             </Typography>
             <Typography
+              onClick={() => router.push(`/view/place`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -91,6 +93,7 @@ function FooterPage() {
               Seasonal and holiday deals
             </Typography>
             <Typography
+              onClick={() => router.push(`/view/billing`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -114,7 +117,7 @@ function FooterPage() {
               Terms and settings
             </Typography>
             <Typography
-              onClick={() => router.push(`/view/cookie-policy`)}
+              onClick={() => router.push(`/view/privacy-policy`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -175,6 +178,7 @@ function FooterPage() {
               Partners
             </Typography>
             <Typography
+              onClick={() => router.push(`https://archtist-studio.xyz`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -186,6 +190,7 @@ function FooterPage() {
               Extranet login
             </Typography>
             <Typography
+              onClick={() => router.push(`https://archtist-studio.xyz`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -197,6 +202,7 @@ function FooterPage() {
               Partner help
             </Typography>
             <Typography
+              onClick={() => router.push(`https://archtist-studio.xyz`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -208,6 +214,7 @@ function FooterPage() {
               List your property
             </Typography>
             <Typography
+              onClick={() => router.push(`https://archtist-studio.xyz`)}
               variant="body2"
               sx={{
                 mb: 0.5,
@@ -241,7 +248,7 @@ function FooterPage() {
                 color: 'black'
               }}
             >
-              About JabJit.com
+              About {MyApp.domain}
             </Typography>
             <Typography
               variant="body2"
@@ -266,6 +273,7 @@ function FooterPage() {
               Press centre
             </Typography>
             <Typography
+              onClick={() => router.push(`/view/billing`)}
               variant="body2"
               sx={{
                 mb: 0.5,

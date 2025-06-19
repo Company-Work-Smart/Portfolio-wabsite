@@ -6,19 +6,19 @@ import {
   Grid,
   Card,
   CardMedia,
-  IconButton
+  IconButton,
+  Button
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { calculateNights } from '@/helpers/calulate';
 import { datetime1week } from '@/helpers/datetime';
-import { PeopleRate, useManualLoad } from '@/helpers/render';
-import LoadingPage from '@/layouts/PageLayout/Loading';
-import { AppKey } from '@/constant/key';
 import { toggleFavorite } from '../Favorite';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import RatingDialog, { renderStars } from '../Favorite/rating';
+import RatingDialog, { PeopleRate, renderStars } from '../Favorite/rating';
+import appColor from '@/theme/appColor';
+import LoadingPage from '@/layouts/PageLayout/Loading';
 
 function ListTime({ id }: { id: string | null }) {
   const http = new HttpClient();
@@ -31,18 +31,12 @@ function ListTime({ id }: { id: string | null }) {
   const [ratingId, setRatingId] = useState({});
   const [roomId, setRoomId] = useState({});
   const [pageSize] = useState<number>(Pagination.pageSize);
-  const [pageNumberR, setPageNumberR] = useState(1);
+  const [pageNumber, setPageNumber] = useState(1);
   const { start, end } = datetime1week();
-  const [isFavorite, setIsFavorite] = useState<{ [key: string]: boolean }>({});
   const [hasMore, setHasMore] = useState(true);
+  const [hasMoreRF, setHasMoreRF] = useState(true);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const { pageNumber } = useManualLoad({
-    onLoadMore: () => {
-      getRooms();
-      getFavorite();
-    }
-  });
 
   const getItem = async (id: string) => {
     const res = await http.get(`UserRoom/${id}`);
@@ -55,32 +49,21 @@ function ListTime({ id }: { id: string | null }) {
     const res = await http.get(
       `UserRoom/available/now?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDatasourceList((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMore(false);
+    else setPageNumber((prev) => prev + 1);
     setLoading(false);
   };
 
   const getRate = async () => {
-    if (!hasMore) return;
+    if (!hasMoreRF) return;
     const res = await http.get(
-      `UserRate?pageNumber=${pageNumberR}&pageSize=${pageSize}`
+      `UserRate?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataRate((prev) => [...prev, ...res]);
-    setPageNumberR((prev) => prev + 1);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
-
-  useEffect(() => {
-    getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleRate = async (roomId: string, rateId: string) => {
     setRatingId(rateId);
@@ -88,35 +71,18 @@ function ListTime({ id }: { id: string | null }) {
   };
 
   const getFavorite = async () => {
-    if (!hasMore || loading) return;
-    setLoading(true);
+    if (!hasMoreRF) return;
     const res = await http.get(
       `UserFavorite?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataFavorite((prev) => [...prev, ...res]);
-    setLoading(false);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  const Favorite = async (roomId: string, favoriteId: string) => {
-    const { updatedFavorites, wasAdded } = await toggleFavorite(
-      roomId,
-      favoriteId,
-      isFavorite
-    );
-    if (updatedFavorites) {
-      setIsFavorite(updatedFavorites);
-
-      if (wasAdded) {
-        await router.push(`/view/favorite?refresh=true`);
-      }
-    }
-  };
-
-  const handleViewRoom = (id: string) => {
-    router.push(`/view/detail/room/${id}`);
+  const Favorites = async (roomId: string, favoriteId: string) => {
+    await toggleFavorite(roomId, favoriteId);
+    router.push(`/view/favorite`);
   };
 
   useEffect(() => {
@@ -126,10 +92,9 @@ function ListTime({ id }: { id: string | null }) {
   }, [id]);
 
   useEffect(() => {
-    const savedFavorites = localStorage.getItem(AppKey.isFavorite);
-    if (savedFavorites) {
-      setIsFavorite(JSON.parse(savedFavorites));
-    }
+    getRooms();
+    getRate();
+    getFavorite();
   }, []);
 
   return (
@@ -188,7 +153,9 @@ function ListTime({ id }: { id: string | null }) {
                           objectFit: 'cover',
                           cursor: 'pointer'
                         }}
-                        onClick={() => handleViewRoom(room.id)}
+                        onClick={() =>
+                          router.push(`/view/detail/room/${room.id}`)
+                        }
                         image={
                           room?.images && room?.images?.length
                             ? room?.images.flatMap((item) => item.images)[0]
@@ -202,7 +169,7 @@ function ListTime({ id }: { id: string | null }) {
                           const favorite = dataFavorite.find(
                             (fav) => fav.room?.id === room?.id
                           );
-                          Favorite(room.id, favorite?.id);
+                          Favorites(room.id, favorite?.id);
                         }}
                         sx={{
                           position: 'absolute',
@@ -213,11 +180,16 @@ function ListTime({ id }: { id: string | null }) {
                           '&:hover': { backgroundColor: 'white' }
                         }}
                       >
-                        {isFavorite[room.id] ? (
-                          <FavoriteIcon color="error" />
-                        ) : (
-                          <FavoriteBorderIcon />
-                        )}
+                        {(() => {
+                          const favorite = dataFavorite.find(
+                            (fav) => fav.room?.id === room?.id
+                          );
+                          if (favorite?.save) {
+                            return <FavoriteIcon color="error" />;
+                          } else {
+                            return <FavoriteBorderIcon />;
+                          }
+                        })()}
                       </IconButton>
                       <Box
                         sx={{
@@ -228,7 +200,9 @@ function ListTime({ id }: { id: string | null }) {
                         }}
                       >
                         <Box
-                          onClick={() => handleViewRoom(room.id)}
+                          onClick={() =>
+                            router.push(`/view/detail/room/${room.id}`)
+                          }
                           sx={{ cursor: 'pointer' }}
                         >
                           <Typography
@@ -248,8 +222,8 @@ function ListTime({ id }: { id: string | null }) {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                              display: 'flex',
-                              justifyContent: 'start'
+                              display: 'block',
+                              textAlign: 'left'
                             }}
                           >
                             {room?.place?.location?.address}
@@ -313,8 +287,7 @@ function ListTime({ id }: { id: string | null }) {
                             <Box
                               sx={{
                                 display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
+                                textAlign: 'end'
                               }}
                             >
                               {room.price.discount &&
@@ -324,10 +297,8 @@ function ListTime({ id }: { id: string | null }) {
                                   <Typography
                                     sx={{
                                       textDecoration: 'line-through',
-                                      color: 'red',
-                                      fontSize: 12,
-                                      display: 'flex',
-                                      justifyContent: 'end'
+                                      color: appColor.textprice,
+                                      fontSize: 12
                                     }}
                                   >
                                     $
@@ -337,35 +308,50 @@ function ListTime({ id }: { id: string | null }) {
                                   </Typography>
                                   <Typography
                                     sx={{
-                                      color: 'black',
-                                      fontSize: 12,
-                                      display: 'flex',
-                                      justifyContent: 'end'
+                                      color: appColor.textblack,
+                                      fontSize: 12
                                     }}
                                   >
                                     $
-                                    {Number(
-                                      room.price.discount
+                                    {(
+                                      Number(room.price.pricing) -
+                                      Number(room.price.discount) -
+                                      Number(room.price.taxes)
                                     ).toLocaleString()}
-                                    /night
+                                    {Number(room.price.taxes) > 0
+                                      ? ' /night (incl. tax)'
+                                      : ' /night'}
                                   </Typography>
                                 </>
                               ) : (
                                 <Typography
                                   sx={{
-                                    color: 'black',
-                                    fontSize: 12,
-                                    display: 'flex',
-                                    justifyContent: 'end'
+                                    color: appColor.textblack,
+                                    fontSize: 12
                                   }}
                                 >
-                                  ${Number(room.price.pricing).toLocaleString()}
-                                  /night
+                                  $
+                                  {(
+                                    Number(room.price.pricing) -
+                                    Number(room.price.taxes)
+                                  ).toLocaleString()}
+                                  {Number(room.price.taxes) > 0
+                                    ? ' /night (incl. tax)'
+                                    : ' /night'}
                                 </Typography>
                               )}
                             </Box>
                           ) : (
-                            <></>
+                            <Typography
+                              sx={{
+                                color: appColor.textgray,
+                                fontSize: 12,
+                                display: 'flex',
+                                justifyContent: 'end'
+                              }}
+                            >
+                              None
+                            </Typography>
                           )}
                         </Box>
                       </Box>
@@ -377,6 +363,16 @@ function ListTime({ id }: { id: string | null }) {
         )}
       </Box>
       {loading && <LoadingPage />}
+      {!loading && hasMore && (
+        <Button
+          variant="contained"
+          onClick={() => getRooms()}
+          disabled={loading}
+          style={{ marginTop: '16px' }}
+        >
+          Load More
+        </Button>
+      )}
     </>
   );
 }

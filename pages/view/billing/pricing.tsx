@@ -7,13 +7,10 @@ import {
   IconButton,
   Card
 } from '@mui/material';
-import { useContext, useEffect, useState } from 'react';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import StarIcon from '@mui/icons-material/Star';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
-import { initializePaddle, Paddle } from '@paddle/paddle-js';
-import { MyApp } from '@/constant/my-app';
-import { SnackbarContext } from '@/contexts/SnackbarContext';
+import { useRouter } from 'next/router';
 
 interface PricingPlanProps {
   icon: JSX.Element;
@@ -34,43 +31,10 @@ const PricingPlanCard: React.FC<PricingPlanProps> = ({
   features,
   priceId
 }) => {
-  const { showSnackbar } = useContext(SnackbarContext);
-  const [paddle, setPaddle] = useState<Paddle>();
+  const router = useRouter();
 
-  useEffect(() => {
-    initializePaddle({
-      environment: 'sandbox',
-      token: MyApp.tokenPaymen
-    })
-      .then((paddle) => setPaddle(paddle))
-      .catch((e) =>
-        showSnackbar({
-          type: 'error',
-          message: `Paddle Init Error: ${e}`
-        })
-      );
-  }, [paddle, showSnackbar]);
-
-  const handleCheckout = (priceId: string) => {
-    if (!paddle)
-      return showSnackbar({
-        type: 'warning',
-        message: `Paddle not initialized`
-      });
-
-    paddle.Checkout.open({
-      items: [
-        {
-          priceId,
-          quantity: 1
-        }
-      ],     
-      settings: {
-        displayMode: 'overlay',
-        theme: 'dark',
-        successUrl: `http://localhost:3000/view/billing/${priceId}`
-      }
-    });
+  const verifyPlace = (priceId: any) => {
+    router.push(`/view/verify-place/${priceId}`);
   };
 
   return (
@@ -104,8 +68,7 @@ const PricingPlanCard: React.FC<PricingPlanProps> = ({
         variant="contained"
         fullWidth
         sx={{ marginBottom: '24px' }}
-        onClick={() => handleCheckout(priceId)}
-        disabled={!paddle}
+        onClick={() => verifyPlace(priceId)}
       >
         {topup}
       </Button>
@@ -132,7 +95,7 @@ export const StarterPlan = {
   description:
     'Ideal for individuals who want to get started with simple design tasks.',
   features: ['1 workspace', 'Limited collaboration', 'Export to PNG and SVG'],
-  priceId: 'pri_01jpccwp6xqq7328yvx5qa7jks'
+  priceId: '68fe533d-33dd-43f5-be8a-17fcd68bd4b7_$12'
 };
 
 export const ProPlan = {
@@ -148,13 +111,13 @@ export const ProPlan = {
     'Export to PNG, SVG, and PDF',
     'Priority support'
   ],
-  priceId: 'pri_01jpcaypxzr93d9gy0e4qq91yd'
+  priceId: '56d983fc-0ca4-46cf-8458-c40f10471e4f_$100'
 };
 
 export const AdvancedPlan = {
   icon: <WorkspacePremiumIcon />,
   title: 'Advanced Plan',
-  price: '$270.00/ 3year',
+  price: '$290.00/ 3year',
   topup: 'Upgrade Now',
   description:
     'Best for teams and organizations who need advanced features and unlimited workspaces.',
@@ -164,5 +127,5 @@ export const AdvancedPlan = {
     'Export to PNG, SVG, PDF, and AI',
     'Dedicated account manager'
   ],
-  priceId: 'pri_01jpccyy5vwwv67brn713qq8pd'
+  priceId: '32ae3cbd-fac8-4d23-ba97-d3f325ee559d_$290'
 };

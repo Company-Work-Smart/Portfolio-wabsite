@@ -1,70 +1,93 @@
-import { Pagination } from '@/constant/gagination';
 import LoadingPage from '@/layouts/PageLayout/Loading';
 import { HttpClient } from '@/services/http-client';
 import appColor from '@/theme/appColor';
-import { Box, CardMedia, Grid, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CardMedia,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Typography
+} from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 
 function ProvincePage() {
   const http = new HttpClient();
   const router = useRouter();
   const unique = new Set();
-  const [datasource, setDatasource] = useState<any[]>(null);
-  const [pageNumber] = useState<number>(0);
-  const [pageSize] = useState<number>(Pagination.pageSize);
+  const [datasource, setDatasource] = useState<any[]>([]);
+  const [datasourceVideo, setDatasourceVideo] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   const getPlace = async () => {
     setLoading(true);
-    const res = await http.get(
-      `AnonymousPlace?pageNumber=${pageNumber + 1}&pageSize=${pageSize}`
-    );
+    const res = await http.get(`AnonymousPlace?pageNumber=${1}&pageSize=${12}`);
     setDatasource(res);
     setLoading(false);
   };
 
-  const handleProvince = (id: string) => {
-    router.push(`/view/place/${id}`);
+  const getVideo = async () => {
+    const res = await http.get(`AnonymoussPreview`);
+    setDatasourceVideo(res);
   };
 
   useEffect(() => {
     getPlace();
-  }, [pageNumber, pageSize, router.query.refresh]);
+    getVideo();
+  }, []);
 
   return (
     <>
       <Box sx={{ py: 5, px: 5 }}>
         <Box
           sx={{
-            p: 5,
             display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: 3,
-            alignItems: 'center'
+            flexWrap: 'wrap'
           }}
         >
-          <Box>
-            <iframe
-              src="https://www.youtube.com/embed/gh8Hg-aj0oA"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </Box>
-
-          <Box>
-            <iframe
-              src="https://www.youtube.com/embed/gh8Hg-aj0oA"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </Box>
+          {datasourceVideo?.map((item, index) => (
+            <Box
+              key={index}
+              sx={{
+                width: '50%',
+                p: 2,
+                alignItems: 'center'
+              }}
+            >
+              <video
+                controls
+                autoPlay
+                muted
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '10px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setSelectedVideo(item?.videos?.[0])}
+              >
+                <source
+                  src={
+                    item?.videos?.length
+                      ? item.videos[0]
+                      : '/static/none_image.png'
+                  }
+                  type="video/mp4"
+                />
+              </video>
+            </Box>
+          ))}
         </Box>
+
         <Grid container spacing={4} justifyContent="center">
           {datasource?.slice(0, 12)?.map((place, index) => {
             if (unique.has(place?.category)) return null;
@@ -108,7 +131,7 @@ function ProvincePage() {
                     </Typography>
 
                     <CardMedia
-                      onClick={() => handleProvince(place.id)}
+                      onClick={() => router.push(`/view/place/${place.id}`)}
                       component="img"
                       sx={{
                         width: '100%',
@@ -133,6 +156,44 @@ function ProvincePage() {
         </Grid>
         {loading && <LoadingPage />}
       </Box>
+      <Dialog
+        open={Boolean(selectedVideo)}
+        onClose={() => setSelectedVideo(null)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Video Preview
+          <IconButton
+            aria-label="close"
+            onClick={() => setSelectedVideo(null)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {selectedVideo && (
+            <video
+              controls
+              autoPlay
+              style={{ width: '100%', height: 'auto', borderRadius: '10px' }}
+            >
+              <source src={selectedVideo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSelectedVideo(null)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

@@ -26,6 +26,15 @@ interface HeaderLayoutProps {
   children?: ReactNode;
 }
 
+const navItems = [
+  { label: 'Explore', path: '/view/explore' },
+  { label: 'Place', path: '/view/place' },
+  { label: 'Find', path: '/view/find' },
+  { label: 'Favorite', path: '/view/favorite' },
+  { label: 'Location', path: '/view/location' },
+  { label: 'Messenger', path: '/applications/user/messenger' }
+];
+
 const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
   const http = new HttpClient();
   const router = useRouter();
@@ -61,7 +70,9 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    getUser();
+    if (user.userId) {
+      getUser();
+    }
   }, [user]);
 
   return (
@@ -77,6 +88,7 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
         }}
       >
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          {/* Mobile Menu Icon */}
           <IconButton
             sx={{ display: { xs: 'block', md: 'none' } }}
             onClick={toggleSidebar(true)}
@@ -84,31 +96,31 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
             <MenuIcon />
           </IconButton>
 
+          {/* Desktop Nav Items */}
           <Box
             sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}
           >
             <Box sx={{ ml: 3, display: 'flex', gap: 2 }}>
-              {['Explore', 'Place', 'Find', 'Favorite', 'Location'].map(
-                (item) => (
-                  <Typography
-                    key={item}
-                    variant="body1"
-                    sx={{
-                      color: 'black',
-                      cursor: 'pointer',
-                      transition:
-                        'transform 0.3s ease-in-out, color 0.3s ease-in-out',
-                      '&:hover': { color: 'black', transform: 'scale(1.05)' }
-                    }}
-                    onClick={() => router.push(`/view/${item.toLowerCase()}`)}
-                  >
-                    {item}
-                  </Typography>
-                )
-              )}
+              {navItems.map((item) => (
+                <Typography
+                  key={item.label}
+                  variant="body1"
+                  sx={{
+                    color: 'black',
+                    cursor: 'pointer',
+                    transition:
+                      'transform 0.3s ease-in-out, color 0.3s ease-in-out',
+                    '&:hover': { color: 'black', transform: 'scale(1.05)' }
+                  }}
+                  onClick={() => router.push(item.path)}
+                >
+                  {item.label}
+                </Typography>
+              ))}
             </Box>
           </Box>
 
+          {/* Logo */}
           <Typography
             variant="h6"
             sx={{
@@ -116,7 +128,7 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
               color: 'black',
               fontWeight: 'bold',
               m: 1,
-              pr: 14,
+              pr: 24,
               fontSize: 30,
               cursor: 'pointer',
               display: { xs: 'none', sm: 'none', md: 'block' }
@@ -126,6 +138,7 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
             JabJit Booking
           </Typography>
 
+          {/* User Actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {!hasToken ? (
               <>
@@ -175,13 +188,14 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
                     cursor: 'pointer'
                   }}
                   image={datasource?.photo || '/static/user-modified.png'}
-                />            
+                />
               </>
             )}
           </Box>
         </Toolbar>
       </AppBar>
 
+      {/* Drawer for mobile menu */}
       <Drawer anchor="left" open={sidebarOpen} onClose={toggleSidebar(false)}>
         <Box sx={{ width: 300, p: 2 }}>
           <Box
@@ -200,7 +214,10 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
                 fontWeight: 'bold',
                 cursor: 'pointer'
               }}
-              onClick={() => router.push('/')}
+              onClick={() => {
+                router.push('/');
+                setSidebarOpen(false);
+              }}
             >
               JabJit Booking
             </Typography>
@@ -209,17 +226,18 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
             </IconButton>
           </Box>
           <List>
-            {['Explore', 'Place', 'Find', 'Favorite', 'Location'].map(
-              (item) => (
-                <ListItem
-                  button
-                  key={item}
-                  onClick={() => router.push(`/view/${item.toLowerCase()}`)}
-                >
-                  <ListItemText primary={item} />
-                </ListItem>
-              )
-            )}
+            {navItems.map((item) => (
+              <ListItem
+                button
+                key={item.label}
+                onClick={() => {
+                  router.push(item.path);
+                  setSidebarOpen(false);
+                }}
+              >
+                <ListItemText primary={item.label} />
+              </ListItem>
+            ))}
           </List>
         </Box>
       </Drawer>

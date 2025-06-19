@@ -1,13 +1,11 @@
-import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import { Typography, Box, Grid, Card, CardMedia } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { calculateNights } from '@/helpers/calulate';
 import { datetime2week } from '@/helpers/datetime';
-import { PeopleRate, useManualLoad } from '@/helpers/render';
 import LoadingPage from '@/layouts/PageLayout/Loading';
-import { renderStars } from '../Favorite/rating';
+import { PeopleRate, renderStars } from '../Favorite/rating';
 import appColor from '@/theme/appColor';
 
 function ListTime() {
@@ -15,25 +13,14 @@ function ListTime() {
   const router = useRouter();
   const unique = new Set();
   const [datasource, setDatasource] = useState([]);
-  const [pageSize] = useState<number>(Pagination.pageSize);
   const { start, end } = datetime2week();
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { pageNumber } = useManualLoad({
-    onLoadMore: () => {
-      getRooms();
-    }
-  });
 
   const getRooms = async () => {
-    if (!hasMore || loading) return;
     setLoading(true);
     const res = await http.get(
-      `AnonymousRoom/available/now?pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `AnonymousRoom/available/now?pageNumber=${1}&pageSize=${20}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDatasource((prev) => [...prev, ...res]);
     setLoading(false);
   };
@@ -41,6 +28,10 @@ function ListTime() {
   const handleRoom = (id: string) => {
     router.push(`/view/detail/room/${id}`);
   };
+
+  useEffect(() => {
+    getRooms();
+  }, []);
 
   return (
     <>
@@ -139,8 +130,8 @@ function ListTime() {
                           variant="body2"
                           color="text.secondary"
                           sx={{
-                            display: 'flex',
-                            justifyContent: 'start'
+                            display: 'block',
+                            textAlign: 'left'
                           }}
                         >
                           {room?.place?.location?.address}
@@ -191,9 +182,7 @@ function ListTime() {
                           <Box
                             sx={{
                               display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'end',
-                              gap: 1
+                              textAlign: 'end'
                             }}
                           >
                             {room.price.discount &&
@@ -218,7 +207,7 @@ function ListTime() {
                                   $
                                   {(
                                     Number(room.price.pricing) -
-                                    Number(room.price.discount) +
+                                    Number(room.price.discount) -
                                     Number(room.price.taxes)
                                   ).toLocaleString()}
                                   {Number(room.price.taxes) > 0
@@ -235,7 +224,7 @@ function ListTime() {
                               >
                                 $
                                 {(
-                                  Number(room.price.pricing) +
+                                  Number(room.price.pricing) -
                                   Number(room.price.taxes)
                                 ).toLocaleString()}
                                 {Number(room.price.taxes) > 0

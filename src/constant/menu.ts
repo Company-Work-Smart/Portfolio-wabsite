@@ -32,6 +32,11 @@ export const Menu: any[] = [
         url: '/management/superAdmin/user',
         roles: ['SuperAdmin']
       },
+      {
+        title: 'Client',
+        url: '/management/client/superAdmin',
+        roles: ['SuperAdmin']
+      },
 
       // ===== Admin ===== //
       {
@@ -45,7 +50,7 @@ export const Menu: any[] = [
         roles: ['Admin']
       },
       {
-        title: 'User Booking',
+        title: 'Reserved',
         url: '/management/booking/admin',
         roles: ['Admin']
       }

@@ -3,41 +3,36 @@ import { calculateNights } from '@/helpers/calulate';
 import { HttpClient } from '@/services/http-client';
 import { Box, Button, Card, CardMedia, Grid, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import appColor from '@/theme/appColor';
-import { PeopleRate, useManualLoad } from '@/helpers/render';
-import { renderStars } from '../Favorite/rating';
+import { PeopleRate, renderStars } from '../Favorite/rating';
+import LoadingPage from '@/layouts/PageLayout/Loading';
 
 function RoomPage() {
   const http = new HttpClient();
   const router = useRouter();
   const unique = new Set();
   const [datasource, setDatasource] = useState([]);
+  const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState<number>(Pagination.pageSize);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { pageNumber } = useManualLoad({
-    onLoadMore: () => {
-      getRooms();
-    }
-  });
 
   const getRooms = async () => {
-    if (!hasMore || loading) return;
+    if (loading || !hasMore) return;
     setLoading(true);
     const res = await http.get(
       `AnonymousRoom?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDatasource((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMore(false);
+    else setPageNumber((prev) => prev + 1);
     setLoading(false);
   };
 
-  const handleViewRoom = (id: string) => {
-    router.push(`/view/detail/room/${id}`);
-  };
+  useEffect(() => {
+    getRooms();
+  }, []);
 
   return (
     <>
@@ -123,7 +118,9 @@ function RoomPage() {
                         objectFit: 'cover',
                         cursor: 'pointer'
                       }}
-                      onClick={() => handleViewRoom(room.id)}
+                      onClick={() =>
+                        router.push(`/view/detail/room/${room.id}`)
+                      }
                       image={
                         room?.images && room?.images?.length
                           ? room?.images.flatMap((item) => item.images)[0]
@@ -141,7 +138,9 @@ function RoomPage() {
                       }}
                     >
                       <Box
-                        onClick={() => handleViewRoom(room.id)}
+                        onClick={() =>
+                          router.push(`/view/detail/room/${room.id}`)
+                        }
                         sx={{ cursor: 'pointer' }}
                       >
                         <Typography
@@ -161,8 +160,8 @@ function RoomPage() {
                           variant="body2"
                           color="text.secondary"
                           sx={{
-                            display: 'flex',
-                            justifyContent: 'start'
+                            display: 'block',
+                            textAlign: 'left'
                           }}
                         >
                           {room?.place?.location?.address}
@@ -213,9 +212,7 @@ function RoomPage() {
                           <Box
                             sx={{
                               display: 'flex',
-                              alignItems: 'center',
-                               justifyContent: 'end',
-                              gap: 1
+                              textAlign: 'end'
                             }}
                           >
                             {room.price.discount &&
@@ -226,7 +223,7 @@ function RoomPage() {
                                   sx={{
                                     textDecoration: 'line-through',
                                     color: appColor.textprice,
-                                    fontSize: 12,
+                                    fontSize: 12
                                   }}
                                 >
                                   ${Number(room.price.pricing).toLocaleString()}
@@ -234,13 +231,13 @@ function RoomPage() {
                                 <Typography
                                   sx={{
                                     color: appColor.textblack,
-                                    fontSize: 12,
+                                    fontSize: 12
                                   }}
                                 >
                                   $
                                   {(
                                     Number(room.price.pricing) -
-                                    Number(room.price.discount) +
+                                    Number(room.price.discount) -
                                     Number(room.price.taxes)
                                   ).toLocaleString()}
                                   {Number(room.price.taxes) > 0
@@ -252,12 +249,12 @@ function RoomPage() {
                               <Typography
                                 sx={{
                                   color: appColor.textblack,
-                                  fontSize: 12,
+                                  fontSize: 12
                                 }}
                               >
                                 $
                                 {(
-                                  Number(room.price.pricing) +
+                                  Number(room.price.pricing) -
                                   Number(room.price.taxes)
                                 ).toLocaleString()}
                                 {Number(room.price.taxes) > 0
@@ -285,6 +282,17 @@ function RoomPage() {
               })}
             </Grid>
           </Box>
+          {loading && <LoadingPage />}
+          {!loading && hasMore && (
+            <Button
+              variant="contained"
+              onClick={() => getRooms()}
+              disabled={loading}
+              style={{ marginTop: '16px' }}
+            >
+              Load More
+            </Button>
+          )}
         </>
       )}
     </>

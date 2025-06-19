@@ -1,15 +1,23 @@
 import FooterPage from '@/layouts/PageLayout/Fooder';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import appColor from '@/theme/appColor';
-import {
-  Box,
-  Typography
-} from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Head from 'next/head';
 import PricingPlanCard, { AdvancedPlan, ProPlan, StarterPlan } from './pricing';
+import { useEffect } from 'react';
+import { HttpClient } from '@/services/http-client';
 
 const BillingPage = () => {
-  const title = 'BillingPage';
+  const title = 'Billing Page';
+  const http = new HttpClient();
+
+  const get = async () => {
+    await http.get(`UserPlace`);
+  };
+
+  useEffect(() => {
+    get();
+  }, []);
 
   return (
     <>
@@ -20,11 +28,11 @@ const BillingPage = () => {
         sx={{
           backgroundColor: appColor.background,
           textAlign: 'center',
-          py: 10,
+          py: 10
         }}
       >
         <Typography variant="h3" gutterBottom>
-          Powerful design tools. Simple pricing.
+          Top up your plan and join our business network.
         </Typography>
         <Box
           sx={{

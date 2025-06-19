@@ -8,14 +8,24 @@ const appColor = {
   white: '#FFFFFF',
   black: '#000000',
   light: '#FAFAFA',
+  lightgray: '#adadad',
   red: '#f44336',
   pink: '#ffe4e1',
+  whitesmoke: '#f7f4f4',
 
   // text
   textwhite: '#FFFFFF',
   textblack: '#000000',
   textlight: '#FAFAFA',
   textgray: 'gray',
+
+  //loading 
+  loading1:  '#1976d2',
+  loading2:   '#26c6da',
+  loading3:   '#66bb6a',
+  loading4:   '#ffb300',
+  loading5:   '#90a4ae',
+  
   // textfood: 'black',
   textApproved: 'green',
   textReject: '#f44336',

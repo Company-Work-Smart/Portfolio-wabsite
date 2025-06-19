@@ -17,9 +17,10 @@ export default function PaymentSuccess() {
     transactionId: '',
     status: 'Completed'
   });
+
   const processPayment = async () => {
     if (!id) return;
-    const paddle = await http.get(`UserPayment/paddle/price/${id}`);
+    const paddle = await http.get(`AdminPayment/paddle/price/${id}`);
 
     if (paddle?.data) {
       setFormData((prevData) => ({
@@ -33,48 +34,11 @@ export default function PaymentSuccess() {
   };
 
   const postPayment = async () => {
-
-    try {
-      const response = await http.post(`UserPayment`, formData);
-      if (typeof response === 'string') {
-        showSnackbar({ type: 'error', message: response });
-        return;
-      }
-
-      if (response.accessToken) {
-        signOutUser();
-        localStorage.setItem(AppKey.userId, response.userId);
-        localStorage.setItem(AppKey.accessToken, response.accessToken);
-        localStorage.setItem(AppKey.refreshToken, response.refreshToken);
-        localStorage.setItem(AppKey.role, response.role);
-        localStorage.setItem(AppKey.username, response.username);
-
-        showSnackbar({ type: 'success', message: 'Successfully logged in!' });
-
-        const role = `${response.role[0].toLowerCase()}${response.role.substring(
-          1
-        )}`;
-        router.push(`/dashboards/dashboard/${role}`);
-      } else {
-        showSnackbar({
-          type: 'error',
-          message: 'Invalid login response from server'
-        });
-      }
-    } catch (error) {
-      showSnackbar({
-        type: 'error',
-        message: 'An error occurred during login'
-      });
-    }
+    await http.post(`AdminPayment`, formData);
+    showSnackbar({ type: 'success', message: 'Successfully logged in!' });
+    router.push(`/feature/payment/admin`);
   };
-  const signOutUser = () => {
-    localStorage.removeItem(AppKey.userId);
-    localStorage.removeItem(AppKey.username);
-    localStorage.removeItem(AppKey.role);
-    localStorage.removeItem(AppKey.accessToken);
-    localStorage.removeItem(AppKey.refreshToken);
-  };
+
   useEffect(() => {
     processPayment();
   }, [router.query]);

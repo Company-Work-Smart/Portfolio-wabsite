@@ -16,11 +16,8 @@ import {
   CardHeader
 } from '@mui/material';
 import SidebarLayout from '@/layouts/SidebarLayout';
-import { useRouter } from 'next/router';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
-import { HttpClient } from '@/services/http-client';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
-import { AppKey } from '@/constant/key';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import { MyApp } from '@/constant/my-app';
 
@@ -32,20 +29,13 @@ const priceMap: { [key: string]: string } = {
 
 function MakePaymentPage() {
   const title = 'Make a payment';
-  const router = useRouter();
-  const http = new HttpClient();
   const { showSnackbar } = useContext(SnackbarContext);
 
-  const [userId, setUserId] = useState<string | null>(null);
-  const [idPrice, setIdPrice] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('creditCard');
   const [paddle, setPaddle] = useState<Paddle>();
+  const [idPrice, setIdPrice] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({
-    userId: '',
-    amount: '',
-    currency: '',
-    transactionId: '',
-    status: 'Completed'
+    amount: ''
   });
 
   const handlePaymentMethodChange = (
@@ -72,7 +62,7 @@ function MakePaymentPage() {
       settings: {
         displayMode: 'overlay',
         theme: 'dark',
-        successUrl: `http://localhost:3000/feature/payment/admin`
+        successUrl: `${window.location.origin}/feature/payment/admin/${idPrice}`
       }
     });
   };
@@ -85,35 +75,10 @@ function MakePaymentPage() {
     }));
   };
 
-  const processPayment = async () => {
-    if (!idPrice || !userId) return;
-    try {
-      const paddle = await http.get(`AdminPayment/paddle/price/${idPrice}`);
-      if (paddle?.data) {
-        setFormData((prevData) => ({
-          ...prevData,
-          userId,
-          currency: paddle.data.unit_price.currency_code,
-          transactionId: paddle.meta.request_id
-        }));
-      }
-    } catch (error) {
-      showSnackbar({
-        type: 'error',
-        message: 'Failed to fetch payment information.'
-      });
-    }
-  };
-
-  const handleSubmit = async () => {
-    await http.post(`AdminPayment`, formData);
-    router.push(`/feature/payment/admin`);
-  };
-
   useEffect(() => {
     initializePaddle({
       environment: 'sandbox',
-      token: MyApp.tokenPaymen
+      token: MyApp.tokenPayment
     })
       .then((paddle) => setPaddle(paddle))
       .catch((e) =>
@@ -125,22 +90,11 @@ function MakePaymentPage() {
   }, [paddle, showSnackbar]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(AppKey.userId);
-    setUserId(stored);
-  }, []);
-
-  useEffect(() => {
     const priceId = priceMap[formData.amount];
     if (priceId) {
       setIdPrice(priceId);
     }
   }, [formData.amount]);
-
-  useEffect(() => {
-    if (idPrice && userId) {
-      processPayment();
-    }
-  }, [idPrice, userId]);
 
   return (
     <Grid item sx={{ p: 3 }}>
@@ -221,11 +175,8 @@ function MakePaymentPage() {
             <Button
               variant="contained"
               color="primary"
-              onClick={async () => {
-                handleCheckout();
-                await handleSubmit();
-              }}
-              disabled={!formData.currency}
+              onClick={handleCheckout}
+              disabled={!formData.amount}
             >
               Submit Payment
             </Button>

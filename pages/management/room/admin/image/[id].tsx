@@ -21,10 +21,10 @@ function ImageManagement() {
   const { id } = router.query;
   const title = `Admin Form`;
 
-  const [loading, setLoading] = useState(false);
   const { showSnackbar } = useContext(SnackbarContext);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     roomId: '',

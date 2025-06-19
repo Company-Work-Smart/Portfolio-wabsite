@@ -32,6 +32,7 @@
     "apexcharts": "3.35.3",
     "clsx": "1.1.1",
     "context-api": "0.0.2",
+    "crypto-js": "^4.2.0",
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.13",
     "formidable": "^3.5.2",

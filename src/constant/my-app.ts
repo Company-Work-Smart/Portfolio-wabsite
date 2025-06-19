@@ -1,11 +1,12 @@
 export const MyApp = {
-  myurl: 'https://archtist-studio.xyz',
+  url: 'https://api.jabjit.site',
+  urldomain: 'https://jabjit.site',
   paddle_url: 'https://sandbox-api.paddle.com/prices',
-  url: 'https://api.archtist-studio.xyz',
   googleMapsApiKey: 'AIzaSyAC1XAU_xz_6R1YQCAfk98Txty_tR5kxMY',
   googleMapsId: '2709fc6109897421',
-  tokenPaymen: 'test_875007efef4a1fb2198a441a171',
-  tokenPaddle: '6cfb5ff6aef489c316079251c7b1d180417a387e7547b92a07'
+  tokenPayment: 'test_875007efef4a1fb2198a441a171',
+  tokenPaddle: '6cfb5ff6aef489c316079251c7b1d180417a387e7547b92a07',
+  domain: 'jabjit.site'
 };
 
 

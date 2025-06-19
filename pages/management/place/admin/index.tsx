@@ -163,10 +163,6 @@ function AdminAdminManagement() {
 
   useEffect(() => {
     getPlace();
-    const interval = setInterval(() => {
-      getPlace();
-    }, 1000);
-    return () => clearInterval(interval);
   }, [pageNumber, pageSize, router.query.refresh]);
 
   return (

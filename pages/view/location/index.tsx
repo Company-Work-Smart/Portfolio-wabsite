@@ -11,15 +11,19 @@ import { Icons } from '@/constant/icons';
 import { HttpClient } from '@/services/http-client';
 import { Pagination } from '@/constant/gagination';
 import HeaderPage from '@/layouts/PageLayout/Header';
-import appColor from '@/theme/appColor';
+import { useRouter } from 'next/router';
+import { Button, Paper, Typography } from '@mui/material';
 
 function LocationPage() {
   const title = 'Location Page';
   const http = new HttpClient();
+  const router = useRouter();
+
   const [datasource, setDatasource] = useState<any[]>([]);
   const [pageSize] = useState<number>(Pagination.pageSize);
   const [pageNumber, setPageNumber] = useState(0);
   const [icon, setIcon] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const containerStyle = {
     width: '100%',
@@ -47,6 +51,11 @@ function LocationPage() {
     }
   }, [pageNumber, pageSize]);
 
+  const handleOpenGoogleMaps = (latitude: string, longitude: string) => {
+    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    window.open(url, '_blank');
+  };
+
   return (
     <>
       <Head>
@@ -64,9 +73,6 @@ function LocationPage() {
           {datasource?.map((item, index) => {
             const { latitude, longitude } = item.location || {};
             if (!latitude || !longitude) return null;
-            const name = item.name;
-
-            const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
 
             return (
               <React.Fragment key={`marker-${index}`}>
@@ -76,31 +82,58 @@ function LocationPage() {
                     lat: parseFloat(latitude),
                     lng: parseFloat(longitude)
                   }}
-                  onClick={() => window.open(googleMapsUrl, '_blank')}
+                  onClick={() => setSelectedItem(item)}
                 />
-                <OverlayView
-                  position={{
-                    lat: parseFloat(latitude),
-                    lng: parseFloat(longitude)
-                  }}
-                  mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-                >
-                  <div
-                    style={{
-                      backgroundColor: 'white',
-                      padding: '5px 5px',
-                      borderRadius: '5px',
-                      fontSize: '17px',
-                      fontWeight: 'bold',
-                      color: appColor.black,
-                      transform: 'translateX(20px)',
-                      whiteSpace: 'nowrap',
-                      display: 'inline-block'
+
+                {selectedItem?.id === item.id && (
+                  <OverlayView
+                    position={{
+                      lat: parseFloat(latitude),
+                      lng: parseFloat(longitude)
                     }}
+                    mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                   >
-                    {name}
-                  </div>
-                </OverlayView>
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        padding: '8px',
+                        borderRadius: '8px',
+                        backgroundColor: 'white',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        transform: 'translateY(-100%)',
+                        minWidth: '160px'
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center'
+                        }}
+                      >
+                        {item.name}
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => router.push(`/view/place/${item.id}`)}
+                      >
+                        View Detail
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() =>
+                          handleOpenGoogleMaps(latitude, longitude)
+                        }
+                      >
+                        Open in Google Maps
+                      </Button>
+                    </Paper>
+                  </OverlayView>
+                )}
               </React.Fragment>
             );
           })}

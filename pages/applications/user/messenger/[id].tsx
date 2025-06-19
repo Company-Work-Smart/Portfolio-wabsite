@@ -10,10 +10,9 @@ import {
   IconButton,
   Tooltip,
   useTheme,
-  InputBase
+  InputBase,
+  CircularProgress
 } from '@mui/material';
-import { formatDistanceToNow } from 'date-fns';
-import ScheduleTwoToneIcon from '@mui/icons-material/ScheduleTwoTone';
 import { AppKey } from '@/constant/key';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
@@ -21,6 +20,8 @@ import Head from 'next/head';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SendTwoToneIcon from '@mui/icons-material/SendTwoTone';
 import UserSidebarLayoutChat from '@/content/Widgets/Messenger/User/SidebarLayoutChat';
+import { datatimeMessenger } from '@/helpers/datetime';
+import appColor from '@/theme/appColor';
 
 const DividerWrapper = styled(Divider)(
   ({ theme }) => `
@@ -47,13 +48,17 @@ function UserChatContent() {
   const http = new HttpClient();
   const router = useRouter();
   const { id } = router.query;
+
   const [user, setUser] = useState<any>(null);
   const [datasource, setDatasource] = useState<any>(null);
   const [datasourceUser, setDatasourceUser] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [selectedId, setSelectedMessage] = useState<any>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const bottomRef = useRef(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     senderId: '',
     receiverId: id,
@@ -61,7 +66,7 @@ function UserChatContent() {
   });
 
   const getUser = async () => {
-    const res = await http.get(`Users/${user?.userId}`);
+    const res = await http.get(`Users/${user?.id}`);
     setDatasourceUser(res);
   };
 
@@ -71,25 +76,44 @@ function UserChatContent() {
   };
 
   const getMessages = async () => {
-    if (!user?.userId || !id) return;
+    if (!user?.id || !id) return;
     const res = await http.get(
-      `Messenger?senderId=${user.userId}&receiverId=${id}`
+      `Messenger?senderId=${user.id}&receiverId=${id}`
     );
+
     setMessages(res);
+  };
+
+  const scrollToBottom = () => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const submitForm = async (e: FormEvent) => {
     e.preventDefault();
-    if (id && id !== '0' && formData.message.trim()) {
-      await http.post(`Messenger`, formData);
+    if (!formData.message.trim()) return;
+    setLoading(true);
+
+    try {
+      if (editingMessageId) {
+        await http.put(`Messenger/${editingMessageId}`, {
+          message: formData.message
+        });
+        setEditingMessageId(null);
+      } else if (id && id !== '0') {
+        const res = await http.post(`Messenger`, formData);
+        setMessages((prev) => [...prev, res]);
+      }
+
       setFormData((prev) => ({
         ...prev,
         message: ''
       }));
-      setTimeout(async () => {
-        await getMessages();
-        setTimeout(scrollToBottom, 200);
-      }, 100);
+
+      await getMessages();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,36 +145,40 @@ function UserChatContent() {
   };
 
   const handleEditMessage = () => {
-    handleMenuClose();
-  };
-
-  const handlePinMessage = () => {
+    const messageToEdit = messages.find((msg) => msg.id === selectedId);
+    if (messageToEdit) {
+      setFormData((prev) => ({
+        ...prev,
+        message: messageToEdit.message
+      }));
+      setEditingMessageId(selectedId);
+    }
     handleMenuClose();
   };
 
   useEffect(() => {
-    if (user?.userId && id && id !== '0') {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (user?.id && id && id !== '0') {
       setFormData((prev) => ({
         ...prev,
         receiverId: id,
-        senderId: user.userId
+        senderId: user.id
       }));
     }
-  }, [user?.userId, id]);
+  }, [user?.id, id]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (user?.userId && id) {
-        getMessages();
-      }
-    }, 800);
+      getMessages();
+    }, 1000);
     return () => clearInterval(interval);
-  }, [user?.userId, id]);
+  }, [user?.id, id, messages]);
 
   useEffect(() => {
-    if (id && id !== '0') {
-      getItem(id);
-    }
+    if (id && id !== '0') getItem(id);
   }, [id]);
 
   useEffect(() => {
@@ -158,28 +186,23 @@ function UserChatContent() {
   }, [user]);
 
   useEffect(() => {
-    const userId = localStorage.getItem(AppKey.userId);
+    const id = localStorage.getItem(AppKey.userId);
     const username = localStorage.getItem(AppKey.username);
-    if (userId) {
-      setUser({ userId: userId, username: username });
+    if (id) {
+      setUser({ id, username });
     }
   }, []);
-
-  const scrollToBottom = () => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <>
       <Head>
-        <title>Messenger - Applications {id}</title>
+        <title>Messenger - Chat</title>
       </Head>
+
       <Box p={3} pb={10}>
         <DividerWrapper>Chat Messages</DividerWrapper>
         {messages?.map((message, index) => {
-          const isSender = message.senderId === user?.userId;
+          const isSender = message.senderId === user?.id;
           return (
             <Box
               key={index}
@@ -187,9 +210,6 @@ function UserChatContent() {
               alignItems="flex-start"
               justifyContent={isSender ? 'flex-end' : 'flex-start'}
               py={2}
-              sx={{
-                cursor: 'pointer'
-              }}
             >
               {!isSender && (
                 <CardMedia
@@ -201,69 +221,61 @@ function UserChatContent() {
                     objectFit: 'cover',
                     cursor: 'pointer'
                   }}
-                  image={datasource?.photo || '/static/none_image.png'}
+                  image={datasource?.photo || '/static/user-modified.png'}
                 />
               )}
+
               {isSender && (
-                <>
-                  <Box
-                    onClick={(event) => handleMenuOpen(event, message.id)}
-                    sx={{
-                      fontSize: 18,
-                      padding: '4px'
-                    }}
-                  >
-                    <MoreVertIcon />
-                  </Box>
-                </>
+                <Box
+                  onClick={(event) => handleMenuOpen(event, message.id)}
+                  sx={{ padding: '4px' }}
+                >
+                  <MoreVertIcon />
+                </Box>
               )}
 
               <Box
                 display="flex"
-                alignItems="flex-start"
                 flexDirection="column"
-                justifyContent="flex-start"
+                alignItems="flex-start"
                 ml={2}
                 mr={2}
                 sx={{
                   backgroundColor: isSender ? '#DCF8C6' : '#FFFFFF',
                   padding: '10px',
                   borderRadius: '10px',
-                  maxWidth: '60%'
+                  maxWidth: '60%',
+                  border: message.isPinned
+                    ? `2px solid ${theme.palette.primary.main}`
+                    : 'none'
                 }}
               >
                 <Typography variant="body1">{message.message}</Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ pt: 1, display: 'flex', alignItems: 'center' }}
-                >
-                  <ScheduleTwoToneIcon sx={{ mr: 1 }} fontSize="small" />
-                  {formatDistanceToNow(new Date(message.timestamp), {
-                    addSuffix: true
-                  })}
+                <Typography fontSize={10} color={appColor.lightgray}>
+                  {datatimeMessenger(message.createdAt)}
                 </Typography>
               </Box>
 
               {isSender && (
-                <>
-                  <CardMedia
-                    component="img"
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 20,
-                      objectFit: 'cover',
-                      cursor: 'pointer'
-                    }}
-                    image={datasourceUser?.photo || '/static/none_image.png'}
-                  />
-                </>
+                <CardMedia
+                  component="img"
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    objectFit: 'cover',
+                    cursor: 'pointer'
+                  }}
+                  image={datasourceUser?.photo || '/static/user-modified.png'}
+                />
               )}
             </Box>
           );
         })}
         <div ref={bottomRef} />
       </Box>
+
+      {/* Input */}
       <Box
         sx={{
           background: theme.colors.alpha.white[50],
@@ -284,43 +296,36 @@ function UserChatContent() {
           style={{ display: 'flex', alignItems: 'center', width: '100%' }}
         >
           <Box flexGrow={1} display="flex" alignItems="center">
+            {editingMessageId && (
+              <Typography color="secondary" mr={2}>
+             Editing message...
+              </Typography>
+            )}
             <MessageInputWrapper
               value={formData.message}
               onChange={handleInput}
               autoFocus
-              placeholder="Write your message here..."
+              placeholder="Write your message..."
               fullWidth
             />
           </Box>
-          <Box display="flex" alignItems="center">
-            <Tooltip arrow placement="top" title="">
-              <IconButton
-                sx={{ fontSize: theme.typography.pxToRem(20) }}
-                color="primary"
-              >
-                😀
-              </IconButton>
-            </Tooltip>
-            <Tooltip arrow placement="top" title="">
-              <IconButton
-                onClick={submitForm}
-                sx={{ fontSize: theme.typography.pxToRem(20) }}
-                color="primary"
-              >
-                <SendTwoToneIcon />
+          <Box>
+            <Tooltip title={editingMessageId ? 'Update' : 'Send'}>
+              <IconButton type="submit" color="primary" disabled={loading}>
+                {loading ? <CircularProgress size={20} /> : <SendTwoToneIcon />}
               </IconButton>
             </Tooltip>
           </Box>
         </form>
       </Box>
 
+      {/* Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
         <MenuItem onClick={handleEditMessage}>Edit</MenuItem>
-        <MenuItem onClick={handlePinMessage}>Pin</MenuItem>
         <MenuItem onClick={handleDeleteMessage}>Delete</MenuItem>
       </Menu>
     </>
@@ -330,7 +335,6 @@ function UserChatContent() {
 const UserChatLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { id } = router.query;
-
   return <UserSidebarLayoutChat id={id}>{children}</UserSidebarLayoutChat>;
 };
 

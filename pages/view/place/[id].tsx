@@ -19,14 +19,17 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { PeopleRate, useGuestCount, useManualLoad } from '@/helpers/render';
+import { useGuestCount } from '@/helpers/render';
 import appColor from '@/theme/appColor';
 import LoadingPage from '@/layouts/PageLayout/Loading';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { AppKey } from '@/constant/key';
-import RatingDialog, { renderStars } from '@/content/Widgets/Favorite/rating';
+import RatingDialog, {
+  PeopleRate,
+  renderStars
+} from '@/content/Widgets/Favorite/rating';
+import { toggleFavorite } from '@/content/Widgets/Favorite';
 
 function ProvincePage() {
   const title = 'ProvincePage';
@@ -34,73 +37,58 @@ function ProvincePage() {
   const router = useRouter();
   const { id } = router.query;
   const unique = new Set();
+  const [item, setItem] = useState<any>({});
   const [datasource, setDatasource] = useState<any>([]);
-  const [datasourceList, setDatasourceList] = useState<any>([]);
   const [dataFavorite, setDataFavorite] = useState([]);
   const [dataRate, setDataRate] = useState([]);
   const [ratingId, setRatingId] = useState({});
   const [roomId, setRoomId] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState<number>(Pagination.pageSize);
-  const [pageNumberR, setPageNumberR] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [isFavorite, setIsFavorite] = useState<{ [key: string]: boolean }>({});
+  const [hasMoreRF, setHasMoreRF] = useState(true);
   const [open, setOpen] = useState(false);
   const {
     adult,
     setAdult,
-    children,
-    setChildren,
+    bed,
+    setBed,
     date,
     increaseAdult,
     decreaseAdult,
-    increaseChildren,
-    decreaseChildren,
+    increaseBed,
+    decreaseBed,
     dateChange
   } = useGuestCount();
 
   const getItem = async (id: any) => {
     const res = await http.get(`UserPlace/${id}`);
-    setDatasource(res);
+    setItem(res);
+    getRooms(res.category);
   };
 
-  const getRooms = async () => {
-    // if (!hasMore || loading) return;
+  const getRooms = async (province: string) => {
+    if (loading || !hasMore) return;
     setLoading(true);
     const res = await http.get(
-      `UserRoom/Province?Category=${datasource?.category}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `UserRoom/Province?Category=${province}&pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    // if (res.length < pageSize) {
-    //   setHasMore(false);
-    // }
-    setDatasourceList((prev) => [...prev, ...res]);
+    setDatasource((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMore(false);
+    else setPageNumber((prev) => prev + 1);
     setLoading(false);
-  };
-  const { pageNumber } = useManualLoad({ onLoadMore: getRooms });
-
-  const handleViewRoom = (id: string) => {
-    router.push(`/view/detail/room/${id}`);
   };
 
   const getRate = async () => {
-    if (!hasMore) return;
+    if (!hasMoreRF) return;
     const res = await http.get(
-      `UserRate?pageNumber=${pageNumberR}&pageSize=${pageSize}`
+      `UserRate?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataRate((prev) => [...prev, ...res]);
-    setPageNumberR((prev) => prev + 1);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
-
-  useEffect(() => {
-    getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleRate = async (roomId: string, rateId: string) => {
     setRatingId(rateId);
@@ -108,55 +96,19 @@ function ProvincePage() {
   };
 
   const getFavorite = async () => {
-    if (!hasMore || loading) return;
-    setLoading(true);
+    if (!hasMoreRF) return;
     const res = await http.get(
       `UserFavorite?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataFavorite((prev) => [...prev, ...res]);
-    setLoading(false);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  const toggleFavorite = async (roomId: string, favoriteId: string) => {
-    const userId = localStorage.getItem(AppKey.userId);
-    if (!userId) return;
-
-    try {
-      let updatedFavorites = { ...isFavorite };
-      if (isFavorite[roomId]) {
-        await http.delete(`UserFavorite/${favoriteId}`);
-        delete updatedFavorites[roomId];
-      } else {
-        await http.post(`UserFavorite`, {
-          userId,
-          roomId,
-          save: 'save'
-        });
-        updatedFavorites[roomId] = true;
-      }
-
-      setIsFavorite(updatedFavorites);
-      localStorage.setItem(AppKey.isFavorite, JSON.stringify(updatedFavorites));
-
-      await router.push(`/view/favorite?refresh=true`);
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-    }
+  const Favorites = async (roomId: string, favoriteId: string) => {
+    await toggleFavorite(roomId, favoriteId);
+    router.push(`/view/favorite`);
   };
-
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem(AppKey.isFavorite);
-    if (savedFavorites) {
-      setIsFavorite(JSON.parse(savedFavorites));
-    }
-  }, []);
-
-  useEffect(() => {
-    getFavorite();
-  }, []);
 
   useEffect(() => {
     if (id && id !== '0') {
@@ -165,10 +117,9 @@ function ProvincePage() {
   }, [id]);
 
   useEffect(() => {
-    if (datasource?.category) {
-      getRooms();
-    }
-  }, [datasource, pageSize]);
+    getRate();
+    getFavorite();
+  }, []);
 
   return (
     <>
@@ -179,7 +130,7 @@ function ProvincePage() {
       </Head>
       <Box sx={{ textAlign: 'center', py: 10, backgroundColor: '#f5f5f5' }}>
         <Typography variant="h3" gutterBottom>
-          Effortless Room Search and Instant Booking in {datasource?.category}
+          Effortless Room Search and Instant Booking in {item?.category}
         </Typography>
         <Box
           sx={{
@@ -190,6 +141,35 @@ function ProvincePage() {
             pt: 5
           }}
         >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '4px',
+              width: 300,
+              height: 60
+            }}
+          >
+            <IconButton onClick={decreaseBed} size="small">
+              <RemoveIcon />
+            </IconButton>
+            <TextField
+              value={
+                bed
+                  ? `${Number(bed)} Bed${Number(bed) > 1 ? 's' : ''}`
+                  : 'All Bed'
+              }
+              onChange={(e) => setBed(e.target.value)}
+              variant="outlined"
+              size="small"
+              sx={{ width: '300px', textAlign: 'center' }}
+            />
+            <IconButton onClick={increaseBed} size="small">
+              <AddIcon />
+            </IconButton>
+          </Box>
           <Box
             sx={{
               display: 'flex',
@@ -216,38 +196,6 @@ function ProvincePage() {
               sx={{ width: '300px', textAlign: 'center' }}
             />
             <IconButton onClick={increaseAdult} size="small">
-              <AddIcon />
-            </IconButton>
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              padding: '4px',
-              width: 300,
-              height: 60
-            }}
-          >
-            <IconButton onClick={decreaseChildren} size="small">
-              <RemoveIcon />
-            </IconButton>
-            <TextField
-              value={
-                children
-                  ? `${Number(children)} Children${
-                      Number(children) > 1 ? 's' : ''
-                    }`
-                  : 'All Childrens'
-              }
-              onChange={(e) => setChildren(e.target.value)}
-              variant="outlined"
-              size="small"
-              sx={{ width: '300px', textAlign: 'center' }}
-            />
-            <IconButton onClick={increaseChildren} size="small">
               <AddIcon />
             </IconButton>
           </Box>
@@ -281,13 +229,15 @@ function ProvincePage() {
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 5 }}>
           <Grid container justifyContent="center">
-            {datasourceList
+            {datasource
               ?.filter(
                 (item) =>
                   (!adult || item.adult === adult) &&
-                  (!children || item.children === children) &&
+                  (!bed || item.bed === bed) &&
                   (!date ||
-                    dayjs(item.available.checkIn).format('YYYY/MM/DD') === date)
+                    (item.available &&
+                      dayjs(item.available.checkIn).format('YYYY/MM/DD') ===
+                        date))
               )
               .map((room, index) => {
                 if (unique.has(room.place?.name)) return null;
@@ -323,7 +273,9 @@ function ProvincePage() {
                             : '/static/none_image.png'
                         }
                         alt={room?.place?.name}
-                        onClick={() => handleViewRoom(room.id)}
+                        onClick={() =>
+                          router.push(`/view/detail/room/${room.id}`)
+                        }
                       />
                       <IconButton
                         aria-label="add to favorites"
@@ -331,7 +283,7 @@ function ProvincePage() {
                           const favorite = dataFavorite.find(
                             (fav) => fav.room?.id === room?.id
                           );
-                          toggleFavorite(room.id, favorite?.id);
+                          Favorites(room.id, favorite?.id);
                         }}
                         sx={{
                           position: 'absolute',
@@ -342,11 +294,16 @@ function ProvincePage() {
                           '&:hover': { backgroundColor: 'white' }
                         }}
                       >
-                        {isFavorite[room.id] ? (
-                          <FavoriteIcon color="error" />
-                        ) : (
-                          <FavoriteBorderIcon />
-                        )}
+                        {(() => {
+                          const favorite = dataFavorite.find(
+                            (fav) => fav.room?.id === room?.id
+                          );
+                          if (favorite?.save) {
+                            return <FavoriteIcon color="error" />;
+                          } else {
+                            return <FavoriteBorderIcon />;
+                          }
+                        })()}
                       </IconButton>
                     </Box>
 
@@ -403,8 +360,7 @@ function ProvincePage() {
                           gap: 1
                         }}
                       >
-                        {room?.place?.location?.address} •{' '}
-                        {room?.place?.location?.city}{' '}
+                        {room?.place?.location?.address}
                         <Typography
                           component="a"
                           href={`https://www.google.com/maps?q=${room?.place?.location?.latitude},${room?.place?.location?.longitude}`}
@@ -520,7 +476,7 @@ function ProvincePage() {
                             <Typography variant="body1">none</Typography>
                           )}
                         </Typography>
-                        , {room.adult} Adult{room.adult > 1 ? 's' : ''}
+                        , {room.bed} Bed{room.bed > 1 ? 's' : ''}
                       </Typography>
                       <Typography
                         variant="h6"
@@ -561,7 +517,7 @@ function ProvincePage() {
                                   $
                                   {(
                                     Number(room.price.pricing) -
-                                    Number(room.price.discount) +
+                                    Number(room.price.discount) -
                                     Number(room.price.taxes)
                                   ).toLocaleString()}
                                   {Number(room.price.taxes) > 0
@@ -578,7 +534,7 @@ function ProvincePage() {
                               >
                                 $
                                 {(
-                                  Number(room.price.pricing) +
+                                  Number(room.price.pricing) -
                                   Number(room.price.taxes)
                                 ).toLocaleString()}
                                 {Number(room.price.taxes) > 0
@@ -617,7 +573,9 @@ function ProvincePage() {
                           borderRadius: '8px',
                           width: '100%'
                         }}
-                        onClick={() => handleViewRoom(room.id)}
+                        onClick={() =>
+                          router.push(`/view/detail/room/${room.id}`)
+                        }
                       >
                         See availability
                       </Button>
@@ -628,6 +586,16 @@ function ProvincePage() {
           </Grid>
         </Box>
         {loading && <LoadingPage />}
+        {!loading && hasMore && (
+          <Button
+            variant="contained"
+            onClick={() => getItem(id)}
+            disabled={loading}
+            style={{ marginTop: '16px' }}
+          >
+            Load More
+          </Button>
+        )}
       </Box>
     </>
   );

@@ -1,7 +1,6 @@
 import { AppKey } from '@/constant/key';
 import { UserBoxProps } from '@/constant/my-app';
 import {
-  Avatar,
   styled,
   Tooltip,
   tooltipClasses,
@@ -9,6 +8,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Link from 'src/components/Link';
+import Image from 'next/image';
 
 const LogoWrapper = styled(Link)(
   ({ theme }) => `
@@ -51,33 +51,33 @@ function Logo() {
       {user?.role?.toLowerCase() === 'admin' ? (
         <>
           <LogoWrapper href="/dashboards/dashboard/admin">
-            <Avatar
-              variant="square"
-              sx={{ width: 80, height: 80 }}
-              alt="logo"
+            <Image
               src="/static/logoApp.png"
+              alt="App Logo"
+              width={100}
+              height={100}
             />
           </LogoWrapper>
         </>
       ) : user?.role?.toLowerCase() === 'superadmin' ? (
         <>
           <LogoWrapper href="/dashboards/dashboard/superAdmin">
-            <Avatar
-              variant="square"
-              sx={{ width: 80, height: 80 }}
-              alt="logo"
+            <Image
               src="/static/logoApp.png"
+              alt="App Logo"
+              width={100}
+              height={100}
             />
           </LogoWrapper>
         </>
       ) : (
         <>
           <LogoWrapper href="/">
-            <Avatar
-              variant="square"
-              sx={{ width: 80, height: 80 }}
-              alt="logo"
+            <Image
               src="/static/logoApp.png"
+              alt="App Logo"
+              width={100}
+              height={100}
             />
           </LogoWrapper>
         </>

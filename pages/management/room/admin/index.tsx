@@ -23,7 +23,8 @@ import {
   Typography,
   Paper,
   Select,
-  MenuItem
+  MenuItem,
+  CardMedia
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -32,10 +33,10 @@ import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useRouter } from 'next/router';
-import { datetimeDisplay } from '@/helpers/datetime';
-import { PeopleRate } from '@/helpers/render';
+import { datetimeAvailable } from '@/helpers/datetime';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { renderStars } from '@/content/Widgets/Favorite/rating';
+import { PeopleRate, renderStars } from '@/content/Widgets/Favorite/rating';
+import React from 'react';
 
 function RoomManagement() {
   const title = 'Room Management';
@@ -186,13 +187,8 @@ function RoomManagement() {
     router.push(`admin/amenity/${item.id}`);
   };
 
-
   useEffect(() => {
     getRooms();
-    const interval = setInterval(() => {
-      getRooms();
-    }, 1000);
-    return () => clearInterval(interval);
   }, [pageNumber, pageSize, router.query.refresh]);
 
   return (
@@ -249,6 +245,7 @@ function RoomManagement() {
                     <TableRow>
                       <TableCell>No</TableCell>
                       <TableCell>Name Place</TableCell>
+                      <TableCell>Type Bed</TableCell>
                       <TableCell>Adult</TableCell>
                       <TableCell>Children</TableCell>
                       <TableCell>Size</TableCell>
@@ -269,6 +266,9 @@ function RoomManagement() {
                         <TableRow hover key={item.id}>
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{item?.place.name}</TableCell>
+                          <TableCell>
+                            {item.bed} {item.bed > 1 ? ' beds' : ' bed'}
+                          </TableCell>
                           <TableCell>
                             {item.adult} {item.adult > 1 ? ' adults' : ' adult'}
                           </TableCell>
@@ -420,7 +420,7 @@ function RoomManagement() {
                       Check-In
                     </Typography>
                     <Typography variant="body2">
-                      {datetimeDisplay(available.checkIn)}
+                      {datetimeAvailable(available.checkIn)}
                     </Typography>
                   </Box>
                   <Box
@@ -439,7 +439,7 @@ function RoomManagement() {
                       Check-Out
                     </Typography>
                     <Typography variant="body2">
-                      {datetimeDisplay(available?.checkOut)}
+                      {datetimeAvailable(available?.checkOut)}
                     </Typography>
                   </Box>
                 </Box>
@@ -597,45 +597,45 @@ function RoomManagement() {
         <DialogContent>
           <Box sx={{ maxHeight: '400px', overflowY: 'auto' }}>
             <Grid container spacing={2}>
-              {image.map((imageItem, index) => (
-                <Grid item xs={12} sm={4} key={index}>
-                  <ConfirmDialog
-                    message="Are you sure to delete this item?"
-                    onConfirm={() => onConfirmImage(imageItem.id)}
-                  >
-                    <Box
-                      sx={{
-                        padding: 1,
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {imageItem.images ? (
-                        <img
-                          src={imageItem.images}
-                          alt={`Image ${index}`}
-                          style={{
-                            width: '100%',
-                            height: 'auto',
-                            borderRadius: '4px'
-                          }}
-                        />
-                      ) : (
-                        <Typography variant="body2">No Image</Typography>
-                      )}
-                    </Box>
-                  </ConfirmDialog>
-                </Grid>
-              ))}
+              {Array.isArray(image) &&
+                image.map(
+                  (item, index) =>
+                    Array.isArray(item.images) &&
+                    item.images.map((imgUrl, imgIndex) => (
+                      <Grid item xs={12} sm={4} key={`${index}-${imgIndex}`}>
+                        <ConfirmDialog
+                          message="Are you sure to delete this image?"
+                          onConfirm={() => onConfirmImage(item.id)}
+                        >
+                          <Box
+                            sx={{
+                              padding: 1,
+                              border: '1px solid #ddd',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              textAlign: 'center',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <CardMedia
+                              component="img"
+                              height="200"
+                              image={imgUrl}
+                              alt={`Image ${imgIndex}`}
+                              sx={{ borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                          </Box>
+                        </ConfirmDialog>
+                      </Grid>
+                    ))
+                )}
             </Grid>
           </Box>
         </DialogContent>
+
         <DialogActions>
           <Button onClick={() => handleAddImage()} color="primary">
             Add

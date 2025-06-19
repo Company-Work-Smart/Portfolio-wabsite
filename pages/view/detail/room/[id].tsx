@@ -16,14 +16,15 @@ import {
   Marker,
   OverlayView
 } from '@react-google-maps/api';
+import SendTwoToneIcon from '@mui/icons-material/SendTwoTone';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
-import { MyApp } from '@/constant/my-app';
+import { MyApp, UserBoxProps } from '@/constant/my-app';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Icons } from '@/constant/icons';
-import { datetimeDisplay } from '@/helpers/datetime';
+import { datetimeAvailable } from '@/helpers/datetime';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import FooterPage from '@/layouts/PageLayout/Fooder';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -38,11 +39,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { Pagination } from '@/constant/gagination';
 import { calculateNights } from '@/helpers/calulate';
-import { PeopleRate, useGuestCount, useManualLoad } from '@/helpers/render';
-import LoadingPage from '@/layouts/PageLayout/Loading';
+import { useGuestCount } from '@/helpers/render';
 import ListTime from '@/content/Widgets/Details/ListTime';
 import { toggleFavorite } from '@/content/Widgets/Favorite';
-import RatingDialog, { renderStars } from '@/content/Widgets/Favorite/rating';
+import RatingDialog, {
+  PeopleRate,
+  renderStars
+} from '@/content/Widgets/Favorite/rating';
 
 const containerStyle = {
   width: '100%',
@@ -54,22 +57,32 @@ function DetailRoomPage() {
   const http = new HttpClient();
   const router = useRouter();
   const { id } = router.query;
+  const { showSnackbar } = useContext(SnackbarContext);
+  const [user, setUser] = useState<UserBoxProps>({});
+  // const [placeId, setPlaceId] = useState<any>({});
   const [datasource, setDatasource] = useState<any>({});
   const [datasourceList, setDatasourceList] = useState([]);
   const [dataFavorite, setDataFavorite] = useState([]);
+  const [comment, setComment] = useState<any[]>([]);
   const [dataRate, setDataRate] = useState([]);
   const [ratingId, setRatingId] = useState({});
   const [roomId, setRoomId] = useState({});
   const [selectId, setSelectId] = useState<string | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [pageSize] = useState<number>(Pagination.pageSize);
-  const [pageNumberR, setPageNumberR] = useState(1);
-  const { showSnackbar } = useContext(SnackbarContext);
-  const [isFavorite, setIsFavorite] = useState<{ [key: string]: boolean }>({});
+  const [pageNumber, setPageNumber] = useState(1);
+  const [hasMoreRF, setHasMoreRF] = useState(true);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [hasMoreComment, setHasMoreComment] = useState(true);
   const [open, setOpen] = useState(false);
   const [icon, setIcon] = useState<any>(null);
+  const [editingComment, setEditingComment] = useState<string | null>(null);
+  const [formComment, setFormComment] = useState({
+    userId: '',
+    placeId: '',
+    comments: ''
+  });
+
   const [formData, setFormData] = useState({
     userId: '',
     roomId: '',
@@ -80,93 +93,110 @@ function DetailRoomPage() {
   const {
     adult,
     setAdult,
-    children,
-    setChildren,
+    bed,
+    setBed,
     date,
     increaseAdult,
     decreaseAdult,
-    increaseChildren,
-    decreaseChildren,
+    increaseBed,
+    decreaseBed,
     dateChange
   } = useGuestCount();
 
-  const { pageNumber } = useManualLoad({
-    onLoadMore: () => {
-      getFavorite();
-    }
-  });
-
   const getItem = async (id: any) => {
+    const userId = localStorage.getItem(AppKey.userId);
     const res = await http.get(`UserRoom/${id}`);
     setDatasource(res);
+    if (res.place.name) {
+      getRooms(res.place.name);
+      getComment(res.place.name);
+      setFormComment((prev) => ({
+        ...prev,
+        userId: userId,
+        placeId: res.place.id
+      }));
+    }
   };
 
-  const getRooms = async () => {
-    if (!hasMore) return;
+  const getRooms = async (placeName: string) => {
+    if (!hasMore || !placeName) return;
     const res = await http.get(
-      `UserRoom/filtered?Name=${datasource.place?.name}&pageNumber=${pageNumberR}&pageSize=${pageSize}`
+      `UserRoom/filtered?Name=${placeName}&pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    console.log(res);
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDatasourceList((prev) => [...prev, ...res]);
-    setPageNumberR((prev) => prev + 1);
+    if (res.length < pageSize) setHasMore(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  useEffect(() => {
-    if (datasource.place?.name) {
-      getRooms();
+  const submmitComment = async () => {
+    if (editingComment) {
+      await http.put(`UserComment/${editingComment}`, formComment);
+      setComment((prev) =>
+        prev.map((c) =>
+          c.id === editingComment ? { ...c, comments: formComment.comments } : c
+        )
+      );
+    } else {
+      const res = await http.post(`UserComment`, formComment);
+      setComment((prev) => {
+        if (prev.find((c) => c.id === res.id)) return prev;
+        return [res, ...prev];
+      });
     }
-  }, [datasource]);
+
+    setFormComment((prev) => ({ ...prev, comments: '' }));
+    setEditingComment(null);
+  };
+
+  const getComment = async (placeName: string) => {
+    if (!hasMoreComment) return;
+    const res = await http.get(
+      `AnonymousComment?Name=${placeName}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+    setComment((prev) => [...prev, ...res]);
+    if (res.length < pageSize) setHasMoreComment(false);
+    else setPageNumber((prev) => prev + 1);
+  };
+
+  const handleEditComment = (id: string) => {
+    const edit = comment.find((msg) => msg.id === id);
+    if (edit) {
+      setFormComment({ ...formComment, comments: edit.comments });
+      setEditingComment(id);
+    }
+  };
+
+  const handleDeleteComment = async (id: string) => {
+    if (id) {
+      await http.delete(`UserComment/${id}`);
+      setComment((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
 
   const getFavorite = async () => {
-    if (!hasMore || loading) return;
-    setLoading(true);
+    if (!hasMoreRF) return;
     const res = await http.get(
       `UserFavorite?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataFavorite((prev) => [...prev, ...res]);
-    setLoading(false);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
 
-  const Favorite = async (roomId: string, favoriteId: string) => {
-    const { updatedFavorites, wasAdded } = await toggleFavorite(
-      roomId,
-      favoriteId,
-      isFavorite
-    );
-    if (updatedFavorites) {
-      setIsFavorite(updatedFavorites);
-
-      if (wasAdded) {
-        await router.push(`/view/favorite?refresh=true`);
-      }
-    }
+  const Favorites = async (roomId: string, favoriteId: string) => {
+    await toggleFavorite(roomId, favoriteId);
+    router.push(`/view/favorite`);
   };
 
   const getRate = async () => {
-    if (!hasMore) return;
+    if (!hasMoreRF) return;
     const res = await http.get(
-      `UserRate?pageNumber=${pageNumberR}&pageSize=${pageSize}`
+      `UserRate?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    if (res.length < pageSize) {
-      setHasMore(false);
-    }
     setDataRate((prev) => [...prev, ...res]);
-    setPageNumberR((prev) => prev + 1);
+    if (res.length < pageSize) setHasMoreRF(false);
+    else setPageNumber((prev) => prev + 1);
   };
-
-  useEffect(() => {
-    getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleRate = async (roomId: string, rateId: string) => {
     setRatingId(rateId);
@@ -182,15 +212,21 @@ function DetailRoomPage() {
     await router.push(`/applications/user/profile?refresh=true`);
   };
 
-  const handleRoom = (id: string) => {
-    router.push(`/view/detail/room/${id}`);
-  };
-
   const handleInput = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleInputComment = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormComment((prevState) => ({
       ...prevState,
       [name]: value
     }));
@@ -227,13 +263,6 @@ function DetailRoomPage() {
   }, [id, selectId]);
 
   useEffect(() => {
-    const savedFavorites = localStorage.getItem(AppKey.isFavorite);
-    if (savedFavorites) {
-      setIsFavorite(JSON.parse(savedFavorites));
-    }
-  }, []);
-
-  useEffect(() => {
     if (typeof window !== 'undefined' && window.google?.maps) {
       setIcon({
         url: Icons.destination,
@@ -250,6 +279,15 @@ function DetailRoomPage() {
 
   const mapCenter =
     isValidLat && isValidLng ? { lat, lng } : { lat: 0, lng: 0 };
+
+  useEffect(() => {
+    setUser({ userId: localStorage.getItem(AppKey.userId) });
+  }, []);
+
+  useEffect(() => {
+    getRate();
+    getFavorite();
+  }, []);
 
   return (
     <>
@@ -303,6 +341,16 @@ function DetailRoomPage() {
                           color: appColor.textgray
                         }}
                       >
+                        {datasource.bed} bed
+                        {datasource.bed > 1 ? 's' : ''}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          display: 'flex',
+                          color: appColor.textgray
+                        }}
+                      >
                         {datasource.adult} Adult
                         {datasource.adult > 1 ? 's' : ''}
                       </Typography>
@@ -312,7 +360,6 @@ function DetailRoomPage() {
                           color: appColor.textgray
                         }}
                       >
-                        {' '}
                         {datasource.children}
                         {datasource.children > 1 ? ' Childrens' : ' Children'}
                       </Typography>
@@ -322,8 +369,8 @@ function DetailRoomPage() {
                           color: appColor.textgray
                         }}
                       >
-                        {datetimeDisplay(datasource?.available?.checkIn)} -{' '}
-                        {datetimeDisplay(datasource?.available?.checkOut)}
+                        {datetimeAvailable(datasource?.available?.checkIn)} -
+                        {datetimeAvailable(datasource?.available?.checkOut)}
                       </Typography>
                     </Box>
 
@@ -372,7 +419,7 @@ function DetailRoomPage() {
                                   $
                                   {(
                                     Number(datasource?.price.pricing) -
-                                    Number(datasource?.price.discount) +
+                                    Number(datasource?.price.discount) -
                                     Number(datasource?.price.taxes)
                                   ).toLocaleString()}
                                   {Number(datasource?.price.taxes) > 0
@@ -389,7 +436,7 @@ function DetailRoomPage() {
                               >
                                 $
                                 {(
-                                  Number(datasource?.price.pricing) +
+                                  Number(datasource?.price.pricing) -
                                   Number(datasource?.price.taxes)
                                 ).toLocaleString()}
                                 {Number(datasource?.price.taxes) > 0
@@ -424,6 +471,15 @@ function DetailRoomPage() {
                         ) : (
                           <></>
                         )}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'end',
+                          color: appColor.textgray
+                        }}
+                      >
+                        {datasource?.available?.status}
                       </Typography>
                     </Box>
                   </Box>
@@ -507,431 +563,601 @@ function DetailRoomPage() {
           </Grid>
         </Box>
 
-        {datasourceList && datasourceList.length > 0 && (
-          <Box sx={{ py: 5 }}>
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                alignItems: 'center',
-                py: 2
-              }}
-            >
+        <Box
+          p={2}
+          mb={2}
+          mt={2}
+          border={1}
+          borderColor="grey.200"
+          borderRadius={2}
+        >
+          {datasourceList && datasourceList.length > 0 && (
+            <Box sx={{ py: 5 }}>
               <Box
                 sx={{
                   display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
                   alignItems: 'center',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '4px',
-                  width: 300,
-                  height: 60
+                  py: 2
                 }}
               >
-                <IconButton onClick={decreaseAdult} size="small">
-                  <RemoveIcon />
-                </IconButton>
-                <TextField
-                  value={
-                    adult
-                      ? `${Number(adult)} Adult${Number(adult) > 1 ? 's' : ''}`
-                      : 'All Adults'
-                  }
-                  onChange={(e) => setAdult(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  sx={{ width: '300px', textAlign: 'center' }}
-                />
-                <IconButton onClick={increaseAdult} size="small">
-                  <AddIcon />
-                </IconButton>
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '4px',
-                  width: 300,
-                  height: 60
-                }}
-              >
-                <IconButton onClick={decreaseChildren} size="small">
-                  <RemoveIcon />
-                </IconButton>
-                <TextField
-                  value={
-                    children
-                      ? `${Number(children)} Children${
-                          Number(children) > 1 ? 's' : ''
-                        }`
-                      : 'All Childrens'
-                  }
-                  onChange={(e) => setChildren(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  sx={{ width: '300px', textAlign: 'center' }}
-                />
-                <IconButton onClick={increaseChildren} size="small">
-                  <AddIcon />
-                </IconButton>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '4px',
-                  width: 300,
-                  height: 60
-                }}
-              >
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DesktopDatePicker
-                    inputFormat="YYYY/MM/DD"
-                    value={date ? dayjs(date, 'YYYY/MM/DD') : null}
-                    onChange={dateChange}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        required
-                        fullWidth
-                        sx={{ width: '300px', textAlign: 'center' }}
-                      />
-                    )}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    padding: '4px',
+                    width: 300,
+                    height: 60
+                  }}
+                >
+                  <IconButton onClick={decreaseBed} size="small">
+                    <RemoveIcon />
+                  </IconButton>
+                  <TextField
+                    value={
+                      bed
+                        ? `${Number(bed)} Bed${Number(bed) > 1 ? 's' : ''}`
+                        : 'All Bed'
+                    }
+                    onChange={(e) => setBed(e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    sx={{ width: '300px', textAlign: 'center' }}
                   />
-                </LocalizationProvider>
-              </Box>
-            </Box>
-            <Grid container spacing={4} justifyContent="center" pt={5}>
-              {datasourceList
-                ?.filter(
-                  (item) =>
-                    (!adult || item.adult === adult) &&
-                    (!children || item.children === children) &&
-                    (!date ||
-                      dayjs(item.available.checkIn).format('YYYY/MM/DD') ===
-                        date)
-                )
-                .map((room, index) => (
-                  <Card
-                    key={index}
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      borderRadius: '16px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                      p: 1,
-                      m: 2,
-                      width: 800
-                    }}
-                  >
-                    <Box sx={{ position: 'relative', minWidth: 200 }}>
-                      <CardMedia
-                        component="img"
-                        sx={{
-                          width: 200,
-                          height: '100%',
-                          borderRadius: '10px',
-                          aspectRatio: '1',
-                          objectFit: 'cover',
-                          cursor: 'pointer'
-                        }}
-                        image={
-                          room?.images && room?.images?.length
-                            ? room?.images.flatMap((item) => item.images)[0]
-                            : '/static/none_image.png'
-                        }
-                        alt={room?.place?.name}
-                        onClick={() => handleRoom(room.id)}
-                      />
-                      <IconButton
-                        aria-label="add to favorites"
-                        onClick={() => {
-                          const favorite = dataFavorite.find(
-                            (fav) => fav.room?.id === room?.id
-                          );
-                          Favorite(room.id, favorite?.id);
-                        }}
-                        sx={{
-                          position: 'absolute',
-                          top: 8,
-                          right: 8,
-                          backgroundColor: 'white',
-                          borderRadius: '50%',
-                          '&:hover': { backgroundColor: 'white' }
-                        }}
-                      >
-                        {isFavorite[room.id] ? (
-                          <FavoriteIcon color="error" />
-                        ) : (
-                          <FavoriteBorderIcon />
-                        )}
-                      </IconButton>
-                    </Box>
-
-                    <Box sx={{ flex: 3, p: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'start' }}>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'flex-start',
-                            textAlign: 'left',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {room?.place?.name}
-                        </Typography>
-                        <Typography
-                          onClick={() => {
-                            const rate = dataRate.find(
-                              (rt) => rt.room?.id === room?.id
-                            );
-                            handleRate(room.id, rate?.id);
-                            setOpen(true);
-                          }}
-                          sx={{
-                            width: 150,
-                            textAlign: 'right',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {room?.rates && room?.rates.length > 0
-                            ? renderStars(
-                                room?.rates.reduce(
-                                  (id, rate) => id + parseFloat(rate.rating),
-                                  0
-                                ) / PeopleRate.number
-                              )
-                            : renderStars(PeopleRate.default)}
-                        </Typography>
-                        <RatingDialog
-                          roomId={roomId}
-                          rateId={ratingId}
-                          open={open}
-                          onClose={() => setOpen(false)}
+                  <IconButton onClick={increaseBed} size="small">
+                    <AddIcon />
+                  </IconButton>
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    padding: '4px',
+                    width: 300,
+                    height: 60
+                  }}
+                >
+                  <IconButton onClick={decreaseAdult} size="small">
+                    <RemoveIcon />
+                  </IconButton>
+                  <TextField
+                    value={
+                      adult
+                        ? `${Number(adult)} Adult${
+                            Number(adult) > 1 ? 's' : ''
+                          }`
+                        : 'All Adults'
+                    }
+                    onChange={(e) => setAdult(e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    sx={{ width: '300px', textAlign: 'center' }}
+                  />
+                  <IconButton onClick={increaseAdult} size="small">
+                    <AddIcon />
+                  </IconButton>
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    padding: '4px',
+                    width: 300,
+                    height: 60
+                  }}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DesktopDatePicker
+                      inputFormat="YYYY/MM/DD"
+                      value={date ? dayjs(date, 'YYYY/MM/DD') : null}
+                      onChange={dateChange}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          required
+                          fullWidth
+                          sx={{ width: '300px', textAlign: 'center' }}
                         />
-                      </Box>
-
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: appColor.textlocation,
-                          mt: 0.5,
-                          display: 'flex',
-                          justifyContent: 'start',
-                          gap: 1
-                        }}
-                      >
-                        {room?.place?.location?.address} •{' '}
-                        {room?.place?.location?.city}{' '}
-                        <Typography
-                          component="a"
-                          href={`https://www.google.com/maps?q=${room?.place?.location?.latitude},${room?.place?.location?.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            color: appColor.textlocation,
-                            fontWeight: 600,
-                            textDecoration: 'none',
-                            '&:hover': { textDecoration: 'underline' }
-                          }}
-                        >
-                          Show on map
-                        </Typography>
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'start',
-                          fontWeight: 'bold',
-                          fontSize: 15,
-                          paddingY: '5px'
-                        }}
-                      >
-                        Room
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'start',
-                          color: appColor.textfacility,
-                          fontWeight: 400
-                        }}
-                      >
-                        {room?.place?.foods?.length ? (
-                          <>✓ Food included</>
-                        ) : (
-                          <></>
-                        )}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'start',
-                          color: appColor.textfacility,
-                          fontWeight: 400
-                        }}
-                      >
-                        {room?.place?.facilitys?.length ? (
-                          <>✓ Facility included</>
-                        ) : (
-                          <></>
-                        )}
-                      </Typography>
-
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'start',
-                          color: appColor.textfacility,
-                          fontWeight: 400
-                        }}
-                      >
-                        {room?.amenities?.length ? (
-                          <>✓ Amenities included</>
-                        ) : (
-                          <></>
-                        )}
-                      </Typography>
-                    </Box>
-
-                    <Box
+                      )}
+                    />
+                  </LocalizationProvider>
+                </Box>
+              </Box>
+              <Grid container spacing={4} justifyContent="center" pt={5}>
+                {datasourceList
+                  ?.filter(
+                    (item) =>
+                      (!adult || item.adult === adult) &&
+                      (!bed || item.bed === bed) &&
+                      (!date ||
+                        (item.available &&
+                          dayjs(item.available.checkIn).format('YYYY/MM/DD') ===
+                            date))
+                  )
+                  .map((room, index) => (
+                    <Card
+                      key={index}
                       sx={{
-                        flex: 1.5,
                         display: 'flex',
-                        flexDirection: { xs: 'column', md: 'column' },
-                        alignItems: 'flex-end',
-                        gap: 1
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        borderRadius: '16px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                        p: 1,
+                        m: 2,
+                        width: 800
                       }}
                     >
-                      <Typography
-                        variant="body2"
+                      <Box sx={{ position: 'relative', minWidth: 200 }}>
+                        <CardMedia
+                          component="img"
+                          sx={{
+                            width: 200,
+                            height: '100%',
+                            borderRadius: '10px',
+                            aspectRatio: '1',
+                            objectFit: 'cover',
+                            cursor: 'pointer'
+                          }}
+                          image={
+                            room?.images && room?.images?.length
+                              ? room?.images.flatMap((item) => item.images)[0]
+                              : '/static/none_image.png'
+                          }
+                          alt={room?.place?.name}
+                          onClick={() =>
+                            router.push(`/view/detail/room/${room.id}`)
+                          }
+                        />
+                        <IconButton
+                          aria-label="add to favorites"
+                          onClick={() => {
+                            const favorite = dataFavorite.find(
+                              (fav) => fav.room?.id === room?.id
+                            );
+                            Favorites(room.id, favorite?.id);
+                          }}
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            backgroundColor: 'white',
+                            borderRadius: '50%',
+                            '&:hover': { backgroundColor: 'white' }
+                          }}
+                        >
+                          {(() => {
+                            const favorite = dataFavorite.find(
+                              (fav) => fav.room?.id === room?.id
+                            );
+                            if (favorite?.save) {
+                              return <FavoriteIcon color="error" />;
+                            } else {
+                              return <FavoriteBorderIcon />;
+                            }
+                          })()}
+                        </IconButton>
+                      </Box>
+
+                      <Box sx={{ flex: 3, p: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'start' }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'flex-start',
+                              textAlign: 'left',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {room?.place?.name}
+                          </Typography>
+                          <Typography
+                            onClick={() => {
+                              const rate = dataRate.find(
+                                (rt) => rt.room?.id === room?.id
+                              );
+                              handleRate(room.id, rate?.id);
+                              setOpen(true);
+                            }}
+                            sx={{
+                              width: 150,
+                              textAlign: 'right',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {room?.rates && room?.rates.length > 0
+                              ? renderStars(
+                                  room?.rates.reduce(
+                                    (id, rate) => id + parseFloat(rate.rating),
+                                    0
+                                  ) / PeopleRate.number
+                                )
+                              : renderStars(PeopleRate.default)}
+                          </Typography>
+                          <RatingDialog
+                            roomId={roomId}
+                            rateId={ratingId}
+                            open={open}
+                            onClose={() => setOpen(false)}
+                          />
+                        </Box>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: appColor.textlocation,
+                            mt: 0.5,
+                            display: 'flex',
+                            justifyContent: 'start',
+                            gap: 1
+                          }}
+                        >
+                          {room?.place?.location?.address}
+                          <Typography
+                            component="a"
+                            href={`https://www.google.com/maps?q=${room?.place?.location?.latitude},${room?.place?.location?.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              color: appColor.textlocation,
+                              fontWeight: 600,
+                              textDecoration: 'none',
+                              '&:hover': { textDecoration: 'underline' }
+                            }}
+                          >
+                            Show on map
+                          </Typography>
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'start',
+                            fontWeight: 'bold',
+                            fontSize: 15,
+                            paddingY: '5px'
+                          }}
+                        >
+                          Room
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'start',
+                            color: appColor.textfacility,
+                            fontWeight: 400
+                          }}
+                        >
+                          {room?.place?.foods?.length ? (
+                            <>✓ Food included</>
+                          ) : (
+                            <></>
+                          )}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'start',
+                            color: appColor.textfacility,
+                            fontWeight: 400
+                          }}
+                        >
+                          {room?.place?.facilitys?.length ? (
+                            <>✓ Facility included</>
+                          ) : (
+                            <></>
+                          )}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'start',
+                            color: appColor.textfacility,
+                            fontWeight: 400
+                          }}
+                        >
+                          {room?.amenities?.length ? (
+                            <>✓ Amenities included</>
+                          ) : (
+                            <></>
+                          )}
+                        </Typography>
+                      </Box>
+
+                      <Box
                         sx={{
+                          flex: 1.5,
                           display: 'flex',
-                          justifyContent: 'end',
-                          color: appColor.textgray
+                          flexDirection: { xs: 'column', md: 'column' },
+                          alignItems: 'flex-end',
+                          gap: 1
                         }}
                       >
                         <Typography
                           variant="body2"
-                          color="text.secondary"
-                          sx={{ textAlign: 'right' }}
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'end',
+                            color: appColor.textgray
+                          }}
                         >
-                          {room?.available?.checkIn &&
-                          room?.available?.checkOut ? (
-                            <Typography variant="body1">
-                              {calculateNights(
-                                room.available.checkIn,
-                                room.available.checkOut
-                              )}
-                              {calculateNights(
-                                room.available.checkIn,
-                                room.available.checkOut
-                              ) === 1
-                                ? 'night'
-                                : 'nights'}
-                            </Typography>
-                          ) : (
-                            <Typography variant="body1">none</Typography>
-                          )}
-                        </Typography>
-                        , {room.adult} Adult{room.adult > 1 ? 's' : ''}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'end',
-                          fontWeight: 400
-                        }}
-                      >
-                        {room.price?.pricing || room.price?.discount ? (
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 1
-                            }}
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ textAlign: 'right' }}
                           >
-                            {room.price?.discount && room.price?.pricing && (
-                              <Typography
-                                sx={{
-                                  textDecoration: 'line-through',
-                                  color: 'red',
-                                  fontWeight: 400,
-                                  display: 'flex',
-                                  justifyContent: 'end'
-                                }}
-                              >
-                                ${Number(room.price?.pricing).toLocaleString()}
+                            {room?.available?.checkIn &&
+                            room?.available?.checkOut ? (
+                              <Typography variant="body1">
+                                {calculateNights(
+                                  room.available.checkIn,
+                                  room.available.checkOut
+                                )}
+                                {calculateNights(
+                                  room.available.checkIn,
+                                  room.available.checkOut
+                                ) === 1
+                                  ? 'night'
+                                  : 'nights'}
                               </Typography>
+                            ) : (
+                              <Typography variant="body1">none</Typography>
                             )}
+                          </Typography>
+                          , {room.bed} Bed{room.bed > 1 ? 's' : ''}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'end',
+                            fontWeight: 400
+                          }}
+                        >
+                          {room.price?.pricing ? (
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'end',
+                                gap: 1
+                              }}
+                            >
+                              {room.price.discount &&
+                              room.price.discount !== '0' &&
+                              room.price.discount !== 0 ? (
+                                <>
+                                  <Typography
+                                    sx={{
+                                      textDecoration: 'line-through',
+                                      color: appColor.textprice,
+                                      fontSize: 12
+                                    }}
+                                  >
+                                    $
+                                    {Number(
+                                      room.price.pricing
+                                    ).toLocaleString()}
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      color: appColor.textblack,
+                                      fontSize: 12
+                                    }}
+                                  >
+                                    $
+                                    {(
+                                      Number(room.price.pricing) -
+                                      Number(room.price.discount) -
+                                      Number(room.price.taxes)
+                                    ).toLocaleString()}
+                                    {Number(room.price.taxes) > 0
+                                      ? ' /night (incl. tax)'
+                                      : ' /night'}
+                                  </Typography>
+                                </>
+                              ) : (
+                                <Typography
+                                  sx={{
+                                    color: appColor.textblack,
+                                    fontSize: 12
+                                  }}
+                                >
+                                  $
+                                  {(
+                                    Number(room.price.pricing) -
+                                    Number(room.price.taxes)
+                                  ).toLocaleString()}
+                                  {Number(room.price.taxes) > 0
+                                    ? ' /night (incl. tax)'
+                                    : ' /night'}
+                                </Typography>
+                              )}
+                            </Box>
+                          ) : (
                             <Typography
                               sx={{
-                                color: appColor.black,
-                                fontWeight: 400,
+                                color: appColor.textgray,
+                                fontSize: 12,
                                 display: 'flex',
                                 justifyContent: 'end'
                               }}
                             >
-                              $
-                              {room.price.discount
-                                ? Number(room.price?.discount).toLocaleString()
-                                : Number(room.price?.pricing).toLocaleString()}
+                              None
+                            </Typography>
+                          )}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'end',
+                            color: appColor.textgray
+                          }}
+                        >
+                          {room?.price?.taxes > 0 ? <>Includes taxes</> : <></>}
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          sx={{
+                            borderRadius: '8px',
+                            width: '100%'
+                          }}
+                          onClick={() =>
+                            router.push(`/view/detail/room/${room.id}`)
+                          }
+                        >
+                          See availability
+                        </Button>
+                      </Box>
+                    </Card>
+                  ))}
+              </Grid>
+            </Box>
+          )}
+          {hasMore && (
+            <Button
+              variant="contained"
+              onClick={() => getRooms(datasource.place.name)}
+              style={{ marginTop: '16px' }}
+            >
+              Load More
+            </Button>
+          )}
+
+          <Typography variant="h6" fontWeight="bold" mb={2}>
+            Comments
+          </Typography>
+
+          <Box
+            display="flex"
+            gap={4}
+            flexDirection={{ xs: 'column', md: 'row' }}
+          >
+            {comment?.length > 0 ? (
+              <Box flex={2}>
+                {comment.map((comment, index) => (
+                  <Box key={index} mb={2}>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          cursor: 'pointer'
+                        }}
+                        image={
+                          comment?.user?.photo || '/static/user-modified.png'
+                        }
+                      />
+                      <Box textAlign="start">
+                        <Box
+                          p={1}
+                          mb={1}
+                          borderRadius={2}
+                          sx={{ backgroundColor: appColor.light }}
+                        >
+                          <Typography variant="h6" fontWeight="bold">
+                            {comment?.user?.username.charAt(0).toUpperCase() +
+                              comment?.user?.username.slice(1)}
+                          </Typography>
+                          <Typography variant="body2">
+                            {comment?.comments}
+                          </Typography>
+                        </Box>
+
+                        {user?.userId === comment?.user?.id && (
+                          <Box display="flex" textAlign="start">
+                            <Typography
+                              onClick={() => handleEditComment(comment.id)}
+                              sx={{
+                                cursor: 'pointer',
+                                color: appColor.lightgray
+                              }}
+                            >
+                              edit
+                            </Typography>
+                            <Typography
+                              onClick={() => handleDeleteComment(comment.id)}
+                              sx={{
+                                cursor: 'pointer',
+                                color: appColor.error,
+                                px: 2
+                              }}
+                            >
+                              delete
                             </Typography>
                           </Box>
-                        ) : (
-                          <Typography
-                            sx={{
-                              color: appColor.textgray,
-                              fontWeight: 400,
-                              display: 'flex',
-                              justifyContent: 'end'
-                            }}
-                          >
-                            None
-                          </Typography>
                         )}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'end',
-                          color: appColor.textgray
-                        }}
-                      >
-                        {room?.price?.taxes > 0 ? <>Includes taxes</> : <></>}
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        sx={{
-                          borderRadius: '8px',
-                          width: '100%'
-                        }}
-                        onClick={() => handleRoom(room.id)}
-                      >
-                        See availability
-                      </Button>
+                      </Box>
                     </Box>
-                  </Card>
+                  </Box>
                 ))}
-            </Grid>
+              </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary" flex={2}>
+                No comments yet.
+              </Typography>
+            )}
+            <Box flex={2}>
+              <TextField
+                multiline
+                fullWidth
+                rows={3}
+                name="comments"
+                value={formComment.comments}
+                onChange={handleInputComment}
+                placeholder="Write your comment here..."
+                variant="outlined"
+              />
+              <Box mt={2} display="flex" justifyContent="flex-end">
+                {editingComment && (
+                  <Button
+                    onClick={() => {
+                      setEditingComment(null);
+                      setFormComment((prev) => ({ ...prev, comments: '' }));
+                    }}
+                    sx={{ ml: 1 }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+                <Button
+                  variant="contained"
+                  disabled={formComment.comments.trim() === ''}
+                  onClick={() => submmitComment()}
+                >
+                  <SendTwoToneIcon />
+                </Button>
+              </Box>
+            </Box>
           </Box>
-        )}
+          {hasMoreComment && (
+            <Typography
+              onClick={() => getComment(datasource.place.name)}
+              variant="h4"
+              fontWeight="bold"
+              sx={{ cursor: 'pointer' }}
+            >
+              More comment...
+            </Typography>
+          )}
+        </Box>
         <ListTime id={datasource.id} />
-        {loading && <LoadingPage />}
       </Box>
       <Dialog open={openDialog} onClose={handleDialogClose}>
         <DialogContent sx={{ position: 'relative', textAlign: 'center' }}>
@@ -995,7 +1221,6 @@ function DetailRoomPage() {
           </Button>
         </DialogContent>
       </Dialog>
-
       <FooterPage />
     </>
   );
