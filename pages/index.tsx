@@ -1,119 +1,154 @@
-import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
-import { Typography, Button, Box } from '@mui/material';
-import HeaderPage from '@/layouts/PageLayout/Header';
-import FooterPage from '@/layouts/PageLayout/Fooder';
-import { HttpClient } from '@/services/http-client';
-import appColor from '@/theme/appColor';
-import RoomPage from '../src/content/Widgets/Homepage/Room';
-import ProvincePage from '../src/content/Widgets/Homepage/Province';
-import ListTime from '@/content/Widgets/Homepage/ListTime';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import { Box } from "@mui/material";
+import appColor from "@/theme/appColor";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { TextWiget } from "@/components/typographys";
 
-function HomePage() {
-  const title = 'HomePage';
-  const http = new HttpClient();
-  const unique = new Set();
+const letters = [
+  "S",
+  "E",
+  "N",
+  "G",
+  "V",
+  "I",
+  "C",
+  "H",
+  "E",
+  "T",
+];
+
+export default function HomePage() {
+  const title = "Splash Screen";
   const router = useRouter();
-  const [datasource, setDatasource] = useState([]);
-
-  const getPlace = async () => {
-    const res = await http.get(`AnonymousPlace`);
-    setDatasource(res);
-  };
-
-  const handleProvince = (id: string) => {
-    router.push(`/view/place/${id}`);
-  };
+  const [typedCount, setTypedCount] = useState(0);
+  const [spreadOut, setSpreadOut] = useState(false);
 
   useEffect(() => {
-    getPlace();
-  }, []);
+    if (typedCount < letters.length) {
+      const timer = setTimeout(() => {
+        setTypedCount((prev) => prev + 1);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(() => {
+        setSpreadOut(true);
+        setTimeout(() => {
+          router.push("/portfolio/homefeed");
+        }, 1000);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [typedCount]);
 
   return (
     <>
       <Head>
         <title>{title}</title>
+        <style>{`
+          .letter {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            transition:
+              top 1s ease,
+              left 1s ease,
+              transform 1s ease,
+              opacity 0.3s ease;
+            user-select: none;
+          }
+
+          .letter.visible {
+            opacity: 1;
+          }
+
+          /* During typing: offset letters with margin */
+          ${letters
+            .map(
+              (_, idx) => `
+            .typing-${idx} {
+              transform: translate(calc(-50% + ${
+                (idx - letters.length / 2) * 30
+              }px), -50%);
+            }
+          `
+            )
+            .join("\n")}
+
+          /* Spread out: fixed positions at top */
+          ${letters
+            .map(
+              (_, idx) => `
+            .spread-${idx} {
+              top: 20px;
+              left: ${25 + idx * 5}%;
+              transform: translateX(-50%);
+            }
+          `
+            )
+            .join("\n")}
+
+          /* Responsive for small screens */
+          @media (max-width: 600px) {
+            ${letters
+              .map(
+                (_, idx) => `
+                .typing-${idx} {
+                  transform: translate(calc(-50% + ${
+                    (idx - letters.length / 2) * 18
+                  }px), -50%);
+                }
+              `
+              )
+              .join("\n")}
+
+            ${letters
+              .map(
+                (_, idx) => `
+                .spread-${idx} {
+                  top: 15px;
+                  left: ${15 + idx * 7}%;
+                  transform: translateX(-50%);
+                }
+              `
+              )
+              .join("\n")}
+
+            .letter {
+              font-size: 24px !important;
+            }
+          }
+        `}</style>
       </Head>
+
       <Box
         sx={{
-          textAlign: 'center',
-          py: { xs: 5, sm: 10 },
-          backgroundColor: appColor.background
+          background: appColor.black,
+          height: "100vh",
+          width: "100vw",
+          position: "relative",
+          userSelect: "none",
+          overflow: "hidden",
         }}
       >
-        <Typography
-          variant="h2"
-          gutterBottom
-          sx={{ fontSize: { xs: '1.2rem', sm: '2rem' }, fontWeight: 700 }}
-        >
-          Discover the Best Booking <br />
-          Experiences in Cambodia and Beyond.
-        </Typography>
-        <Typography
-          variant="h6"
-          color="textSecondary"
-          paragraph
-          sx={{
-            fontSize: { xs: '0.8rem', sm: '1rem' },
-            maxWidth: 700,
-            mx: 'auto',
-            px: 2
-          }}
-        >
-          Explore your trip with the most talented and accomplished reservation
-          experts, ready to assist with all your booking needs.
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            mt: 4,
-            px: { xs: 2, sm: 5 },
-            gap: 2
-          }}
-        >
-          <Box
+        {letters.map((letter, idx) => (
+          <TextWiget
+            key={idx}
+            className={`letter ${typedCount > idx ? "visible" : ""} ${
+              spreadOut ? `spread-${idx}` : `typing-${idx}`
+            }`}
             sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 1,
-              justifyContent: 'center',
-              width: '100%'
+              color: appColor.logo,
+              transitionDelay: `${idx * 0.001}s`,
+              fontSize: 30,
             }}
           >
-            {datasource?.slice(0, 7)?.map((place, index) => {
-              if (unique.has(place?.category)) return null;
-              unique.add(place?.category);
-              return (
-                <Button
-                  key={index}
-                  sx={{
-                    color: appColor.textgray,
-                    borderRadius: '10px',
-                    mx: 1,
-                    width: 'auto'
-                  }}
-                  onClick={() => handleProvince(place.id)}
-                >
-                  <Typography variant="h6" gutterBottom>
-                    {place.category}
-                  </Typography>
-                </Button>
-              );
-            })}
-          </Box>
-        </Box>
-
-        <ProvincePage />
-        <RoomPage />
-        <ListTime />
+            {letter}
+          </TextWiget>
+        ))}
       </Box>
-      <FooterPage />
     </>
   );
 }
-
-HomePage.getLayout = (page) => <HeaderPage>{page}</HeaderPage>;
-export default HomePage;

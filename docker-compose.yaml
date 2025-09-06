@@ -4,7 +4,7 @@ services:
   jabjit:
     build: .
     restart: always
-    container_name: jabjit
+    container_name: portfolio
     ports:
       - "8000:3000"
 

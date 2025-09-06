@@ -4,14 +4,10 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 import nProgress from 'nprogress';
-import 'nprogress/nprogress.css';
-import ThemeProvider from 'src/theme/ThemeProvider';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from 'src/createEmotionCache';
 import { SidebarProvider } from 'src/contexts/SidebarContext';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { SnackbarProvider } from '@/contexts/SnackbarContext';
 
 const clientSideEmotionCache = createEmotionCache();
@@ -36,21 +32,17 @@ function JabJit(props: JabJitProps) {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>JabJit Admin Dashboard</title>
+        <title>JabJit</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />   
+        />
       </Head>
 
       <SnackbarProvider>
         <SidebarProvider>
-          <ThemeProvider>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <CssBaseline />
-              {getLayout(<Component {...pageProps} />)}
-            </LocalizationProvider>
-          </ThemeProvider>
+          <CssBaseline />
+          {getLayout(<Component {...pageProps} />)}
         </SidebarProvider>
       </SnackbarProvider>
     </CacheProvider>

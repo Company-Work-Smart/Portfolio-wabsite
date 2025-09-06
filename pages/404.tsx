@@ -12,8 +12,6 @@ import {
 } from '@mui/material';
 import Head from 'next/head';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
-import type { ReactElement } from 'react';
-import BaseLayout from 'src/layouts/BaseLayout';
 
 const MainContent = styled(Box)(
   () => `
@@ -106,6 +104,3 @@ function Status404() {
 
 export default Status404;
 
-Status404.getLayout = function getLayout(page: ReactElement) {
-  return <BaseLayout>{page}</BaseLayout>;
-};
