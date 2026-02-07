@@ -1,4 +1,4 @@
-import Head from "next/head";
+import Head from 'next/head';
 import {
   Avatar,
   Box,
@@ -9,64 +9,61 @@ import {
   Container,
   Grid,
   IconButton,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+  useTheme
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 import {
   GitHub,
   LinkedIn,
   Email,
   Download,
-  ArrowForward,
-} from "@mui/icons-material";
-
-import appColor from "@/theme/appColor";
-import HeaderPage from "@/layouts/PageLayout/Header";
-import FooterPage from "@/layouts/PageLayout/Fooder";
-import { TextWiget } from "@/components/typographys";
-import { MySkill } from "@/database/skill";
-import { services } from "@/database/service";
-import { projects } from "@/database/project";
+  ArrowForward
+} from '@mui/icons-material';
+import HeaderPage from '@/layouts/PageLayout/Header';
+import FooterPage from '@/layouts/PageLayout/Fooder';
+import { TextWidget } from '@/components/typographys';
+import { MySkill } from '@/database/skill';
+import { services } from '@/database/service';
+import { projects } from '@/database/project';
 
 const GlassCard = styled(Card)(() => ({
-  background: "rgba(255, 255, 255, 0.1)",
-  backdropFilter: "blur(10px)",
-  border: "1px solid rgba(255, 255, 255, 0.2)",
-  borderRadius: "20px",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    transform: "translateY(-10px)",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-  },
+  background: 'rgba(255, 255, 255, 0.1)',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  borderRadius: '20px',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-10px)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+  }
 }));
 
 const AnimatedButton = styled(Button)(() => ({
-  borderRadius: "50px",
-  padding: "12px 30px",
-  textTransform: "none",
+  borderRadius: '50px',
+  padding: '12px 30px',
+  textTransform: 'none',
   fontWeight: 600,
-  fontSize: "16px",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    transform: "translateY(-2px)",
-    boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
-  },
+  fontSize: '16px',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 10px 20px rgba(0,0,0,0.2)'
+  }
 }));
 
-const SkillChip = styled(Chip)(() => ({
-  margin: "4px",
-  padding: "8px",
-  fontSize: "14px",
+const SkillChip = styled(Chip)(({ theme }) => ({
+  margin: '4px',
+  padding: '8px',
+  fontSize: '14px',
   fontWeight: 500,
-  background: "rgba(255, 255, 255, 0.1)",
-  color: appColor.white,
-  border: "1px solid rgba(255, 255, 255, 0.2)",
-  "&:hover": {
-    background: "rgba(255, 255, 255, 0.2)",
-  },
+  background: theme.colors.alpha.white[20],
+  color: theme.palette.text.primary,
+  border: '1px solid rgba(255, 255, 255, 0.2)'
 }));
 
 function HomePage() {
-  const title = "Portfolio - Full Stack Developer";
+  const theme = useTheme();
+  const title = 'Portfolio - Full Stack Developer';
 
   return (
     <>
@@ -74,56 +71,68 @@ function HomePage() {
         <title>{title}</title>
       </Head>
 
-      <Box sx={{ background: appColor.background, height: "100%", pt: 20 }}>
+      <Box
+        sx={{
+          backgroundColor: theme.palette.background.default,
+          height: '100%',
+          pt: 20
+        }}
+      >
         <Container maxWidth="lg">
           <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={6}>
+            <Grid>
               <Box
-                sx={{ color: appColor.white, position: "relative", zIndex: 1 }}
+                sx={{
+                  color: theme.palette.text.primary,
+                  position: 'relative',
+                  zIndex: 1
+                }}
               >
-                <TextWiget variant="h6" sx={{ mb: 2, letterSpacing: "0.1em" }}>
+                <TextWidget variant="h6" sx={{ mb: 2, letterSpacing: '0.1em' }}>
                   HELLO, I'M
-                </TextWiget>
-                <TextWiget
+                </TextWidget>
+                <TextWidget
                   variant="h1"
                   sx={{
-                    fontSize: { xs: "2.5rem", md: "3.5rem" },
+                    fontSize: { xs: '2.5rem', md: '3.5rem' },
                     fontWeight: 700,
                     mb: 2,
-                    background: "linear-gradient(45deg, #fff, #f0f0f0)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    lineHeight: 1.2,
+                    background: theme.palette.text.primary,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    lineHeight: 1.2
                   }}
                 >
                   SENG VICHET Developer
-                </TextWiget>
-                <TextWiget
+                </TextWidget>
+                <TextWidget
                   variant="h4"
-                  sx={{ fontSize: { xs: "1.5rem", md: "2rem" }, mb: 3 }}
+                  sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, mb: 3 }}
                 >
                   Full Stack Developer
-                </TextWiget>
-                <TextWiget
-                  variant="body1"
+                </TextWidget>
+                <TextWidget
+                  size={15}
                   sx={{
-                    fontSize: "1.1rem",
+                    color: theme.palette.text.secondary,
                     mb: 4,
                     lineHeight: 1.6,
-                    maxWidth: 500,
+                    maxWidth: 500
                   }}
                 >
                   I create exceptional digital experiences through clean code
                   and innovative design. Let's build something amazing together.
-                </TextWiget>
-                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 4 }}>
+                </TextWidget>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 4 }}>
                   <AnimatedButton
                     variant="contained"
                     endIcon={<ArrowForward />}
                     sx={{
-                      background: appColor.white,
-                      color: appColor.primary,
-                      "&:hover": { background: appColor.white },
+                      background: theme.palette.text.primary,
+                      color: theme.palette.background.default,
+                      '&:hover': {
+                        background: theme.palette.text.primary
+                      }
                     }}
                   >
                     View My Work
@@ -132,25 +141,24 @@ function HomePage() {
                     variant="outlined"
                     startIcon={<Download />}
                     sx={{
-                      borderColor: appColor.white,
-                      color: appColor.white,
-                      "&:hover": { background: "rgba(255,255,255,0.1)" },
+                      borderColor: theme.palette.text.primary,
+                      color: theme.palette.text.primary
                     }}
                   >
                     Download CV
                   </AnimatedButton>
                 </Box>
-                <Box sx={{ display: "flex", gap: 2 }}>
+                <Box sx={{ display: 'flex', gap: 2 }}>
                   {[GitHub, LinkedIn, Email].map((Icon, i) => (
                     <IconButton
                       key={i}
                       sx={{
-                        color: appColor.white,
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          transform: "translateY(-5px)",
-                          boxShadow: `0 20px 40px ${appColor.white}`,
-                        },
+                        color: theme.palette.text.primary,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-5px)',
+                          boxShadow: `0 20px 40px ${theme.palette.text.primary}`
+                        }
                       }}
                     >
                       <Icon />
@@ -159,16 +167,16 @@ function HomePage() {
                 </Box>
               </Box>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Grid>
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Avatar
                   src="/profile-image.jpg"
                   alt="Profile"
                   sx={{
                     width: { xs: 250, md: 350 },
                     height: { xs: 250, md: 350 },
-                    border: `4px solid ${appColor.textgray}`,
-                    boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                    border: `2px solid ${theme.palette.text.secondary}`,
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
                   }}
                 />
               </Box>
@@ -176,25 +184,24 @@ function HomePage() {
           </Grid>
         </Container>
 
-        <Box sx={{ py: 8, background: "rgba(255,255,255,0.02)" }}>
+        <Box sx={{ py: 8, background: 'rgba(255,255,255,0.02)' }}>
           <Container maxWidth="lg">
-            <TextWiget
+            <TextWidget
+              bold
+              size={20}
               align="center"
               sx={{
-                mb: 6,
-                color: appColor.white,
-                fontSize: 20,
-                fontWeight: 700,
+                mb: 6
               }}
             >
               Skills & Technologies
-            </TextWiget>
+            </TextWidget>
             <Box
               sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                gap: 1,
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: 1
               }}
             >
               {MySkill.map((skill, index) => (
@@ -206,35 +213,47 @@ function HomePage() {
 
         <Box sx={{ py: 8 }}>
           <Container maxWidth="lg">
-            <TextWiget
+            <TextWidget
               align="center"
+              bold
+              size={20}
               sx={{
-                mb: 6,
-                color: appColor.white,
-                fontSize: 20,
-                fontWeight: 700,
+                mb: 6
               }}
             >
               What I Do
-            </TextWiget>
+            </TextWidget>
             <Grid container spacing={4}>
               {services.map((service, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
+                <Grid item key={index} xs={12} sm={6} md={4}>
                   <GlassCard>
-                    <CardContent sx={{ p: 4, textAlign: "center" }}>
-                      <Box sx={{ mb: 3 }}>{service.icon}</Box>
-                      <TextWiget
-                        variant="h5"
-                        sx={{ mb: 2, color: appColor.white, fontWeight: 600 }}
+                    <CardContent
+                      sx={{ p: 4, textAlign: 'center', cursor: 'pointer' }}
+                    >
+                      <Box
+                        sx={{
+                          color: theme.palette.text.primary,
+                          mb: 3
+                        }}
+                      >
+                        {service.icon}
+                      </Box>
+                      <TextWidget
+                        bold
+                        sx={{
+                          mb: 2
+                        }}
                       >
                         {service.title}
-                      </TextWiget>
-                      <TextWiget
+                      </TextWidget>
+                      <TextWidget
                         variant="body1"
-                        sx={{ color: appColor.lightgray, lineHeight: 1.6 }}
+                        sx={{
+                          lineHeight: 1.6
+                        }}
                       >
                         {service.description}
-                      </TextWiget>
+                      </TextWidget>
                     </CardContent>
                   </GlassCard>
                 </Grid>
@@ -245,61 +264,62 @@ function HomePage() {
 
         <Box sx={{ py: 8 }}>
           <Container maxWidth="lg">
-            <TextWiget
+            <TextWidget
               align="center"
+              bold
+              size={20}
               sx={{
-                mb: 6,
-                color: appColor.white,
-                fontSize: 20,
-                fontWeight: 700,
+                mb: 6
               }}
             >
               Recent Projects
-            </TextWiget>
+            </TextWidget>
             <Grid container spacing={4}>
               {projects.map((project, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
+                <Grid item key={index} xs={12} sm={6} md={4}>
                   <GlassCard>
-                    <CardContent sx={{ p: 4 }}>
+                    <CardContent sx={{ p: 4, cursor: 'pointer' }}>
                       <Box
                         sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mb: 2,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mb: 2
                         }}
                       >
-                        <TextWiget bold>{project.title}</TextWiget>
+                        <TextWidget bold>{project.title}</TextWidget>
                         <Chip
                           label={project.status}
                           size="small"
                           sx={{
                             background:
-                              project.status === "Live"
-                                ? appColor.live
-                                : project.status === "In Progress"
-                                ? appColor.inProgress
-                                : appColor.completed,
-                            color: appColor.white,
-                            fontWeight: 500,
+                              project.status === 'Live'
+                                ? theme.palette.info.main
+                                : project.status === 'In Progress'
+                                ? theme.palette.warning.main
+                                : project.status === 'Soon'
+                                ? theme.palette.warning.main
+                                : theme.palette.success.main,
+                            color: theme.palette.text.primary,
+                            textTransform: 'capitalize'
                           }}
                         />
                       </Box>
-                      <TextWiget
+                      <TextWidget
                         sx={{
-                          color: appColor.lightgray,
+                          color: theme.palette.text.secondary,
                           mb: 3,
-                          lineHeight: 1.6,
+                          lineHeight: 1.6
                         }}
                       >
                         {project.description}
-                      </TextWiget>
+                      </TextWidget>
                       <Box
                         sx={{
-                          display: "flex",
-                          flexWrap: "wrap",
+                          display: 'flex',
+                          flexWrap: 'wrap',
                           gap: 1,
-                          mb: 3,
+                          mb: 3
                         }}
                       >
                         {project.technologies.map((tech, techIndex) => (
@@ -308,28 +328,14 @@ function HomePage() {
                             label={tech}
                             size="small"
                             sx={{
-                              background: appColor.textgray,
-                              color: appColor.white,
-                              fontSize: "12px",
+                              background: theme.colors.alpha.white[20],
+                              color: theme.palette.text.primary,
+                              fontSize: '12px',
+                              border: '1px solid rgba(255, 255, 255, 0.2)'
                             }}
                           />
                         ))}
                       </Box>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        endIcon={<ArrowForward />}
-                        sx={{
-                          color: appColor.white,
-                          borderColor: appColor.textgray,
-                          "&:hover": {
-                            borderColor: appColor.white,
-                            background: appColor.textgray,
-                          },
-                        }}
-                      >
-                        View Project
-                      </Button>
                     </CardContent>
                   </GlassCard>
                 </Grid>
@@ -340,21 +346,21 @@ function HomePage() {
 
         <Box sx={{ py: 8 }}>
           <Container maxWidth="md">
-            <Box sx={{ textAlign: "center" }}>
-              <TextWiget sx={{ mb: 3, fontSize: 20, fontWeight: 700 }}>
+            <Box sx={{ textAlign: 'center' }}>
+              <TextWidget bold size={20} sx={{ mb: 3 }}>
                 Ready to Start Your Project?
-              </TextWiget>
-              <TextWiget sx={{ mb: 4, color: appColor.lightgray }}>
+              </TextWidget>
+              <TextWidget sx={{ mb: 4 }}>
                 Let's discuss how we can bring your ideas to life
-              </TextWiget>
+              </TextWidget>
               <AnimatedButton
                 variant="contained"
                 size="large"
                 sx={{
-                  background: "linear-gradient(45deg, #6366f1, #8b5cf6)",
-                  color: appColor.white,
+                  background: 'linear-gradient(45deg, #6366f1, #8b5cf6)',
+                  color: theme.palette.text.primary,
                   px: 4,
-                  py: 2,
+                  py: 2
                 }}
               >
                 Get In Touch

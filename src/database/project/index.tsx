@@ -8,7 +8,7 @@ export interface Project {
   github: string;
   live: string;
   featured: boolean;
-  status: "Live" | "In Progress" | "Completed";
+  status: "Soon" | "Live" | "In Progress" | "Completed";
   date: string;
 }
 
@@ -24,7 +24,7 @@ export const projects: Project[] = [
     github: "https://github.com/username/ecommerce",
     live: "https://ecommerce-demo.com",
     featured: true,
-    status: "Live",
+    status: "Soon",
     date: "2024",
   },
   {

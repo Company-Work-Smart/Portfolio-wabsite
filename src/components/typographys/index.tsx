@@ -1,4 +1,3 @@
-import appColor from "@/theme/appColor";
 import { styled, Typography, TypographyProps } from "@mui/material";
 
 const TypographyH1 = styled(Typography)(
@@ -22,16 +21,16 @@ interface TextWigetProps extends TypographyProps {
   size?: number;
 }
 
-const TextWiget = styled((props: TextWigetProps) => <Typography {...props} />)(
+const TextWidget = styled((props: TextWigetProps) => <Typography {...props} />)(
   ({ theme, bold, size }) => ({
     fontSize: size
       ? theme.typography.pxToRem(size)
       : theme.typography.pxToRem(13),
     fontFamily: "Roboto, sans-serif",
     fontWeight: bold ? "bold" : "normal",
-    color: appColor.textwhite,
+    color: theme.palette.text.primary,
     userSelect: "none",
   })
 );
 
-export { TypographyH1, TypographyH2, TextWiget };
+export { TypographyH1, TypographyH2, TextWidget };

@@ -1,55 +1,54 @@
-import React from "react";
-import { AppBar, Box } from "@mui/material";
-import appColor from "@/theme/appColor";
-import { TextWiget } from "@/components/typographys";
+import { AppBar, Box, useTheme } from '@mui/material';
+import { TextWidget } from '@/components/typographys';
 
 function FooterPage() {
+  const theme = useTheme();
   return (
     <AppBar
       position="static"
       sx={{
-        backgroundColor: appColor.white,
-        boxShadow: "none",
-        top: "auto",
-        bottom: 0,
+        backgroundColor: theme.palette.text.primary,
+        boxShadow: 'none',
+        top: 'auto',
+        bottom: 0
       }}
     >
       <Box
         sx={{
-          background: appColor.white,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          background: theme.palette.text.primary,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           px: 3,
           py: 1.5,
-          flexWrap: "wrap",
+          flexWrap: 'wrap'
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <img
             src="/static/cambodia.png"
             alt="Cambodia Flag"
-            style={{ width: 24, height: "auto" }}
+            style={{ width: 24, height: 'auto' }}
           />
-          <TextWiget
+          <TextWidget
             variant="body2"
-            sx={{ fontWeight: 500, color: appColor.textblack }}
+            sx={{ fontWeight: 500, color: theme.palette.background.default }}
           >
             Cambodia
-          </TextWiget>
+          </TextWidget>
         </Box>
 
-        <TextWiget
+        <TextWidget
           variant="body2"
           sx={{
             fontWeight: 400,
-            color: appColor.textblack,
-            textAlign: "center",
-            flexGrow: 1,
+            color: theme.palette.background.default,
+            textAlign: 'center',
+            flexGrow: 1
           }}
         >
           ® 2025 SENG VICHET. All rights reserved.
-        </TextWiget>
+        </TextWidget>
       </Box>
     </AppBar>
   );

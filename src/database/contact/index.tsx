@@ -1,4 +1,3 @@
-import appColor from "@/theme/appColor";
 import {
   Email,
   GitHub,
@@ -9,7 +8,6 @@ import {
   Twitter,
   WhatsApp,
 } from "@mui/icons-material";
-import { JSX } from "react";
 
 export interface Contact {
   icon: JSX.Element;
@@ -21,28 +19,28 @@ export interface Contact {
 
 export const contact: Contact[] = [
   {
-    icon: <Email sx={{ fontSize: 40, color: appColor.textpurple }} />,
+    icon: <Email sx={{ fontSize: 40}} />,
     title: "Email",
     value: "sengvichet2525@gmail.com",
     description: "Send me an email anytime",
     action: "sengvichet2525@gmail.com",
   },
   {
-    icon: <Phone sx={{ fontSize: 40, color: appColor.green }} />,
+    icon: <Phone sx={{ fontSize: 40}} />,
     title: "Phone",
     value: "(+855) 092 736 061",
     description: "Call me for urgent matters",
     action: "092736061",
   },
   {
-    icon: <LocationOn sx={{ fontSize: 40, color:  appColor.yellow }} />,
+    icon: <LocationOn sx={{ fontSize: 40 }} />,
     title: "Location",
     value: "Phmon Penh, Cambodia",
     description: "Available for local meetings",
     action: "https://maps.app.goo.gl/5wYfWFXTssnpd1Z58",
   },
   {
-    icon: <WhatsApp sx={{ fontSize: 40, color: appColor.green }} />,
+    icon: <WhatsApp sx={{ fontSize: 40 }} />,
     title: "WhatsApp",
     value: "(+855) 092 736 061",
     description: "Quick messages welcome",

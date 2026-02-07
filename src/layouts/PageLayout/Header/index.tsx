@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -11,38 +11,46 @@ import {
   ListItemText,
   useMediaQuery,
   useTheme,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import MenuIcon from "@mui/icons-material/Menu";
-import { useRouter } from "next/router";
-import appColor from "@/theme/appColor";
-import { TextWiget } from "@/components/typographys";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
+  Button
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useRouter } from 'next/router';
+import { TextWidget } from '@/components/typographys';
+import { UserBoxProps } from '@/constant/my-app';
+import { AppKey } from '@/constant/key';
+import ThemeButton from '@/components/ThemeButton';
 
 interface HeaderLayoutProps {
   children?: ReactNode;
 }
 
 const navItems = [
-  { label: "Home", path: "/portfolio/homefeed" },
-  { label: "Project", path: "/portfolio/project" },
-  { label: "Education", path: "/portfolio/education" },
-  { label: "Contact Me", path: "/portfolio/contact" },
+  { label: 'Home', path: '/portfolio/homefeed' },
+  { label: 'Project', path: '/portfolio/project' },
+  { label: 'Education', path: '/portfolio/education' },
+  { label: 'Contact Me', path: '/portfolio/contact' }
 ];
 
 const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
   const router = useRouter();
-  const logo = "SENGVICHET";
+  const logo = 'SENGVICHET';
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeLabel, setActiveLabel] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [language, setLanguage] = useState("EN");
+  const [user, setUser] = useState<UserBoxProps>({});
 
   useEffect(() => {
-    if (router.pathname === "/") {
+    setUser({
+      userId: localStorage.getItem(AppKey.userId),
+      username: localStorage.getItem(AppKey.username),
+      role: localStorage.getItem(AppKey.role)
+    });
+  }, []);
+
+  useEffect(() => {
+    if (router.pathname === '/') {
       setActiveLabel(logo);
     } else {
       const match = navItems.find((item) =>
@@ -62,86 +70,97 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
       <AppBar
         position="sticky"
         sx={{
-          backgroundColor: appColor.background,
-          boxShadow: "none",
+          backgroundColor: theme.palette.background.default,
+          boxShadow: 'none',
           px: { xs: 2, sm: 4, md: 5 },
           py: 2,
-          zIndex: 1100,
+          zIndex: 1100
         }}
       >
         <Toolbar
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}
         >
-          <TextWiget
+          <TextWidget
             sx={{
               color:
-                activeLabel === logo ? appColor.textwhite : appColor.textgray,
-              cursor: "pointer",
-              transition: "transform 0.3s ease, color 0.3s ease",
-              "&:hover": {
-                color: appColor.textwhite,
-                transform: "scale(1.05)",
-              },
+                activeLabel === logo
+                  ? theme.palette.text.primary
+                  : theme.palette.text.disabled,
+              cursor: 'pointer',
+              transition: 'transform 0.3s ease, color 0.3s ease',
+              '&:hover': {
+                color: theme.palette.text.primary,
+                transform: 'scale(1.05)'
+              }
             }}
-            onClick={() => router.push("/")}
+            onClick={() => router.push('/')}
           >
             {logo.toUpperCase()}
-          </TextWiget>
+          </TextWidget>
 
           {!isMobile && (
-            <Box sx={{ display: "flex", gap: 6 }}>
+            <Box sx={{ display: 'flex', gap: 6 }}>
               {navItems.map((item) => (
-                <TextWiget
+                <TextWidget
                   key={item.label}
                   sx={{
                     color:
                       activeLabel === item.label
-                        ? appColor.textwhite
-                        : appColor.lightgray,
-                    cursor: "pointer",
-                    "&:hover": {
-                      color: appColor.textwhite,
-                      transform: "scale(1.05)",
-                    },
+                        ? theme.palette.text.primary
+                        : theme.palette.text.disabled,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      color: theme.palette.text.primary,
+                      transform: 'scale(1.05)'
+                    }
                   }}
                   onClick={() => handleClick(item)}
                 >
                   {item.label.toUpperCase()}
-                </TextWiget>
+                </TextWidget>
               ))}
             </Box>
           )}
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <TextWiget
-              onClick={() => setIsDarkMode((prev) => !prev)}
-              sx={{ cursor: "pointer", pt:0.5 }}
-            >
-              {isDarkMode ? (
-                <DarkModeIcon sx={{ fontSize: 20, color: appColor.yellow }} />
-              ) : (
-                <LightModeIcon sx={{ fontSize: 20, color: appColor.yellow }} />
-              )}
-            </TextWiget>
-            <TextWiget
-              sx={{ pb: 0.5, pl: 0.5, pt: 0.5,cursor: "pointer" }}
-              onClick={() =>
-                setLanguage((prev) => (prev === "EN" ? "KH" : "EN"))
-              }
-            >
-              {language === "EN" ? "🇺🇸 EN" : "🇰🇭 KH"}
-            </TextWiget>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ pr: 2 }}>
+              <ThemeButton />
+            </Box>
+            {!user?.username ? (
+              <Button
+                variant="contained"
+                href={'/auth/login'}
+                sx={{
+                  background: theme.palette.text.primary,
+                  color: theme.palette.background.default,
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    background: theme.palette.text.primary
+                  }
+                }}
+              >
+                Login
+              </Button>
+            ) : (
+              <TextWidget
+                onClick={() => router.push('/applications/user/profile')}
+                sx={{ cursor: 'pointer' }}
+              >
+                {user?.username.toUpperCase()}
+              </TextWidget>
+            )}
+
             {isMobile && (
               <IconButton
                 edge="end"
                 color="inherit"
                 aria-label="menu"
                 onClick={() => setDrawerOpen(true)}
-                sx={{ color: appColor.textwhite }}
+                sx={{ color: theme.mode.text.default }}
               >
                 <MenuIcon />
               </IconButton>
@@ -156,17 +175,17 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
         onClose={() => setDrawerOpen(false)}
         PaperProps={{
           sx: {
-            backgroundColor: appColor.background,
+            backgroundColor: theme.mode.background.default,
             width: 240,
             px: 2,
-            pt: 4,
-          },
+            pt: 4
+          }
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
           <IconButton
             onClick={() => setDrawerOpen(false)}
-            sx={{ color: appColor.textwhite }}
+            sx={{ color: theme.mode.text.default }}
           >
             <CloseIcon />
           </IconButton>
@@ -181,9 +200,9 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
                     sx: {
                       color:
                         activeLabel === item.label
-                          ? appColor.textwhite
-                          : appColor.lightgray,
-                    },
+                          ? theme.mode.text.default
+                          : theme.mode.text.disabled
+                    }
                   }}
                 />
               </ListItemButton>

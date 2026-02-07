@@ -1,9 +1,8 @@
 import Head from "next/head";
-import { Box } from "@mui/material";
-import appColor from "@/theme/appColor";
+import { Box, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { TextWiget } from "@/components/typographys";
+import { TextWidget } from "@/components/typographys";
 
 const letters = [
   "S",
@@ -20,6 +19,7 @@ const letters = [
 
 export default function HomePage() {
   const title = "Splash Screen";
+  const theme = useTheme();
   const router = useRouter();
   const [typedCount, setTypedCount] = useState(0);
   const [spreadOut, setSpreadOut] = useState(false);
@@ -35,7 +35,7 @@ export default function HomePage() {
         setSpreadOut(true);
         setTimeout(() => {
           router.push("/portfolio/homefeed");
-        }, 1000);
+        }, 800);
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -125,7 +125,7 @@ export default function HomePage() {
 
       <Box
         sx={{
-          background: appColor.black,
+          background: theme.palette.background.default,
           height: "100vh",
           width: "100vw",
           position: "relative",
@@ -134,19 +134,19 @@ export default function HomePage() {
         }}
       >
         {letters.map((letter, idx) => (
-          <TextWiget
+          <TextWidget
             key={idx}
             className={`letter ${typedCount > idx ? "visible" : ""} ${
               spreadOut ? `spread-${idx}` : `typing-${idx}`
             }`}
             sx={{
-              color: appColor.logo,
+              color: theme.palette.text.primary,
               transitionDelay: `${idx * 0.001}s`,
               fontSize: 30,
             }}
           >
             {letter}
-          </TextWiget>
+          </TextWidget>
         ))}
       </Box>
     </>
