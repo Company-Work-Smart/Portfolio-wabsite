@@ -17,7 +17,7 @@ import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
 import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
 import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
-import Text from '@/components/Text';
+import { TextWidget } from '@/components/Text';
 
 const CardActionsWrapper = styled(CardActions)(
   ({ theme }) => `
@@ -108,13 +108,13 @@ function ActivityTab() {
         </Box>
         <Box sx={{ mt: { xs: 2, md: 0 } }}>
           <Typography variant="subtitle2" component="span">
-            <Text color="black">
+            <TextWidget color="black">
               <b>485</b>
-            </Text>{' '}
-            reactions •{' '}
-            <Text color="black">
+            </TextWidget>
+            reactions •
+            <TextWidget color="black">
               <b>63</b>
-            </Text>{' '}
+            </TextWidget>
             comments
           </Typography>
         </Box>

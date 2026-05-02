@@ -8,254 +8,151 @@ import {
   CardMedia,
   Button,
   Chip,
-  Avatar,
   IconButton,
-  Fade,
-  Zoom,
-  alpha,
-  InputBase,
-  InputAdornment,
-  useTheme
+  Paper,
+  Collapse,
+  useTheme,
+  Stack
 } from '@mui/material';
-import {
-  GitHub,
-  Launch,
-  Search,
-  Clear,
-  Web,
-  MobileFriendly,
-  Code,
-  DesignServices
-} from '@mui/icons-material';
-import { TextWidget } from '@/components/typographys';
+import { GitHub, Launch, Search, Clear, FilterList } from '@mui/icons-material';
+
 import HeaderPage from '@/layouts/PageLayout/Header';
 import FooterPage from '@/layouts/PageLayout/Fooder';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { categories, projects } from '@/database/project';
-import { HttpClient } from '@/services/http-client';
+import { TextWidget } from '@/components/Text';
+import { ButtonWidget } from '@/components/Button';
+import SearchWidget from '@/components/Search';
 
 function ProjectPage() {
   const title = 'Portfolio - Projects';
-  const http = new HttpClient();
   const theme = useTheme();
-  const [datasource, setDatasource] = useState<any[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState(projects);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [, setSearchResults] = useState(projects.length);
-
-  // Load initial data
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await http.get('AnonymousProject');
-      setDatasource(res || []);
-      setIsLoaded(true);
-    };
-    fetchData();
-  }, []);
-
-  // Filter projects whenever datasource, category, or search changes
-  useEffect(() => {
-    let filtered = datasource;
-
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(
-        (project) => project.category === selectedCategory
-      );
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter((project) => {
-        const titleMatch = project.title.toLowerCase().includes(query);
-        const descriptionMatch = project.description
-          .toLowerCase()
-          .includes(query);
-        const techMatch = project.technologies.some((tech) =>
-          tech.toLowerCase().includes(query)
-        );
-        const categoryMatch = project.category.toLowerCase().includes(query);
-
-        return titleMatch || descriptionMatch || techMatch || categoryMatch;
-      });
-    }
-
-    setFilteredProjects(filtered);
-    setSearchResults(filtered.length);
-  }, [datasource, selectedCategory, searchQuery]);
+  const [showFilters, setShowFilters] = useState(true);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
   };
 
-  const handleSearchChange = useCallback((value: string) => {
-    setSearchQuery(value);
-  }, []);
-
-  const handleClearSearch = () => {
-    setSearchQuery('');
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Web Development':
-        return <Web />;
-      case 'Mobile Development':
-        return <MobileFriendly />;
-      case 'Data Science':
-        return <Code />;
-      case 'Design':
-        return <DesignServices />;
-      case 'Blockchain':
-        return <Code />;
-      default:
-        return <Code />;
+  // Enhanced filtering logic
+  const filteredProjects = useMemo(() => {
+    let filtered = projects;
+
+    // Filter by category
+    if (selectedCategory !== 'Al  l') {
+      filtered = filtered.filter(
+        (project) => project.category === selectedCategory
+      );
     }
-  };
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (project) =>
+          project.title.toLowerCase().includes(query) ||
+          project.category.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [selectedCategory, searchQuery]);
 
   return (
     <>
       <Head>
         <title>{title}</title>
-        <meta
-          name="description"
-          content="Browse through my portfolio of projects with advanced search and filtering capabilities."
-        />
       </Head>
 
       <Box
         sx={{
-          background: theme.palette.background.default,
-          minHeight: '100vh',
+          background: theme.mode.background.default,
           py: 4
         }}
       >
-        <Container maxWidth="lg">
-          <Fade in={isLoaded} timeout={800}>
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
-              <TextWidget bold size={20} sx={{ mb: 2 }}>
-                My Projects
-              </TextWidget>
-              <TextWidget
-                sx={{
-                  color: theme.palette.text.secondary,
-                  maxWidth: 600,
-                  mx: 'auto',
-                  lineHeight: 1.6
-                }}
-              >
-                A collection of my work spanning web development, mobile
-                applications, and innovative digital solutions.
-              </TextWidget>
+        <Container>
+          <Box sx={{ textAlign: 'center', mb: 6 }}>
+            <TextWidget bold>My Projects</TextWidget>
+            <TextWidget
+              sx={{
+                color: theme.mode.text.disabled,
+                maxWidth: 600,
+                mx: 'auto',
+                lineHeight: 1.8,
+                py: 2
+              }}
+            >
+              A collection of my work spanning web development, mobile
+              applications, and innovative digital solutions.
+            </TextWidget>
+          </Box>
+          <Box display="flex" justifyContent="space-between">
+            <ButtonWidget
+              variant="outlined"
+              startIcon={<FilterList />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? 'Hide' : 'Show'} Filters
+            </ButtonWidget>
+            <Box>
+              <SearchWidget radius="30px" onSearch={handleSearchChange} />
             </Box>
-          </Fade>
+            <ButtonWidget
+              variant="outlined"
+              startIcon={<FilterList />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? 'Hide' : 'Show'} Clean
+            </ButtonWidget>
+          </Box>
 
-          <Fade in={isLoaded} timeout={900}>
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
-              <Box sx={{ width: '800px' }}>
-                <InputBase
-                  placeholder="Search projects type ..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  sx={{
-                    width: '100%',
-                    color: theme.palette.text.primary,
-                    borderRadius: 25,
-                    px: 2,
-                    py: 1.5,
-                    border: `0.5px solid ${theme.palette.primary.main}`
-                  }}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <Search sx={{ color: theme.palette.text.secondary }} />
-                    </InputAdornment>
-                  }
-                  endAdornment={
-                    searchQuery && (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={handleClearSearch}
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            '&:hover': { color: theme.palette.text.primary }
-                          }}
-                        >
-                          <Clear />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }
-                />
-              </Box>
-            </Box>
-          </Fade>
+          <Collapse in={showFilters}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+                gap: 1.5,
+                py: 3
+              }}
+            >
+              {categories.map((category) => {
+                const isSelected = selectedCategory === category;
 
-          {/* Filter Section */}
-          <Fade in={isLoaded} timeout={1000}>
-            <Box sx={{ mb: 4 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 1,
-                  justifyContent: 'center',
-                  mb: 3
-                }}
-              >
-                {categories.map((category) => (
-                  <Button
+                return (
+                  <ButtonWidget
                     key={category}
-                    variant="outlined"
+                    variant={isSelected ? 'contained' : 'outlined'}
                     onClick={() => handleCategoryChange(category)}
                     sx={{
-                      borderRadius: 10,
-                      px: 3,
-                      py: 1,
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      background:
-                        selectedCategory === category
-                          ? theme.palette.secondary.main
-                          : theme.palette.secondary.main,
-                      color:
-                        selectedCategory === category
-                          ? theme.palette.text.primary
-                          : theme.palette.text.disabled,
-                      '&:hover': {
-                        transform: 'translateY(-1px)'
-                      }
+                      borderRadius: 2
                     }}
                   >
                     {category}
-                  </Button>
-                ))}
-              </Box>
+                  </ButtonWidget>
+                );
+              })}
             </Box>
-          </Fade>
+          </Collapse>
 
           {/* Projects Grid */}
-          <Grid container spacing={4}>
-            {filteredProjects.map((project, index) => (
-              <Zoom in={isLoaded} timeout={500 + index * 100} key={project.id}>
-                <Grid item xs={12} sm={6} md={4}>
+          {filteredProjects.length > 0 ? (
+            <Grid container spacing={3}>
+              {filteredProjects.map((project, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
                   <Card
                     sx={{
                       height: '100%',
                       display: 'flex',
-                      flexDirection: 'column',                      
-                      backdropFilter: 'blur(10px)',
-                      border: `1px solid ${alpha(appColor.primary, 0.1)}`,
+                      flexDirection: 'column',
                       borderRadius: 3,
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: `0 20px 40px ${alpha(
-                          appColor.primary,
-                          0.15
-                        )}`,
-                        border: `1px solid ${alpha(appColor.primary, 0.3)}`
-                      },
+                      border: `1px solid ${theme.palette.divider}`,
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       position: 'relative',
                       overflow: 'hidden'
                     }}
@@ -264,19 +161,22 @@ function ProjectPage() {
                       <Box
                         sx={{
                           position: 'absolute',
-                          top: 16,
-                          right: 16,
+                          top: 12,
+                          right: 12,
                           zIndex: 2,
-                          background: `linear-gradient(45deg, ${appColor.primary}, ${appColor.secondary})`,
-                          color: theme.palette.text.primary,
+                          background: `linear-gradient(135deg, #fbbf24, #f59e0b)`,
+                          color: '#fff',
                           px: 2,
                           py: 0.5,
                           borderRadius: 2,
-                          fontSize: '0.75rem',
-                          fontWeight: 'bold'
+                          fontSize: '0.7rem',
+                          fontWeight: 800,
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5,
+                          boxShadow: '0 4px 12px #f59e0b44'
                         }}
                       >
-                        Featured
+                        ⭐ Featured
                       </Box>
                     )}
 
@@ -288,7 +188,6 @@ function ProjectPage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         position: 'relative',
-                        background: `linear-gradient(45deg, ${appColor.primary}, ${appColor.secondary})`,
                         '&::before': {
                           content: '""',
                           position: 'absolute',
@@ -296,166 +195,162 @@ function ProjectPage() {
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          background: `url(${project.image}) center/cover`,
-                          opacity: 0.8
+                          background: project.image
+                            ? `url(${project.image}) center/cover`
+                            : 'none',
+                          opacity: 0.15
                         }
                       }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 80,
-                          height: 80,
-                          background: alpha(appColor.background, 0.9),
-                          color: appColor.primary,
-                          zIndex: 1
-                        }}
-                      >
-                        {getCategoryIcon(project.category)}
-                      </Avatar>
-                    </CardMedia>
+                    ></CardMedia>
 
                     <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      <TextWidget bold gutterBottom sx={{ mb: 1 }}>
-                        {project.title}
-                      </TextWidget>
-
-                      <TextWidget
-                        paragraph
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          mb: 2,
-                          lineHeight: 1.6
-                        }}
-                      >
-                        {project.description}
-                      </TextWidget>
-
-                      <Box sx={{ mb: 2 }}>
-                        <TextWidget bold sx={{ mb: 1 }}>
-                          Technologies:
+                      <Stack spacing={2}>
+                        <TextWidget fontWeight={700}>
+                          {project.title}
                         </TextWidget>
-                        <Box
-                          sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}
+                        <Chip label={project.category} size="small" />
+
+                        {/* Description */}
+                        <TextWidget
+                          variant="body2"
+                          sx={{
+                            color: theme.mode.text.disabled,
+                            lineHeight: 1.7,
+                            minHeight: 60
+                          }}
                         >
-                          {project.technologies.map((tech, idx) => (
-                            <Chip
-                              key={idx}
-                              label={tech}
+                          {project.description}
+                        </TextWidget>
+
+                        {/* Technologies */}
+                        <Box>
+                          <TextWidget
+                            variant="caption"
+                            fontWeight={700}
+                            sx={{ mb: 1, display: 'block' }}
+                          >
+                            Technologies:
+                          </TextWidget>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: 0.75
+                            }}
+                          >
+                            {project.technologies.map((tech, idx) => (
+                              <Chip
+                                key={idx}
+                                label={tech}
+                                size="small"
+                                sx={{
+                                  fontSize: '0.7rem',
+                                  height: 24,
+                                  background: theme.mode.background.default,
+                                  border: `1px solid ${theme.palette.divider}`,
+                                  '&:hover': {
+                                    background: theme.palette.action.hover
+                                  }
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </Box>
+
+                        {/* Footer */}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            pt: 2,
+                            mt: 'auto',
+                            borderTop: `1px solid ${theme.palette.divider}`
+                          }}
+                        >
+                          <TextWidget variant="caption" color="text.secondary">
+                            {project.date}
+                          </TextWidget>
+                          <Stack direction="row" spacing={1}>
+                            <IconButton
+                              href={project.github}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               size="small"
                               sx={{
-                                background: theme.palette.text.secondary,
-                                color: appColor.white,
-                                border: `1px solid ${alpha(
-                                  appColor.primary,
-                                  0.2
-                                )}`,
+                                transition: 'all 0.3s ease',
                                 '&:hover': {
-                                  background: alpha(appColor.primary, 0.2)
+                                  transform: 'translateY(-3px)'
                                 }
                               }}
-                            />
-                          ))}
+                            >
+                              <GitHub fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              href={project.live}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              size="small"
+                              sx={{
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                  transform: 'translateY(-3px)'
+                                }
+                              }}
+                            >
+                              <Launch fontSize="small" />
+                            </IconButton>
+                          </Stack>
                         </Box>
-                      </Box>
-
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          mt: 'auto'
-                        }}
-                      >
-                        <TextWidget>{project.date}</TextWidget>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <IconButton
-                            href={project.github}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                              color: appColor.white,
-                              transition: 'all 0.3s ease',
-                              '&:hover': {
-                                transform: 'translateY(-5px)',
-                                boxShadow: `0 10px 20px ${alpha(
-                                  appColor.white,
-                                  0.3
-                                )}`
-                              }
-                            }}
-                          >
-                            <GitHub />
-                          </IconButton>
-                          <IconButton
-                            href={project.live}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              transition: 'all 0.3s ease',
-                              '&:hover': {
-                                transform: 'translateY(-5px)',
-                                boxShadow: `0 10px 20px ${alpha(
-                                  theme.palette.text.secondary,
-                                  0.3
-                                )}`
-                              }
-                            }}
-                          >
-                            <Launch />
-                          </IconButton>
-                        </Box>
-                      </Box>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </Grid>
-              </Zoom>
-            ))}
-          </Grid>
-
-          {/* No Projects Found */}
-          {filteredProjects.length === 0 && (
-            <Fade in={true} timeout={500}>
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Box sx={{ mb: 3 }}>
-                  <Search
-                    sx={{
-                      fontSize: 64,
-                      color: theme.palette.text.secondary,
-                      mb: 2
-                    }}
-                  />
-                </Box>
-                <TextWidget bold sx={{ mb: 2 }}>
-                  No projects found
-                </TextWidget>
-                <TextWidget sx={{ color: theme.palette.text.secondary, mb: 3 }}>
-                  {searchQuery
-                    ? `No projects match your search "${searchQuery}"`
-                    : 'No projects found matching your criteria'}
-                </TextWidget>
-                {(searchQuery || selectedCategory !== 'All') && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedCategory('All');
-                    }}
-                    sx={{
-                      borderRadius: 25,
-                      px: 3,
-                      py: 1,
-                      textTransform: 'none',
-                      border: `1px solid ${appColor.primary}`,
-                      color: appColor.primary,
-                      '&:hover': { background: alpha(appColor.primary, 0.1) }
-                    }}
-                  >
-                    Clear Filters
-                  </Button>
-                )}
+              ))}
+            </Grid>
+          ) : (
+            /* No Projects Found */
+            <Paper
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                py: 8,
+                px: 4,
+                borderRadius: 3,
+                border: `2px dashed ${theme.palette.divider}`
+              }}
+            >
+              <Box sx={{ mb: 3 }}>
+                <Search
+                  sx={{
+                    fontSize: 80,
+                    color: theme.mode.text.disabled,
+                    mb: 2
+                  }}
+                />
               </Box>
-            </Fade>
+              <TextWidget variant="h5" fontWeight={700} sx={{ mb: 2 }}>
+                No projects found
+              </TextWidget>
+              <TextWidget variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                {searchQuery
+                  ? `No projects match your search "${searchQuery}"`
+                  : `No projects found in ${selectedCategory}`}
+              </TextWidget>
+              <Button
+                variant="contained"
+                startIcon={<Clear />}
+                sx={{
+                  borderRadius: 3,
+                  px: 4,
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontWeight: 600
+                }}
+              >
+                Clear All Filters
+              </Button>
+            </Paper>
           )}
         </Container>
       </Box>
@@ -466,5 +361,4 @@ function ProjectPage() {
 }
 
 ProjectPage.getLayout = (page) => <HeaderPage>{page}</HeaderPage>;
-
 export default ProjectPage;

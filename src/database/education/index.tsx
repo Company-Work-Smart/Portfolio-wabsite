@@ -1,6 +1,5 @@
-import appColor from '@/theme/appColor';
+import { themeColors } from '@/theme/base';
 import { Code, MenuBook, School } from '@mui/icons-material';
-import { JSX } from 'react';
 
 export interface Education {
   degree: string;
@@ -26,7 +25,7 @@ export const education: Education[] = [
       'Valedictorian',
       'ACM Programming Contest Winner'
     ],
-    icon: <Code sx={{ fontSize: 40, color: appColor.textpurple }} />
+    icon: <Code sx={{ fontSize: 40, color: themeColors.purple }} />
   },
   {
     degree: 'Information Technology Engineering',
@@ -41,7 +40,7 @@ export const education: Education[] = [
       'Graduate Research Assistant',
       'Published 2 research papers'
     ],
-    icon: <School sx={{ fontSize: 40, color: appColor.textpurple }} />
+    icon: <School sx={{ fontSize: 40, color: themeColors.purple }} />
   },
   {
     degree: 'High School Certificate',
@@ -56,7 +55,7 @@ export const education: Education[] = [
       'National Merit Scholar',
       'Science Fair State Champion'
     ],
-    icon: <MenuBook sx={{ fontSize: 40, color: appColor.textpurple }} />
+    icon: <MenuBook sx={{ fontSize: 40, color: themeColors.purple }} />
   }
 ];
 

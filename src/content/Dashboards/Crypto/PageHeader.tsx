@@ -1,5 +1,4 @@
-import { AppKey } from '@/constant/key';
-import { UserBoxProps } from '@/constant/my-app';
+import { MyApp, UserBoxProps } from '@/constant/my-app';
 import { HttpClient } from '@/services/http-client';
 import { Typography, Grid, CardMedia } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -18,9 +17,9 @@ function PageHeader() {
 
   useEffect(() => {
     setUser({
-      userId: localStorage.getItem(AppKey.userId),
-      username: localStorage.getItem(AppKey.username),
-      role: localStorage.getItem(AppKey.role)
+      userId: localStorage.getItem(MyApp.UserInfo().userId),
+      username: localStorage.getItem(MyApp.UserInfo().username),
+      role: localStorage.getItem(MyApp.UserInfo().role)
     });
   }, []);
 

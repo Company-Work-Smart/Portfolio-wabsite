@@ -17,8 +17,8 @@ import {
 import InboxTwoToneIcon from '@mui/icons-material/InboxTwoTone';
 import { styled } from '@mui/material/styles';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
-import { AppKey } from '@/constant/key';
 import { HttpClient } from '@/services/http-client';
+import { MyApp } from '@/constant/my-app';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -81,9 +81,9 @@ function HeaderUserbox() {
 
   useEffect(() => {
     setUser({
-      userId: localStorage.getItem(AppKey.userId),
-      username: localStorage.getItem(AppKey.username),
-      role: localStorage.getItem(AppKey.role)
+      userId: localStorage.getItem(MyApp.UserInfo().userId),
+      username: localStorage.getItem(MyApp.UserInfo().username),
+      role: localStorage.getItem(MyApp.UserInfo().role)
     });
   }, []);
 
@@ -102,46 +102,42 @@ function HeaderUserbox() {
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-          {admin ? (
-            <>
-              <CardMedia
-                component="img"
-                sx={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '40px',
-                  aspectRatio: '1',
-                  objectFit: 'cover',
-                  cursor: 'pointer'
-                }}
-                image={admin?.photo || '/static/user-modified.png'}
-              />
-            </>
-          ) : superAdmin ? (
-            <>
-              <CardMedia
-                component="img"
-                sx={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '40px',
-                  aspectRatio: '1',
-                  objectFit: 'cover',
-                  cursor: 'pointer'
-                }}
-                image={superAdmin?.photo || '/static/user-modified.png'}
-              />
-            </>
-          ) : null}
+        {admin ? (
+          <>
+            <CardMedia
+              component="img"
+              sx={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '40px',
+                aspectRatio: '1',
+                objectFit: 'cover',
+                cursor: 'pointer'
+              }}
+              image={admin?.photo || '/static/user-modified.png'}
+            />
+          </>
+        ) : superAdmin ? (
+          <>
+            <CardMedia
+              component="img"
+              sx={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '40px',
+                aspectRatio: '1',
+                objectFit: 'cover',
+                cursor: 'pointer'
+              }}
+              image={superAdmin?.photo || '/static/user-modified.png'}
+            />
+          </>
+        ) : null}
 
         <Hidden mdDown>
           <UserBoxText>
-            <UserBoxLabel variant="body1">
-              {user?.username.toUpperCase()}
-            </UserBoxLabel>
-            <UserBoxDescription variant="body2">
-              {user?.role?.toUpperCase()}
-            </UserBoxDescription>
+            <UserBoxLabel variant="body1">{user?.username.toUpperCase()}</UserBoxLabel>
+            <UserBoxDescription variant="body2">{user?.role?.toUpperCase()}</UserBoxDescription>
           </UserBoxText>
         </Hidden>
       </UserBoxButton>
@@ -162,9 +158,7 @@ function HeaderUserbox() {
           <Avatar variant="rounded" />
           <UserBoxText>
             <UserBoxLabel variant="body1">{user?.username}</UserBoxLabel>
-            <UserBoxDescription variant="body2">
-              {user?.role?.toUpperCase()}
-            </UserBoxDescription>
+            <UserBoxDescription variant="body2">{user?.role?.toUpperCase()}</UserBoxDescription>
           </UserBoxText>
         </MenuUserBox>
         <Divider sx={{ mb: 0 }} />

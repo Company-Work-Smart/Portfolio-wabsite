@@ -1,10 +1,10 @@
-import { AppKey } from '@/constant/key';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { MyApp } from '@/constant/my-app';
 
 export const authRedirect = (router) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem(AppKey.accessToken);
+    const token = localStorage.getItem(MyApp.UserInfo().accessToken);
     if (token) {
       router.push('/view/explore');
     } else {

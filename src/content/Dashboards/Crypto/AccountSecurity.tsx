@@ -14,7 +14,7 @@ import {
 import LockTwoToneIcon from '@mui/icons-material/LockTwoTone';
 import PhoneLockedTwoToneIcon from '@mui/icons-material/PhoneLockedTwoTone';
 import EmailTwoToneIcon from '@mui/icons-material/EmailTwoTone';
-import Text from 'src/components/Text';
+import { TextWidget } from '@/components/Text';
 
 const AvatarWrapperError = styled(Avatar)(
   ({ theme }) => `
@@ -69,7 +69,7 @@ function AccountSecurity() {
             </AvatarWrapperError>
           </ListItemAvatar>
           <ListItemText
-            primary={<Text color="black">2FA Authentication</Text>}
+            primary={<TextWidget color="black">2FA Authentication</TextWidget>}
             primaryTypographyProps={{
               variant: 'body1',
               fontWeight: 'bold',
@@ -77,7 +77,7 @@ function AccountSecurity() {
               gutterBottom: true,
               noWrap: true
             }}
-            secondary={<Text color="error">Disabled</Text>}
+            secondary={<TextWidget color="error">Disabled</TextWidget>}
             secondaryTypographyProps={{ variant: 'body2', noWrap: true }}
           />
           <Switch
@@ -99,7 +99,7 @@ function AccountSecurity() {
             </AvatarWrapperSuccess>
           </ListItemAvatar>
           <ListItemText
-            primary={<Text color="black">Phone Verification</Text>}
+            primary={<TextWidget color="black">Phone Verification</TextWidget>}
             primaryTypographyProps={{
               variant: 'body1',
               fontWeight: 'bold',
@@ -107,7 +107,7 @@ function AccountSecurity() {
               gutterBottom: true,
               noWrap: true
             }}
-            secondary={<Text color="success">Active</Text>}
+            secondary={<TextWidget color="success">Active</TextWidget>}
             secondaryTypographyProps={{ variant: 'body2', noWrap: true }}
           />
           <Switch
@@ -129,7 +129,7 @@ function AccountSecurity() {
             </AvatarWrapperWarning>
           </ListItemAvatar>
           <ListItemText
-            primary={<Text color="black">Recovery Email</Text>}
+            primary={<TextWidget color="black">Recovery Email</TextWidget>}
             primaryTypographyProps={{
               variant: 'body1',
               fontWeight: 'bold',
@@ -137,7 +137,7 @@ function AccountSecurity() {
               gutterBottom: true,
               noWrap: true
             }}
-            secondary={<Text color="warning">Not completed</Text>}
+            secondary={<TextWidget color="warning">Not completed</TextWidget>}
             secondaryTypographyProps={{ variant: 'body2', noWrap: true }}
           />
           <Switch

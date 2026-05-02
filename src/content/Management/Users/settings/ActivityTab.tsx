@@ -1,7 +1,6 @@
 import {
   Box,
   CardMedia,
-  Typography,
   Card,
   CardHeader,
   Divider,
@@ -17,7 +16,7 @@ import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
 import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
 import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
-import Text from '@/components/Text';
+import { TextWidget } from '@/components/Text';
 
 const CardActionsWrapper = styled(CardActions)(
   ({ theme }) => `
@@ -36,8 +35,8 @@ function ActivityTab() {
             <MoreHorizTwoToneIcon fontSize="medium" />
           </IconButton>
         }
-        titleTypographyProps={{ variant: 'h4' }}
-        subheaderTypographyProps={{ variant: 'subtitle2' }}
+        titleTextWidgetProps={{ variant: 'h4' }}
+        subheaderTextWidgetProps={{ variant: 'subtitle2' }}
         title="Allison Lipshutz"
         subheader={
           <>
@@ -60,9 +59,9 @@ function ActivityTab() {
         }
       />
       <Box px={3} pb={2}>
-        <Typography variant="h4" fontWeight="normal">
+        <TextWidget variant="h4" fontWeight="normal">
           Welcome to organizing your remote office for maximum productivity.
-        </Typography>
+        </TextWidget>
       </Box>
       <CardMedia
         sx={{ minHeight: 280 }}
@@ -70,10 +69,10 @@ function ActivityTab() {
         title="Card Cover"
       />
       <Box p={3}>
-        <Typography variant="h2" sx={{ pb: 1 }}>
+        <TextWidget variant="h2" sx={{ pb: 1 }}>
           Organizing Your Remote Office for Maximum Productivity
-        </Typography>
-        <Typography variant="subtitle2">
+        </TextWidget>
+        <TextWidget variant="subtitle2">
           <Link
             href="@/content/Management/Users/settings/ActivityTab#"
             underline="hover"
@@ -81,7 +80,7 @@ function ActivityTab() {
             example.com
           </Link>{' '}
           • 4 mins read
-        </Typography>
+        </TextWidget>
       </Box>
       <Divider />
       <CardActionsWrapper
@@ -107,16 +106,16 @@ function ActivityTab() {
           </Button>
         </Box>
         <Box sx={{ mt: { xs: 2, md: 0 } }}>
-          <Typography variant="subtitle2" component="span">
-            <Text color="black">
+          <TextWidget variant="subtitle2" component="span">
+            <TextWidget color="black">
               <b>485</b>
-            </Text>{' '}
+            </TextWidget>{' '}
             reactions •{' '}
-            <Text color="black">
+            <TextWidget color="black">
               <b>63</b>
-            </Text>{' '}
+            </TextWidget>{' '}
             comments
-          </Typography>
+          </TextWidget>
         </Box>
       </CardActionsWrapper>
     </Card>

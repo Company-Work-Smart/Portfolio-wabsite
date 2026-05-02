@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import { TextWidget } from '@/components/typographys';
+import { TextWidget } from '@/components/Text';
 
 const AvatarAddWrapper = styled(Avatar)(
   ({ theme }) => `

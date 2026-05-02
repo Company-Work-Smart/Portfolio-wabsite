@@ -28,8 +28,6 @@ import {
   LocationOn,
   TrendingUp
 } from '@mui/icons-material';
-import { TextWidget } from '@/components/typographys';
-import appColor from '@/theme/appColor';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import {
   certifications,
@@ -39,6 +37,8 @@ import {
 } from '@/database/education';
 import { skills } from '@/database/skill';
 import FooterPage from '@/layouts/PageLayout/Fooder';
+import { themeColors } from '@/theme/base';
+import { TextWidget } from '@/components/Text';
 
 const EducationCard = styled(Card)(({ theme }) => ({
   background: theme.palette.background.default,
@@ -54,23 +54,23 @@ const TimelineCard = styled(Paper)(({ theme }) => ({
   padding: '24px'
 }));
 
-const SkillProgress = styled(LinearProgress)(() => ({
+const SkillProgress = styled(LinearProgress)(({ theme }) => ({
   height: 8,
   borderRadius: 4,
-  backgroundColor: appColor.black,
+  backgroundColor: theme.mode.background.default,
   '& .MuiLinearProgress-bar': {
     borderRadius: 4,
     background: 'linear-gradient(45deg, #6366f1, #8b5cf6)'
   }
 }));
 
-const CertificationChip = styled(Chip)(() => ({
-  background: `linear-gradient(45deg, ${appColor.green} , ${appColor.green})`,
-  color: appColor.white,
+const CertificationChip = styled(Chip)(({ theme }) => ({
+  background: `linear-gradient(45deg, ${themeColors.green} , ${themeColors.green})`,
+  color: theme.mode.text.default,
   fontWeight: 600,
   margin: '4px',
   '&:hover': {
-    background: `linear-gradient(45deg, ${appColor.green} , ${appColor.green})`
+    background: `linear-gradient(45deg, ${themeColors.green} , ${themeColors.green})`
   }
 }));
 

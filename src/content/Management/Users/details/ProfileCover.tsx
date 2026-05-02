@@ -1,21 +1,13 @@
 import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import {
-  Box,
-  Card,
-  Tooltip,
-  CardMedia,
-  Button,
-  IconButton
-} from '@mui/material';
+import { Box, Card, Tooltip, CardMedia, Button, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
 import { HttpClient } from '@/services/http-client';
-import { AppKey } from '@/constant/key';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
-import { UserBoxProps } from '@/constant/my-app';
-import { TextWidget } from '@/components/typographys';
+import { MyApp, UserBoxProps } from '@/constant/my-app';
+import { TextWidget } from '@/components/Text';
 
 const Input = styled('input')({ display: 'none' });
 
@@ -107,10 +99,7 @@ const ProfileCover = () => {
     formPayload.append('Photo', file);
 
     try {
-      await http.putuploadFile(
-        `Users/update-profile/${user?.userId}`,
-        formPayload
-      );
+      await http.putuploadFile(`Users/update-profile/${user?.userId}`, formPayload);
       const res = await http.get(`Users/${user.userId}`);
       setDatasource(res);
       showSnackbar({
@@ -126,10 +115,7 @@ const ProfileCover = () => {
     }
   };
 
-  const handleFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    isAvatar: boolean
-  ) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, isAvatar: boolean) => {
     const file = event.target.files?.[0];
     if (file) {
       if (isAvatar) {
@@ -142,9 +128,9 @@ const ProfileCover = () => {
 
   useEffect(() => {
     setUser({
-      userId: localStorage.getItem(AppKey.userId),
-      username: localStorage.getItem(AppKey.username),
-      role: localStorage.getItem(AppKey.role)
+      userId: localStorage.getItem(MyApp.UserInfo().userId),
+      username: localStorage.getItem(MyApp.UserInfo().username),
+      role: localStorage.getItem(MyApp.UserInfo().role)
     });
   }, []);
 
@@ -168,9 +154,7 @@ const ProfileCover = () => {
           <TextWidget bold size={25} gutterBottom>
             Profile for {user?.username?.toUpperCase()}
           </TextWidget>
-          <TextWidget>
-            This is a profile page. Easy to modify, always blazing fast
-          </TextWidget>
+          <TextWidget>This is a profile page. Easy to modify, always blazing fast</TextWidget>
         </Box>
       </Box>
       <CardCover>
@@ -219,11 +203,7 @@ const ProfileCover = () => {
         </ButtonUploadWrapper>
       </AvatarWrapper>
       <Box display="flex" justifyContent="end">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => submitForm(false)}
-        >
+        <Button variant="contained" color="primary" onClick={() => submitForm(false)}>
           Save Changes
         </Button>
       </Box>

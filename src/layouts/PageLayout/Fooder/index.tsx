@@ -1,5 +1,5 @@
+import { TextWidget } from '@/components/Text';
 import { AppBar, Box, useTheme } from '@mui/material';
-import { TextWidget } from '@/components/typographys';
 
 function FooterPage() {
   const theme = useTheme();
@@ -7,7 +7,7 @@ function FooterPage() {
     <AppBar
       position="static"
       sx={{
-        backgroundColor: theme.palette.text.primary,
+        background: theme.mode.background.header,
         boxShadow: 'none',
         top: 'auto',
         bottom: 0
@@ -15,7 +15,6 @@ function FooterPage() {
     >
       <Box
         sx={{
-          background: theme.palette.text.primary,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -25,24 +24,12 @@ function FooterPage() {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <img
-            src="/static/cambodia.png"
-            alt="Cambodia Flag"
-            style={{ width: 24, height: 'auto' }}
-          />
-          <TextWidget
-            variant="body2"
-            sx={{ fontWeight: 500, color: theme.palette.background.default }}
-          >
-            Cambodia
-          </TextWidget>
+          <TextWidget>Cambodia</TextWidget>
         </Box>
 
         <TextWidget
-          variant="body2"
           sx={{
             fontWeight: 400,
-            color: theme.palette.background.default,
             textAlign: 'center',
             flexGrow: 1
           }}

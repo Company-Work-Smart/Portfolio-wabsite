@@ -16,8 +16,8 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
-import { AppKey } from '@/constant/key';
-import { TextWidget } from '@/components/typographys';
+import { TextWidget } from '@/components/Text';
+import { MyApp } from '@/constant/my-app';
 
 const PageWrapper = styled(Box)(
   ({ theme }) => `
@@ -101,15 +101,13 @@ function LoginPage() {
       }
 
       if (response.accessToken) {
-        localStorage.setItem(AppKey.userId, response.userId);
-        localStorage.setItem(AppKey.accessToken, response.accessToken);
-        localStorage.setItem(AppKey.role, response.role);
-        localStorage.setItem(AppKey.username, response.username);
+        localStorage.setItem(MyApp.UserInfo().userId, response.userId);
+        localStorage.setItem(MyApp.UserInfo().accessToken, response.accessToken);
+        localStorage.setItem(MyApp.UserInfo().role, response.role);
+        localStorage.setItem(MyApp.UserInfo().username, response.username);
 
         showSnackbar({ type: 'success', message: 'Successfully logged in!' });
-        const role = `${response.role[0].toLowerCase()}${response.role.substring(
-          1
-        )}`;
+        const role = `${response.role[0].toLowerCase()}${response.role.substring(1)}`;
         if (role === 'user') router.push(`/`);
         else router.push(`/dashboards/dashboard/${role}`);
       } else {
@@ -128,8 +126,7 @@ function LoginPage() {
     }
   };
 
-  const handleInput = (e: any) =>
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleInput = (e: any) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   return (
     <PageWrapper>
@@ -170,9 +167,7 @@ function LoginPage() {
           </Box>
 
           <Box mb={3}>
-            <TextWidget sx={{ mb: 1, color: theme.palette.text.secondary }}>
-              Password
-            </TextWidget>
+            <TextWidget sx={{ mb: 1, color: theme.palette.text.secondary }}>Password</TextWidget>
             <TextField
               fullWidth
               required
@@ -199,20 +194,11 @@ function LoginPage() {
             />
           </Box>
 
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={3}
-          >
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <FormControlLabel
-              control={
-                <Checkbox sx={{ color: theme.palette.text.secondary }} />
-              }
+              control={<Checkbox sx={{ color: theme.palette.text.secondary }} />}
               label={
-                <TextWidget sx={{ color: theme.palette.text.secondary }}>
-                  Remember me
-                </TextWidget>
+                <TextWidget sx={{ color: theme.palette.text.secondary }}>Remember me</TextWidget>
               }
             />
             <TextWidget
@@ -225,10 +211,7 @@ function LoginPage() {
 
           <GradientButton type="submit" size="large" disabled={loading}>
             {loading ? (
-              <CircularProgress
-                size={20}
-                sx={{ color: theme.palette.background.default, mr: 1 }}
-              />
+              <CircularProgress size={20} sx={{ color: theme.palette.background.default, mr: 1 }} />
             ) : (
               'Log in'
             )}

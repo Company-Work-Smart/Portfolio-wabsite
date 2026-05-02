@@ -29,7 +29,7 @@ import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
 import { HttpClient } from '@/services/http-client';
 import { Pagination } from '@/constant/gagination';
 import SidebarLayout from '@/layouts/SidebarLayout';
-import ConfirmDialog from '@/components/ConfirmDialog';
+import DialogWidget from '@/components/Dialog';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { useRouter } from 'next/router';
@@ -173,7 +173,8 @@ const UserSuperAdminManagement = () => {
                           </Tooltip>
                           <Tooltip title="Delete Item" arrow>
                             <span>
-                              <ConfirmDialog
+                              <DialogWidget
+                                variant="delete"
                                 message="Are you sure to delete this item?"
                                 onConfirm={() => onConfirm(item.id)}
                               >
@@ -189,7 +190,7 @@ const UserSuperAdminManagement = () => {
                                 >
                                   <DeleteTwoToneIcon fontSize="small" />
                                 </IconButton>
-                              </ConfirmDialog>
+                              </DialogWidget>
                             </span>
                           </Tooltip>
                         </TableCell>

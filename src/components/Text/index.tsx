@@ -1,93 +1,56 @@
-import { FC, ReactNode } from 'react';
-import PropTypes from 'prop-types';
-import { styled } from '@mui/material/styles';
-import clsx from 'clsx';
-
-interface TextProps {
-  className?: string;
-  color?:
-    | 'primary'
-    | 'secondary'
-    | 'error'
-    | 'warning'
-    | 'success'
-    | 'info'
-    | 'black';
-  flex?: boolean;
-  children?: ReactNode;
+import { styled, Typography, TypographyProps } from '@mui/material';
+interface TextWidgetProps extends TypographyProps {
+  bold?: boolean;
+  size?: number;
 }
 
-const TextWrapper = styled('span')(
-  ({ theme }) => `
-      display: inline-block;
-      align-items: center;
-
-      &.flexItem {
-        display: inline-flex;
-      }
-      
-      &.MuiText {
-
-        &-black {
-          color: ${theme.palette.common.black}
-        }
-
-        &-primary {
-          color: ${theme.palette.primary.main}
-        }
-        
-        &-secondary {
-          color: ${theme.palette.secondary.main}
-        }
-        
-        &-success {
-          color: ${theme.palette.success.main}
-        }
-        
-        &-warning {
-          color: ${theme.palette.warning.main}
-        }
-              
-        &-error {
-          color: ${theme.palette.error.main}
-        }
-        
-        &-info {
-          color: ${theme.palette.info.main}
-        }
-      }
-`
+const StyledText = styled(Typography)<TextWidgetProps>(
+  ({ theme, bold, size }) => ({
+    fontSize: size
+      ? theme.typography.pxToRem(size)
+      : theme.typography.pxToRem(13),
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: bold ? 'bold' : 'normal',
+    color: theme.mode.text.default,
+    userSelect: 'none'
+  })
+);
+const StyledH1 = styled(Typography)<TextWidgetProps>(
+  ({ theme, bold, size }) => ({
+    fontSize: size
+      ? theme.typography.pxToRem(size)
+      : theme.typography.pxToRem(30),
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: bold ? 'bold' : 700,
+    color: theme.mode.text.default,
+    userSelect: 'none'
+  })
+);
+const StyledH2 = styled(Typography)<TextWidgetProps>(
+  ({ theme, bold, size }) => ({
+    fontSize: size
+      ? theme.typography.pxToRem(size)
+      : theme.typography.pxToRem(17),
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: bold ? 'bold' : 500,
+    color: theme.mode.text.default,
+    userSelect: 'none'
+  })
 );
 
-const Text: FC<TextProps> = ({
-  className,
-  color = 'secondary',
-  flex,
-  children,
-  ...rest
-}) => {
-  return (
-    <TextWrapper
-      className={clsx('MuiText-' + color, { flexItem: flex })}
-      {...rest}
-    >
-      {children}
-    </TextWrapper>
-  );
+const TextWidget = (props: TextWidgetProps) => {
+  const { children, ...rest } = props;
+  return <StyledText {...rest}>{children}</StyledText>;
 };
 
-Text.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
-  color: PropTypes.oneOf([
-    'primary',
-    'secondary',
-    'error',
-    'warning',
-    'success',
-    'info',
-    'black'
-  ])
+const TextWidgetH1 = (props: TextWidgetProps) => {
+  const { children, ...rest } = props;
+  return <StyledH1 {...rest}>{children}</StyledH1>;
 };
 
-export default Text;
+const TextWidgetH2 = (props: TextWidgetProps) => {
+  const { children, ...rest } = props;
+  return <StyledH2 {...rest}>{children}</StyledH2>;
+};
+
+export { TextWidget, TextWidgetH1, TextWidgetH2 };

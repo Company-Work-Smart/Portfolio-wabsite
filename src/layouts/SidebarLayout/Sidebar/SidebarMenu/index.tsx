@@ -1,12 +1,20 @@
-import React, {useContext} from 'react';
-import {useRouter} from 'next/router';
+import React, { useContext } from 'react';
+import { useRouter } from 'next/router';
 
-import {alpha, Box, Button, List, ListItem, ListSubheader, styled} from '@mui/material';
+import {
+  alpha,
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListSubheader,
+  styled
+} from '@mui/material';
 import NextLink from 'next/link';
-import {SidebarContext} from 'src/contexts/SidebarContext';
+import { SidebarContext } from 'src/contexts/SidebarContext';
 
 import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
-import {Menu} from "@/constant/menu";
+import { Menu } from '@/constant/menu';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -22,7 +30,7 @@ const MenuWrapper = styled(Box)(
       text-transform: uppercase;
       font-weight: bold;
       font-size: ${theme.typography.pxToRem(12)};
-      color: ${theme.colors.alpha.trueWhite[50]};
+      color: ${theme.colors.alpha.white[50]};
       padding: ${theme.spacing(0, 2.5)};
       line-height: 1.4;
     }
@@ -51,7 +59,7 @@ const SubMenuWrapper = styled(Box)(
     
         .MuiButton-root {
           display: flex;
-          color: ${theme.colors.alpha.trueWhite[70]};
+          color: ${theme.colors.alpha.white[70]};
           background-color: transparent;
           width: 100%;
           justify-content: flex-start;
@@ -68,13 +76,13 @@ const SubMenuWrapper = styled(Box)(
           }
 
           .MuiButton-startIcon {
-            color: ${theme.colors.alpha.trueWhite[30]};
+            color: ${theme.colors.alpha.white[30]};
             font-size: ${theme.typography.pxToRem(20)};
             margin-right: ${theme.spacing(1)};
           }
           
           .MuiButton-endIcon {
-            color: ${theme.colors.alpha.trueWhite[50]};
+            color: ${theme.colors.alpha.white[50]};
             margin-left: auto;
             opacity: .8;
             font-size: ${theme.typography.pxToRem(20)};
@@ -82,12 +90,12 @@ const SubMenuWrapper = styled(Box)(
 
           &.active,
           &:hover {
-            background-color: ${alpha(theme.colors.alpha.trueWhite[100], 0.06)};
-            color: ${theme.colors.alpha.trueWhite[100]};
+            background-color: ${alpha(theme.colors.alpha.white[100], 0.06)};
+            color: ${theme.colors.alpha.white[100]};
 
             .MuiButton-startIcon,
             .MuiButton-endIcon {
-              color: ${theme.colors.alpha.trueWhite[100]};
+              color: ${theme.colors.alpha.white[100]};
             }
           }
         }
@@ -120,7 +128,7 @@ const SubMenuWrapper = styled(Box)(
 
               &:before {
                 content: ' ';
-                background: ${theme.colors.alpha.trueWhite[100]};
+                background: ${theme.colors.alpha.white[100]};
                 opacity: 0;
                 transition: ${theme.transitions.create([
                   'transform',
@@ -167,32 +175,37 @@ function SidebarMenu() {
   return (
     <>
       <MenuWrapper>
-        {Menu.filter(f => f.roles?.includes(role)).map((menu) => (
-          <List key={menu.group}
-                component="div"
-                subheader={
-                  <ListSubheader component="div" disableSticky>
-                    {menu.group}
-                  </ListSubheader>
-                }
+        {Menu.filter((f) => f.roles?.includes(role)).map((menu) => (
+          <List
+            key={menu.group}
+            component="div"
+            subheader={
+              <ListSubheader component="div" disableSticky>
+                {menu.group}
+              </ListSubheader>
+            }
           >
             <SubMenuWrapper>
               <List component="div">
-                {menu.children.filter(f => f.roles?.includes(role)).map((menuItem) => (
-                  <ListItem component="div" key={menuItem.url}>
-                    <NextLink href={menuItem.url} passHref>
-                      <Button
-                        className={currentRoute === menuItem.url ? 'active' : ''}
-                        disableRipple
-                        component="a"
-                        onClick={closeSidebar}
-                        startIcon={<BrightnessLowTwoToneIcon />}
-                      >
-                        {menuItem.title}
-                      </Button>
-                    </NextLink>
-                  </ListItem>
-                ))}
+                {menu.children
+                  .filter((f) => f.roles?.includes(role))
+                  .map((menuItem) => (
+                    <ListItem component="div" key={menuItem.url}>
+                      <NextLink href={menuItem.url} passHref>
+                        <Button
+                          className={
+                            currentRoute === menuItem.url ? 'active' : ''
+                          }
+                          disableRipple
+                          component="a"
+                          onClick={closeSidebar}
+                          startIcon={<BrightnessLowTwoToneIcon />}
+                        >
+                          {menuItem.title}
+                        </Button>
+                      </NextLink>
+                    </ListItem>
+                  ))}
               </List>
             </SubMenuWrapper>
           </List>
@@ -203,4 +216,3 @@ function SidebarMenu() {
 }
 
 export default SidebarMenu;
-

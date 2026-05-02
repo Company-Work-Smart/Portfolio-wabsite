@@ -61,7 +61,7 @@ function Header() {
       <ThemeButton />
       <Box
         sx={{
-          borderTop: `1px solid ${theme.colors.alpha.trueWhite[10]}`,
+          borderTop: `1px solid ${theme.colors.alpha.white[10]}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'

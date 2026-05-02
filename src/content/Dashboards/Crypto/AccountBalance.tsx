@@ -3,7 +3,6 @@ import {
   Card,
   Box,
   Grid,
-  Typography,
   useTheme,
   styled,
   Avatar,
@@ -15,12 +14,12 @@ import {
   ListItemAvatar
 } from '@mui/material';
 import TrendingUp from '@mui/icons-material/TrendingUp';
-import Text from 'src/components/Text';
 import { Chart } from 'src/components/Chart';
 import type { ApexOptions } from 'apexcharts';
 import { useEffect, useState } from 'react';
 import { HttpClient } from '@/services/http-client';
 import { useRouter } from 'next/router';
+import { TextWidget } from '@/components/Text';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -43,12 +42,12 @@ const ListItemAvatarWrapper = styled(ListItemAvatar)(
   border-radius: 60px;
   background: ${
     theme.palette.mode === 'dark'
-      ? theme.colors.alpha.trueWhite[30]
+      ? theme.colors.alpha.white[30]
       : alpha(theme.colors.alpha.black[100], 0.07)
   };
 
   img {
-    background: ${theme.colors.alpha.trueWhite[100]};
+    background: ${theme.colors.alpha.white[100]};
     padding: ${theme.spacing(0.5)};
     display: block;
     border-radius: inherit;
@@ -87,11 +86,11 @@ function AccountBalance() {
         return val + '%';
       },
       style: {
-        colors: [theme.colors.alpha.trueWhite[100]]
+        colors: [theme.colors.alpha.white[100]]
       },
       background: {
         enabled: true,
-        foreColor: theme.colors.alpha.trueWhite[100],
+        foreColor: theme.colors.alpha.white[100],
         padding: 8,
         borderRadius: 4,
         borderWidth: 0,
@@ -120,7 +119,7 @@ function AccountBalance() {
     labels: ['Bitcoin', 'Ripple', 'Cardano', 'Ethereum'],
     legend: {
       labels: {
-        colors: theme.colors.alpha.trueWhite[100]
+        colors: theme.colors.alpha.white[100]
       },
       show: false
     },
@@ -158,25 +157,25 @@ function AccountBalance() {
         <Grid spacing={0} container>
           <Grid item xs={12} md={6}>
             <Box p={4}>
-              <Typography
+              <TextWidget
                 sx={{
                   pb: 3
                 }}
                 variant="h4"
               >
                 Account Balance
-              </Typography>
+              </TextWidget>
               <Box>
-                <Typography variant="h1" gutterBottom>
+                <TextWidget variant="h1" gutterBottom>
                   ${totalAmount?.toFixed(2)}
-                </Typography>
-                <Typography
+                </TextWidget>
+                <TextWidget
                   variant="h4"
                   fontWeight="normal"
                   color="text.secondary"
                 >
                   {totalItem} Balance
-                </Typography>
+                </TextWidget>
                 <Box
                   display="flex"
                   sx={{
@@ -193,12 +192,12 @@ function AccountBalance() {
                     <TrendingUp fontSize="large" />
                   </AvatarSuccess>
                   <Box>
-                    <Typography variant="h4">
+                    <TextWidget variant="h4">
                       + ${totalAmount?.toFixed(2)}
-                    </Typography>
-                    <Typography variant="subtitle2" noWrap>
+                    </TextWidget>
+                    <TextWidget variant="subtitle2" noWrap>
                       this month
-                    </Typography>
+                    </TextWidget>
                   </Box>
                 </Box>
               </Box>
@@ -272,16 +271,12 @@ function AccountBalance() {
                           noWrap: true
                         }}
                         secondary="Bitcoin"
-                        secondaryTypographyProps={{
-                          variant: 'subtitle2',
-                          noWrap: true
-                        }}
                       />
                       <Box>
-                        <Typography align="right" variant="h4" noWrap>
+                        <TextWidget align="right" variant="h4" noWrap>
                           20%
-                        </Typography>
-                        <Text color="success">+2.54%</Text>
+                        </TextWidget>
+                        <TextWidget color="success">+2.54%</TextWidget>
                       </Box>
                     </ListItem>
                     <ListItem disableGutters>
@@ -298,16 +293,12 @@ function AccountBalance() {
                           noWrap: true
                         }}
                         secondary="Ripple"
-                        secondaryTypographyProps={{
-                          variant: 'subtitle2',
-                          noWrap: true
-                        }}
                       />
                       <Box>
-                        <Typography align="right" variant="h4" noWrap>
+                        <TextWidget align="right" variant="h4" noWrap>
                           10%
-                        </Typography>
-                        <Text color="error">-1.22%</Text>
+                        </TextWidget>
+                        <TextWidget color="error">-1.22%</TextWidget>
                       </Box>
                     </ListItem>
                     <ListItem disableGutters>
@@ -324,16 +315,12 @@ function AccountBalance() {
                           noWrap: true
                         }}
                         secondary="Cardano"
-                        secondaryTypographyProps={{
-                          variant: 'subtitle2',
-                          noWrap: true
-                        }}
                       />
                       <Box>
-                        <Typography align="right" variant="h4" noWrap>
+                        <TextWidget align="right" variant="h4" noWrap>
                           40%
-                        </Typography>
-                        <Text color="success">+10.50%</Text>
+                        </TextWidget>
+                        <TextWidget color="success">+10.50%</TextWidget>
                       </Box>
                     </ListItem>
                     <ListItem disableGutters>
@@ -350,16 +337,12 @@ function AccountBalance() {
                           noWrap: true
                         }}
                         secondary="Ethereum"
-                        secondaryTypographyProps={{
-                          variant: 'subtitle2',
-                          noWrap: true
-                        }}
                       />
                       <Box>
-                        <Typography align="right" variant="h4" noWrap>
+                        <TextWidget align="right" variant="h4" noWrap>
                           30%
-                        </Typography>
-                        <Text color="error">-12.38%</Text>
+                        </TextWidget>
+                        <TextWidget color="error">-12.38%</TextWidget>
                       </Box>
                     </ListItem>
                   </List>

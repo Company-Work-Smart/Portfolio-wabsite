@@ -48,9 +48,7 @@ export const themeColors = {
   button: '#0066cc',
   hover_button: '#0052a3'
 
-
-// == Noted == \\
-
+  // == Noted == \\
 };
 
 export function themeCreator(theme: string): Theme {
@@ -314,6 +312,7 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
+
       // == Background == \\
       background: {
         default: string;
@@ -321,6 +320,7 @@ declare module '@mui/material/styles' {
         header: string;
         sidebar: string;
       };
+
       // == TextWidget == \\
       text: {
         default: string;
@@ -336,6 +336,7 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
+
       // == AvatarWidget == \\
       avatar: {
         5: string;
@@ -345,8 +346,19 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
+
       action: {
         hover: string;
+        select: string;
+      };
+
+      border: {
+        5: string;
+        10: string;
+        30: string;
+        50: string;
+        70: string;
+        100: string;
       };
     };
   }
@@ -642,6 +654,16 @@ declare module '@mui/material/styles' {
       // == hover == \\
       action: {
         hover: string;
+        select: string;
+      };
+
+      border: {
+        5: string;
+        10: string;
+        30: string;
+        50: string;
+        70: string;
+        100: string;
       };
     };
   }

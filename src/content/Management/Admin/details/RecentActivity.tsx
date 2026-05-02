@@ -1,4 +1,3 @@
-import ConfirmDialog from '@/components/ConfirmDialog';
 import { Pagination } from '@/constant/gagination';
 import { HttpClient } from '@/services/http-client';
 import {
@@ -34,6 +33,7 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { datetimeDisplay } from '@/helpers/datetime';
 import { getStatusColor } from '@/helpers';
+import DialogWidget from '@/components/Dialog';
 
 function RecentActivity() {
   const http = new HttpClient();
@@ -169,14 +169,15 @@ function RecentActivity() {
                           </Tooltip>
                           <Tooltip title="Delete Item" arrow>
                             <span>
-                              <ConfirmDialog
+                              <DialogWidget
+                                variant="delete"
                                 message="Are you sure to delete this item?"
                                 onConfirm={() => onConfirm(item.id)}
                               >
                                 <IconButton color="error" size="small">
                                   <DeleteTwoToneIcon fontSize="small" />
                                 </IconButton>
-                              </ConfirmDialog>
+                              </DialogWidget>
                             </span>
                           </Tooltip>
                         </TableCell>

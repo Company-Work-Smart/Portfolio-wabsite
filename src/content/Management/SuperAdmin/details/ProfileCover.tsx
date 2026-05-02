@@ -1,21 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import {
-  Box,
-  Typography,
-  Card,
-  Tooltip,
-  CardMedia,
-  Button,
-  IconButton
-} from '@mui/material';
+import { Box, Typography, Card, Tooltip, CardMedia, Button, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
 import { HttpClient } from '@/services/http-client';
-import { AppKey } from '@/constant/key';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
-import { UserBoxProps } from '@/constant/my-app';
+import { MyApp, UserBoxProps } from '@/constant/my-app';
 
 const Input = styled('input')({ display: 'none' });
 
@@ -77,7 +68,6 @@ const CardCoverAction = styled(Box)(
 );
 
 const ProfileCover = () => {
-
   const http = new HttpClient();
   const router = useRouter();
   const { showSnackbar } = useContext(SnackbarContext);
@@ -108,10 +98,7 @@ const ProfileCover = () => {
     formPayload.append('Photo', file);
 
     try {
-      await http.putuploadFile(
-        `SuperAdmin/update-profile/${user?.userId}`,
-        formPayload
-      );
+      await http.putuploadFile(`SuperAdmin/update-profile/${user?.userId}`, formPayload);
       const res = await http.get(`SuperAdmin/${user.userId}`);
       setDatasource(res);
       showSnackbar({
@@ -127,10 +114,7 @@ const ProfileCover = () => {
     }
   };
 
-  const handleFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    isAvatar: boolean
-  ) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, isAvatar: boolean) => {
     const file = event.target.files?.[0];
     if (file) {
       if (isAvatar) {
@@ -143,9 +127,9 @@ const ProfileCover = () => {
 
   useEffect(() => {
     setUser({
-      userId: localStorage.getItem(AppKey.userId),
-      username: localStorage.getItem(AppKey.username),
-      role: localStorage.getItem(AppKey.role)
+      userId: localStorage.getItem(MyApp.UserInfo().userId),
+      username: localStorage.getItem(MyApp.UserInfo().username),
+      role: localStorage.getItem(MyApp.UserInfo().role)
     });
   }, []);
 
@@ -220,11 +204,7 @@ const ProfileCover = () => {
         </ButtonUploadWrapper>
       </AvatarWrapper>
       <Box display="flex" justifyContent="end">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => submitForm(false)}
-        >
+        <Button variant="contained" color="primary" onClick={() => submitForm(false)}>
           Save Changes
         </Button>
       </Box>

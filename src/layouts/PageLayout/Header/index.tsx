@@ -16,10 +16,9 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter } from 'next/router';
-import { TextWidget } from '@/components/typographys';
-import { UserBoxProps } from '@/constant/my-app';
-import { AppKey } from '@/constant/key';
+import { MyApp, UserBoxProps } from '@/constant/my-app';
 import ThemeButton from '@/components/ThemeButton';
+import { TextWidget } from '@/components/Text';
 
 interface HeaderLayoutProps {
   children?: ReactNode;
@@ -43,9 +42,9 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
 
   useEffect(() => {
     setUser({
-      userId: localStorage.getItem(AppKey.userId),
-      username: localStorage.getItem(AppKey.username),
-      role: localStorage.getItem(AppKey.role)
+      userId: localStorage.getItem(MyApp.UserInfo().userId),
+      username: localStorage.getItem(MyApp.UserInfo().username),
+      role: localStorage.getItem(MyApp.UserInfo().role)
     });
   }, []);
 
@@ -53,9 +52,7 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
     if (router.pathname === '/') {
       setActiveLabel(logo);
     } else {
-      const match = navItems.find((item) =>
-        router.pathname.startsWith(item.path)
-      );
+      const match = navItems.find((item) => router.pathname.startsWith(item.path));
       setActiveLabel(match ? match.label : null);
     }
   }, [router.pathname]);
@@ -70,7 +67,7 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
       <AppBar
         position="sticky"
         sx={{
-          backgroundColor: theme.palette.background.default,
+          background: theme.mode.background.header,
           boxShadow: 'none',
           px: { xs: 2, sm: 4, md: 5 },
           py: 2,
@@ -86,14 +83,11 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
         >
           <TextWidget
             sx={{
-              color:
-                activeLabel === logo
-                  ? theme.palette.text.primary
-                  : theme.palette.text.disabled,
+              color: activeLabel === logo ? theme.mode.text.default : theme.mode.text.disabled,
               cursor: 'pointer',
               transition: 'transform 0.3s ease, color 0.3s ease',
               '&:hover': {
-                color: theme.palette.text.primary,
+                color: theme.mode.text.default,
                 transform: 'scale(1.05)'
               }
             }}
@@ -183,10 +177,7 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-          <IconButton
-            onClick={() => setDrawerOpen(false)}
-            sx={{ color: theme.mode.text.default }}
-          >
+          <IconButton onClick={() => setDrawerOpen(false)} sx={{ color: theme.mode.text.default }}>
             <CloseIcon />
           </IconButton>
         </Box>

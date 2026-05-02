@@ -17,7 +17,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 
 const GridWrapper = styled(Grid)(
   ({ theme }) => `
-    background: ${theme.colors.gradients.blue5};
+    background: ${theme.colors.gradients.blueblack};
 `
 );
 
@@ -117,7 +117,7 @@ function Status500() {
               <Container maxWidth="sm">
                 <Box textAlign="center">
                   <TypographyPrimary variant="h1" sx={{ my: 2 }}>
-                  Reservation Free White Next.js Typescript Admin Dashboard
+                    Reservation Free White Next.js Typescript Admin Dashboard
                   </TypographyPrimary>
                   <TypographySecondary
                     variant="h4"

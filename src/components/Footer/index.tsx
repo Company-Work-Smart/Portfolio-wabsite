@@ -1,5 +1,5 @@
 import { Box, Container, Link, styled } from '@mui/material';
-import { TextWidget } from '../typographys';
+import { TextWidget } from '../Text';
 
 const FooterWrapper = styled(Container)(
   ({ theme }) => `

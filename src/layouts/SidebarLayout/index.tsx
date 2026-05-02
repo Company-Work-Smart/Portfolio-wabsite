@@ -3,8 +3,8 @@ import { alpha, Box, lighten, useTheme } from '@mui/material';
 import PropTypes from 'prop-types';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { AppKey } from '@/constant/key';
 import { useRouter } from 'next/router';
+import { MyApp } from '@/constant/my-app';
 
 interface SidebarLayoutProps {
   children?: ReactNode;
@@ -14,7 +14,7 @@ const SidebarLayout: FC<SidebarLayoutProps> = ({ children }) => {
   const router = useRouter();
   const theme = useTheme();
   useEffect(() => {
-    const accessToken = localStorage.getItem(AppKey.accessToken) ?? '';
+    const accessToken = localStorage.getItem(MyApp.UserInfo().accessToken) ?? '';
     if (accessToken.length < 50) {
       router.push('/').finally();
     }
@@ -29,7 +29,7 @@ const SidebarLayout: FC<SidebarLayoutProps> = ({ children }) => {
           '.MuiPageTitle-wrapper': {
             background:
               theme.palette.mode === 'dark'
-                ? theme.colors.alpha.trueWhite[5]
+                ? theme.colors.alpha.white[5]
                 : theme.colors.alpha.white[50],
             marginBottom: `${theme.spacing(4)}`,
             boxShadow:
@@ -41,10 +41,7 @@ const SidebarLayout: FC<SidebarLayoutProps> = ({ children }) => {
                 : `0px 2px 4px -3px ${alpha(
                     theme.colors.alpha.black[100],
                     0.1
-                  )}, 0px 5px 12px -4px ${alpha(
-                    theme.colors.alpha.black[100],
-                    0.05
-                  )}`
+                  )}, 0px 5px 12px -4px ${alpha(theme.colors.alpha.black[100], 0.05)}`
           }
         }}
       >

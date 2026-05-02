@@ -2,7 +2,6 @@ import Head from 'next/head';
 import {
   Avatar,
   Box,
-  Button,
   Card,
   CardContent,
   Chip,
@@ -15,16 +14,17 @@ import { styled } from '@mui/material/styles';
 import {
   GitHub,
   LinkedIn,
-  Email,
+  Email,  
   Download,
   ArrowForward
 } from '@mui/icons-material';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import FooterPage from '@/layouts/PageLayout/Fooder';
-import { TextWidget } from '@/components/typographys';
 import { MySkill } from '@/database/skill';
 import { services } from '@/database/service';
 import { projects } from '@/database/project';
+import { TextWidget } from '@/components/Text';
+import { ButtonWidget } from '@/components/Button';
 
 const GlassCard = styled(Card)(() => ({
   background: 'rgba(255, 255, 255, 0.1)',
@@ -38,26 +38,13 @@ const GlassCard = styled(Card)(() => ({
   }
 }));
 
-const AnimatedButton = styled(Button)(() => ({
-  borderRadius: '50px',
-  padding: '12px 30px',
-  textTransform: 'none',
-  fontWeight: 600,
-  fontSize: '16px',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 10px 20px rgba(0,0,0,0.2)'
-  }
-}));
-
 const SkillChip = styled(Chip)(({ theme }) => ({
   margin: '4px',
   padding: '8px',
   fontSize: '14px',
   fontWeight: 500,
   background: theme.colors.alpha.white[20],
-  color: theme.palette.text.primary,
+  color: theme.mode.text.default,
   border: '1px solid rgba(255, 255, 255, 0.2)'
 }));
 
@@ -73,8 +60,7 @@ function HomePage() {
 
       <Box
         sx={{
-          backgroundColor: theme.palette.background.default,
-          height: '100%',
+          backgroundColor: theme.mode.background.default,
           pt: 20
         }}
       >
@@ -83,7 +69,7 @@ function HomePage() {
             <Grid>
               <Box
                 sx={{
-                  color: theme.palette.text.primary,
+                  color: theme.mode.text.default,
                   position: 'relative',
                   zIndex: 1
                 }}
@@ -97,7 +83,7 @@ function HomePage() {
                     fontSize: { xs: '2.5rem', md: '3.5rem' },
                     fontWeight: 700,
                     mb: 2,
-                    background: theme.palette.text.primary,
+                    background: theme.mode.text.default,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     lineHeight: 1.2
@@ -114,7 +100,7 @@ function HomePage() {
                 <TextWidget
                   size={15}
                   sx={{
-                    color: theme.palette.text.secondary,
+                    color: theme.mode.text.disabled,
                     mb: 4,
                     lineHeight: 1.6,
                     maxWidth: 500
@@ -124,40 +110,23 @@ function HomePage() {
                   and innovative design. Let's build something amazing together.
                 </TextWidget>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 4 }}>
-                  <AnimatedButton
-                    variant="contained"
-                    endIcon={<ArrowForward />}
-                    sx={{
-                      background: theme.palette.text.primary,
-                      color: theme.palette.background.default,
-                      '&:hover': {
-                        background: theme.palette.text.primary
-                      }
-                    }}
-                  >
+                  <ButtonWidget variant="contained" endIcon={<ArrowForward />}>
                     View My Work
-                  </AnimatedButton>
-                  <AnimatedButton
-                    variant="outlined"
-                    startIcon={<Download />}
-                    sx={{
-                      borderColor: theme.palette.text.primary,
-                      color: theme.palette.text.primary
-                    }}
-                  >
+                  </ButtonWidget>
+                  <ButtonWidget variant="outlined" startIcon={<Download />}>
                     Download CV
-                  </AnimatedButton>
+                  </ButtonWidget>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   {[GitHub, LinkedIn, Email].map((Icon, i) => (
                     <IconButton
                       key={i}
                       sx={{
-                        color: theme.palette.text.primary,
+                        color: theme.mode.text.default,
                         transition: 'all 0.3s ease',
                         '&:hover': {
                           transform: 'translateY(-5px)',
-                          boxShadow: `0 20px 40px ${theme.palette.text.primary}`
+                          boxShadow: `0 20px 40px ${theme.mode.text.default}`
                         }
                       }}
                     >
@@ -175,7 +144,7 @@ function HomePage() {
                   sx={{
                     width: { xs: 250, md: 350 },
                     height: { xs: 250, md: 350 },
-                    border: `2px solid ${theme.palette.text.secondary}`,
+                    border: `2px solid ${theme.mode.text.disabled}`,
                     boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
                   }}
                 />
@@ -232,7 +201,7 @@ function HomePage() {
                     >
                       <Box
                         sx={{
-                          color: theme.palette.text.primary,
+                          color: theme.mode.text.default,
                           mb: 3
                         }}
                       >
@@ -294,20 +263,20 @@ function HomePage() {
                           sx={{
                             background:
                               project.status === 'Live'
-                                ? theme.palette.info.main
+                                ? theme.colors.info.main
                                 : project.status === 'In Progress'
-                                ? theme.palette.warning.main
+                                ? theme.colors.warning.main
                                 : project.status === 'Soon'
-                                ? theme.palette.warning.main
-                                : theme.palette.success.main,
-                            color: theme.palette.text.primary,
+                                ? theme.colors.warning.main
+                                : theme.colors.success.main,
+                            color: theme.mode.text.default,
                             textTransform: 'capitalize'
                           }}
                         />
                       </Box>
                       <TextWidget
                         sx={{
-                          color: theme.palette.text.secondary,
+                          color: theme.mode.text.disabled,
                           mb: 3,
                           lineHeight: 1.6
                         }}
@@ -329,7 +298,7 @@ function HomePage() {
                             size="small"
                             sx={{
                               background: theme.colors.alpha.white[20],
-                              color: theme.palette.text.primary,
+                              color: theme.mode.text.default,
                               fontSize: '12px',
                               border: '1px solid rgba(255, 255, 255, 0.2)'
                             }}
@@ -353,28 +322,17 @@ function HomePage() {
               <TextWidget sx={{ mb: 4 }}>
                 Let's discuss how we can bring your ideas to life
               </TextWidget>
-              <AnimatedButton
-                variant="contained"
-                size="large"
-                sx={{
-                  background: 'linear-gradient(45deg, #6366f1, #8b5cf6)',
-                  color: theme.palette.text.primary,
-                  px: 4,
-                  py: 2
-                }}
-              >
+              <ButtonWidget radius="50px" variant="outlined">
                 Get In Touch
-              </AnimatedButton>
+              </ButtonWidget>
             </Box>
           </Container>
         </Box>
       </Box>
-
       <FooterPage />
     </>
   );
 }
 
 HomePage.getLayout = (page) => <HeaderPage>{page}</HeaderPage>;
-
 export default HomePage;

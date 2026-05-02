@@ -13,20 +13,20 @@ import {
 } from '@mui/material';
 
 import SidebarMenu from './SidebarMenu';
-import Logo from 'src/components/LogoSign';
+import Logo from 'src/components/Logo';
 import Scrollbar from '@/components/Scrollbar';
-import { TextWiget } from '@/components/typographys';
 import LogoutIcon from '@mui/icons-material/Logout';
-import appColor from '@/theme/appColor';
-import { AppKey } from '@/constant/key';
 import router from 'next/router';
-import ConfirmDialog from '@/components/ConfirmDialog';
+import { themeColors } from '@/theme/base';
+import { TextWidget } from '@/components/Text';
+import DialogWidget from '@/components/Dialog';
+import { MyApp } from '@/constant/my-app';
 
 const SidebarWrapper = styled(Box)(
   ({ theme }) => `
         width: ${theme.sidebar.width};
         min-width: ${theme.sidebar.width};
-        color: ${theme.colors.alpha.trueWhite[70]};
+        color: ${theme.colors.alpha.white[70]};
         position: relative;
         z-index: 7;
         height: 100%;
@@ -39,10 +39,10 @@ function Sidebar() {
   const closeSidebar = () => toggleSidebar();
 
   const onSignOut = async () => {
-    localStorage.removeItem(AppKey.userId);
-    localStorage.removeItem(AppKey.username);
-    localStorage.removeItem(AppKey.role);
-    localStorage.removeItem(AppKey.accessToken);
+    localStorage.removeItem(MyApp.UserInfo().userId);
+    localStorage.removeItem(MyApp.UserInfo().username);
+    localStorage.removeItem(MyApp.UserInfo().role);
+    localStorage.removeItem(MyApp.UserInfo().accessToken);
     await router.push('/');
   };
 
@@ -63,32 +63,28 @@ function Sidebar() {
             theme.palette.mode === 'dark'
               ? alpha(lighten(theme.header.background, 0.1), 0.5)
               : darken(theme.colors.alpha.black[100], 0.5),
-          boxShadow:
-            theme.palette.mode === 'dark' ? theme.sidebar.boxShadow : 'none'
+          boxShadow: theme.palette.mode === 'dark' ? theme.sidebar.boxShadow : 'none'
         }}
       >
         <Scrollbar>
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-            <TextWiget bold size={20}>
+            <TextWidget bold size={20}>
               Portfolio
-            </TextWiget>
+            </TextWidget>
           </Box>
           <Divider
             sx={{
               mb: 2,
               mx: 2,
-              background: theme.colors.alpha.trueWhite[10]
+              background: theme.colors.alpha.white[10]
             }}
           />
           <SidebarMenu />
         </Scrollbar>
-        <ConfirmDialog
-          message="Are you sure to Sign Out?"
-          onConfirm={onSignOut}
-        >
+        <DialogWidget variant="delete" message="Are you sure to Sign Out?" onConfirm={onSignOut}>
           <Box
             sx={{
-              borderTop: `1px solid ${theme.colors.alpha.trueWhite[10]}`,
+              borderTop: `1px solid ${theme.colors.alpha.white[10]}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -98,13 +94,13 @@ function Sidebar() {
               fullWidth
               startIcon={<LogoutIcon />}
               sx={{
-                color: appColor.red
+                color: themeColors.red
               }}
             >
               Sign Out
             </Button>
           </Box>
-        </ConfirmDialog>
+        </DialogWidget>
       </SidebarWrapper>
       <Drawer
         sx={{
@@ -139,7 +135,7 @@ function Sidebar() {
               sx={{
                 mt: theme.spacing(3),
                 mx: theme.spacing(2),
-                background: theme.colors.alpha.trueWhite[10]
+                background: theme.colors.alpha.white[10]
               }}
             />
             <SidebarMenu />

@@ -11,13 +11,13 @@ import {
   styled,
   useTheme
 } from '@mui/material';
-import Text from 'src/components/Text';
 import Label from 'src/components/Label';
 import { Chart } from 'src/components/Chart';
 import type { ApexOptions } from 'apexcharts';
 import TrendingDownTwoToneIcon from '@mui/icons-material/TrendingDownTwoTone';
 import TrendingUpTwoToneIcon from '@mui/icons-material/TrendingUpTwoTone';
 import TrendingFlatTwoToneIcon from '@mui/icons-material/TrendingFlatTwoTone';
+import { TextWidget } from '@/components/Text';
 
 const AvatarWrapper = styled(Avatar)(
   ({ theme }) => `
@@ -32,12 +32,12 @@ const AvatarWrapper = styled(Avatar)(
     width: ${theme.spacing(5.5)};
     background: ${
       theme.palette.mode === 'dark'
-        ? theme.colors.alpha.trueWhite[30]
+        ? theme.colors.alpha.white[30]
         : alpha(theme.colors.alpha.black[100], 0.07)
     };
   
     img {
-      background: ${theme.colors.alpha.trueWhite[100]};
+      background: ${theme.colors.alpha.white[100]};
       padding: ${theme.spacing(0.5)};
       display: block;
       border-radius: inherit;
@@ -195,9 +195,9 @@ function WatchListRow() {
               >
                 $56,475.99
               </Typography>
-              <Text color="success">
+              <TextWidget color="success">
                 <b>+12.5%</b>
-              </Text>
+              </TextWidget>
             </Box>
             <TrendingUpTwoToneIcon
               sx={{
@@ -264,9 +264,9 @@ function WatchListRow() {
               >
                 $1,968.00
               </Typography>
-              <Text color="error">
+              <TextWidget color="error">
                 <b>-3.24%</b>
-              </Text>
+              </TextWidget>
             </Box>
             <TrendingDownTwoToneIcon
               sx={{
@@ -333,9 +333,9 @@ function WatchListRow() {
               >
                 $23.00
               </Typography>
-              <Text color="error">
+              <TextWidget color="error">
                 <b>-0.33%</b>
-              </Text>
+              </TextWidget>
             </Box>
             <TrendingFlatTwoToneIcon
               sx={{

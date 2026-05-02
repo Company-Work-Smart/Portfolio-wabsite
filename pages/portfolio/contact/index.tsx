@@ -16,10 +16,11 @@ import {
 import { styled } from '@mui/material/styles';
 import { Send, Schedule, CheckCircle, AccessTime } from '@mui/icons-material';
 import { useState } from 'react';
-import { TextWidget } from '@/components/typographys';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import FooterPage from '@/layouts/PageLayout/Fooder';
 import { availability, contact, social } from '@/database/contact';
+import { themeColors } from '@/theme/base';
+import { TextWidget } from '@/components/Text';
 
 // Styled Components
 const ContactCard = styled(Card)(({ theme }) => ({
@@ -114,7 +115,7 @@ function ContactPage() {
               icon={<CheckCircle />}
               label="Available for new projects"
               sx={{
-                background: appColor.green,
+                background: themeColors.green,
                 color: theme.palette.text.primary,
                 fontWeight: 600,
                 px: 2,

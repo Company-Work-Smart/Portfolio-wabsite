@@ -26,12 +26,12 @@ const AvatarWrapper = styled(Avatar)(
     width: ${theme.spacing(5.5)};
     background: ${
       theme.palette.mode === 'dark'
-        ? theme.colors.alpha.trueWhite[30]
+        ? theme.colors.alpha.white[30]
         : alpha(theme.colors.alpha.black[100], 0.07)
     };
   
     img {
-      background: ${theme.colors.alpha.trueWhite[100]};
+      background: ${theme.colors.alpha.white[100]};
       padding: ${theme.spacing(0.5)};
       display: block;
       border-radius: inherit;

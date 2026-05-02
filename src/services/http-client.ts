@@ -1,5 +1,4 @@
-import { AppKey } from '@/constant/key';
-import { MyApp } from '@/constant/my-app';
+import { AppConfig, MyApp } from '@/constant/my-app';
 
 type ResponseType = Promise<any | null | string>;
 
@@ -7,12 +6,12 @@ export class HttpClient {
   private headers: Record<string, string> = {};
 
   private buildUrl(path: string) {
-    return `${MyApp.url}/${path}`;
+    return `${AppConfig.url}/${path}`;
   }
 
   private buildHeader() {
     this.headers['Authorization'] =
-      'Bearer ' + localStorage.getItem(AppKey.accessToken);
+      'Bearer ' + localStorage.getItem(MyApp.UserInfo().accessToken);
   }
 
   async postuploadFile(path: string, request: FormData): ResponseType {
@@ -82,10 +81,10 @@ export class HttpClient {
     const response = await fetch(this.buildUrl(path), payload);
     if (response.status === 200) return await response.json();
     if (response.status === 401 || response.status === 403) {
-      localStorage.removeItem(AppKey.accessToken);
-      localStorage.removeItem(AppKey.role);
-      localStorage.removeItem(AppKey.username);
-      localStorage.removeItem(AppKey.userId);
+      localStorage.removeItem(MyApp.UserInfo().accessToken);
+      localStorage.removeItem(MyApp.UserInfo().role);
+      localStorage.removeItem(MyApp.UserInfo().username);
+      localStorage.removeItem(MyApp.UserInfo().userId);
       window.location.href = '/auth/login';
       return null;
     }

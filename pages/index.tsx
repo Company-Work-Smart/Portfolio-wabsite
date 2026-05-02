@@ -1,24 +1,13 @@
-import Head from "next/head";
-import { Box, useTheme } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { TextWidget } from "@/components/typographys";
+import Head from 'next/head';
+import { Box, useTheme } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { TextWidget } from '@/components/Text';
 
-const letters = [
-  "S",
-  "E",
-  "N",
-  "G",
-  "V",
-  "I",
-  "C",
-  "H",
-  "E",
-  "T",
-];
+const letters = ['S', 'E', 'N', 'G', 'V', 'I', 'C', 'H', 'E', 'T'];
 
 export default function HomePage() {
-  const title = "Splash Screen";
+  const title = 'Welcome to Portfolio';
   const theme = useTheme();
   const router = useRouter();
   const [typedCount, setTypedCount] = useState(0);
@@ -34,7 +23,7 @@ export default function HomePage() {
       const timer = setTimeout(() => {
         setSpreadOut(true);
         setTimeout(() => {
-          router.push("/portfolio/homefeed");
+          router.push('/portfolio/homefeed');
         }, 800);
       }, 300);
       return () => clearTimeout(timer);
@@ -75,7 +64,7 @@ export default function HomePage() {
             }
           `
             )
-            .join("\n")}
+            .join('\n')}
 
           /* Spread out: fixed positions at top */
           ${letters
@@ -88,7 +77,7 @@ export default function HomePage() {
             }
           `
             )
-            .join("\n")}
+            .join('\n')}
 
           /* Responsive for small screens */
           @media (max-width: 600px) {
@@ -102,7 +91,7 @@ export default function HomePage() {
                 }
               `
               )
-              .join("\n")}
+              .join('\n')}
 
             ${letters
               .map(
@@ -114,7 +103,7 @@ export default function HomePage() {
                 }
               `
               )
-              .join("\n")}
+              .join('\n')}
 
             .letter {
               font-size: 24px !important;
@@ -126,23 +115,23 @@ export default function HomePage() {
       <Box
         sx={{
           background: theme.palette.background.default,
-          height: "100vh",
-          width: "100vw",
-          position: "relative",
-          userSelect: "none",
-          overflow: "hidden",
+          height: '100vh',
+          width: '100vw',
+          position: 'relative',
+          userSelect: 'none',
+          overflow: 'hidden'
         }}
       >
         {letters.map((letter, idx) => (
           <TextWidget
             key={idx}
-            className={`letter ${typedCount > idx ? "visible" : ""} ${
+            className={`letter ${typedCount > idx ? 'visible' : ''} ${
               spreadOut ? `spread-${idx}` : `typing-${idx}`
             }`}
             sx={{
               color: theme.palette.text.primary,
               transitionDelay: `${idx * 0.001}s`,
-              fontSize: 30,
+              fontSize: 30
             }}
           >
             {letter}
