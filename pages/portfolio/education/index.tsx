@@ -29,16 +29,12 @@ import {
   TrendingUp
 } from '@mui/icons-material';
 import HeaderPage from '@/layouts/PageLayout/Header';
-import {
-  certifications,
-  courses,
-  education,
-  languages
-} from '@/database/education';
-import { skills } from '@/database/skill';
+import { certifications, courses, education, languages } from '@/database/education';
 import FooterPage from '@/layouts/PageLayout/Fooder';
 import { themeColors } from '@/theme/base';
 import { TextWidget } from '@/components/Text';
+import { useEffect, useState } from 'react';
+import { HttpClient } from '@/services/http-client';
 
 const EducationCard = styled(Card)(({ theme }) => ({
   background: theme.palette.background.default,
@@ -75,8 +71,19 @@ const CertificationChip = styled(Chip)(({ theme }) => ({
 }));
 
 function EducationPage() {
-  const title = 'Portfolio - Education';
+  const title = 'Education';
   const theme = useTheme();
+  const http = new HttpClient();
+  const [skill, setSkill] = useState<any[]>([]);
+
+  const getSkill = async () => {
+    const response = await http.get(`language/skill`);
+    setSkill(response);
+  };
+
+  useEffect(() => {
+    getSkill();
+  }, []);
 
   return (
     <>
@@ -86,24 +93,19 @@ function EducationPage() {
 
       <Box
         sx={{
-          background: theme.palette.background.default,
-          height: '100%',
-          paddingTop: 4,
-          paddingBottom: 8
+          background: theme.mode.background.default,
+          py: 6
         }}
       >
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <TextWidget
-              bold
-              size={20}
-              sx={{
-                mb: 2
-              }}
-            >
+            <TextWidget bold size={22} sx={{ mb: 2 }}>
               Education & Qualifications
             </TextWidget>
-            <TextWidget size={15} sx={{ color: theme.palette.text.secondary }}>
+            <TextWidget
+              size={16}
+              sx={{ color: theme.mode.text.disabled, maxWidth: 600, mx: 'auto', mb: 3 }}
+            >
               My academic journey and professional development path
             </TextWidget>
           </Box>
@@ -140,8 +142,7 @@ function EducationPage() {
                     {index < education.length && (
                       <TimelineConnector
                         sx={{
-                          background:
-                            'linear-gradient(to bottom, #6366f1, #8b5cf6)',
+                          background: 'linear-gradient(to bottom, #6366f1, #8b5cf6)',
                           width: 3
                         }}
                       />
@@ -166,8 +167,7 @@ function EducationPage() {
                         <Chip
                           label={`GPA: ${item.gpa}`}
                           sx={{
-                            background:
-                              'linear-gradient(45deg, #10b981, #059669)',
+                            background: 'linear-gradient(45deg, #10b981, #059669)',
                             color: 'white'
                           }}
                         />
@@ -180,9 +180,7 @@ function EducationPage() {
                           mb: 2
                         }}
                       >
-                        <Box
-                          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                        >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <CalendarToday
                             sx={{
                               fontSize: 16
@@ -190,9 +188,7 @@ function EducationPage() {
                           />
                           <TextWidget>{item.period}</TextWidget>
                         </Box>
-                        <Box
-                          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                        >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <LocationOn
                             sx={{
                               fontSize: 16
@@ -269,7 +265,7 @@ function EducationPage() {
                     Technical Skills
                   </TextWidget>
 
-                  {skills.map((skill, index) => (
+                  {skill.map((skill, index) => (
                     <Box key={index} sx={{ mb: 3 }}>
                       <Box
                         sx={{
@@ -278,14 +274,11 @@ function EducationPage() {
                           mb: 1
                         }}
                       >
-                        <TextWidget>{skill.name}</TextWidget>
-                        <TextWidget>{skill.level}%</TextWidget>
+                        <TextWidget>{skill.language}</TextWidget>
+                        <TextWidget>{skill.level}</TextWidget>
                       </Box>
 
-                      <SkillProgress
-                        variant="determinate"
-                        value={skill.level}
-                      />
+                      <SkillProgress variant="determinate" value={skill.level} />
                     </Box>
                   ))}
                 </CardContent>

@@ -38,7 +38,6 @@ const ButtonUploadWrapper = styled(Box)(
     border-radius: 100%;
     background: ${theme.colors.primary.main};
     color: ${theme.palette.primary.contrastText};
-    box-shadow: ${theme.colors.shadows.primary};
     width: ${theme.spacing(4)};
     height: ${theme.spacing(4)};
     padding: 0;

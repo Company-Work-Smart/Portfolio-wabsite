@@ -1,376 +1,114 @@
 import Head from 'next/head';
-import {
-  Box,
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  IconButton,
-  Paper,
-  Chip,
-  Divider,
-  useTheme
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { Send, Schedule, CheckCircle, AccessTime } from '@mui/icons-material';
-import { useState } from 'react';
+import { Box, Container, Grid, Card, Paper, Chip, Skeleton } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { Schedule, CheckCircle } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import FooterPage from '@/layouts/PageLayout/Fooder';
-import { availability, contact, social } from '@/database/contact';
 import { themeColors } from '@/theme/base';
 import { TextWidget } from '@/components/Text';
-
-// Styled Components
-const ContactCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.default,
-  backdropFilter: 'blur(20px)',
-  borderRadius: '20px',
-  transition: 'all 0.3s ease'
-}));
-
-const SocialButton = styled(IconButton)(({ theme }) => ({
-  color: theme.palette.text.primary,
-  margin: 8,
-  width: 56,
-  height: 56,
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-3px) scale(1.1)'
-  }
-}));
-
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  '& .MuiOutlinedInput-root': {
-    background: theme.palette.background.default,
-    color: theme.palette.text.primary,
-    borderRadius: '12px'
-  }
-}));
-
-const SubmitButton = styled(Button)(({ theme }) => ({
-  background: theme.palette.text.primary,
-  color: theme.palette.background.default,
-  padding: '12px 40px',
-  borderRadius: '25px',
-  fontSize: '16px',
-  fontWeight: 600,
-  textTransform: 'none',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    background: theme.palette.text.primary,
-    transform: 'translateY(-2px)'
-  }
-}));
+import SendMessage from '@/content/Portfolio/Contact/message';
+import Information from '@/content/Portfolio/Contact/information';
 
 function ContactPage() {
   const title = 'Contact Me';
   const theme = useTheme();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
+  const [loading, setLoading] = useState(true);
 
-  const handleInput = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
-  const handleSubmit = () => {};
+  const SkeletonCard = () => (
+    <Card sx={{ borderRadius: '20px', p: 4 }}>
+      <Skeleton variant="text" width="60%" height={40} sx={{ mb: 3 }} />
+      {[1, 2, 3, 4].map((i) => (
+        <Skeleton key={i} variant="rectangular" height={56} sx={{ mb: 2, borderRadius: '10px' }} />
+      ))}
+      <Skeleton
+        variant="rectangular"
+        height={48}
+        width="40%"
+        sx={{ mx: 'auto', borderRadius: '25px' }}
+      />
+    </Card>
+  );
+
+  const SkeletonInfo = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {[1, 2, 3].map((i) => (
+        <Card key={i} sx={{ borderRadius: '20px', p: 3 }}>
+          <Skeleton variant="text" width="50%" height={32} sx={{ mb: 2 }} />
+          {[1, 2, 3].map((j) => (
+            <Skeleton
+              key={j}
+              variant="rectangular"
+              height={60}
+              sx={{ mb: 1, borderRadius: '12px' }}
+            />
+          ))}
+        </Card>
+      ))}
+    </Box>
+  );
 
   return (
     <>
       <Head>
         <title>{title}</title>
       </Head>
-
-      <Box
-        sx={{
-          background: theme.palette.background.default,
-          minHeight: '100vh',
-          py: 6
-        }}
-      >
+      <Box sx={{ background: theme.mode.background.default, py: 6 }}>
         <Container maxWidth="lg">
-          {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <TextWidget bold size={22} sx={{ mb: 2 }}>
-              Let's Work Together
-            </TextWidget>
-            <TextWidget
-              size={16}
-              sx={{
-                color: theme.palette.text.secondary,
-                maxWidth: 600,
-                mx: 'auto',
-                mb: 3
-              }}
-            >
-              Have a project in mind? I'd love to hear about it. Drop me a line
-              and let's discuss how we can bring your ideas to life.
-            </TextWidget>
-            <Chip
-              icon={<CheckCircle />}
-              label="Available for new projects"
-              sx={{
-                background: themeColors.green,
-                color: theme.palette.text.primary,
-                fontWeight: 600,
-                px: 2,
-                py: 1
-              }}
-            />
+            {loading ? (
+              <>
+                <Skeleton variant="text" width={300} height={44} sx={{ mx: 'auto', mb: 2 }} />
+                <Skeleton variant="text" width={500} height={24} sx={{ mx: 'auto', mb: 2 }} />
+                <Skeleton
+                  variant="rounded"
+                  width={220}
+                  height={32}
+                  sx={{ mx: 'auto', borderRadius: 4 }}
+                />
+              </>
+            ) : (
+              <>
+                <TextWidget bold size={22} sx={{ mb: 2 }}>
+                  Let's Work Together
+                </TextWidget>
+                <TextWidget
+                  size={16}
+                  sx={{ color: theme.mode.text.disabled, maxWidth: 600, mx: 'auto', mb: 3 }}
+                >
+                  Have a project in mind? I'd love to hear about it. Drop me a line and let's
+                  discuss how we can bring your ideas to life.
+                </TextWidget>
+                <Chip
+                  icon={<CheckCircle />}
+                  label="Available for new projects"
+                  sx={{
+                    background: themeColors.green,
+                    color: theme.palette.text.primary,
+                    fontWeight: 600,
+                    px: 2,
+                    py: 1
+                  }}
+                />
+              </>
+            )}
           </Box>
 
           <Grid container spacing={6}>
             <Grid item xs={12} md={6}>
-              <ContactCard>
-                <CardContent sx={{ p: 4 }}>
-                  <TextWidget
-                    bold
-                    size={20}
-                    sx={{
-                      mb: 3,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2
-                    }}
-                  >
-                    Send Message
-                  </TextWidget>
-
-                  <form onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                      <Grid item xs={12}>
-                        <StyledTextField
-                          fullWidth
-                          required
-                          label="Full Name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInput}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
-                              '& fieldset': {
-                                borderColor: theme.palette.text.primary
-                              },
-                              '&:hover fieldset': {
-                                borderColor: theme.palette.primary.main
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: theme.palette.primary.main,
-                                borderWidth: '2px'
-                              }
-                            }
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <StyledTextField
-                          fullWidth
-                          required
-                          label="Email Address"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInput}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
-                              '& fieldset': {
-                                borderColor: theme.palette.text.primary
-                              },
-                              '&:hover fieldset': {
-                                borderColor: theme.palette.primary.main
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: theme.palette.primary.main,
-                                borderWidth: '2px'
-                              }
-                            }
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <StyledTextField
-                          fullWidth
-                          required
-                          label="Subject"
-                          name="subject"
-                          value={formData.subject}
-                          onChange={handleInput}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
-                              '& fieldset': {
-                                borderColor: theme.palette.text.primary
-                              },
-                              '&:hover fieldset': {
-                                borderColor: theme.palette.primary.main
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: theme.palette.primary.main,
-                                borderWidth: '2px'
-                              }
-                            }
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <StyledTextField
-                          fullWidth
-                          label="Message"
-                          name="message"
-                          multiline
-                          rows={6}
-                          value={formData.message}
-                          onChange={handleInput}
-                          required
-                          placeholder="Tell me about your project, timeline, and how I can help you..."
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
-                              '& fieldset': {
-                                borderColor: theme.palette.text.primary
-                              },
-                              '&:hover fieldset': {
-                                borderColor: theme.palette.primary.main
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: theme.palette.primary.main,
-                                borderWidth: '2px'
-                              }
-                            }
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                        <SubmitButton type="submit" startIcon={<Send />}>
-                          Send Message
-                        </SubmitButton>
-                      </Grid>
-                    </Grid>
-                  </form>
-                </CardContent>
-              </ContactCard>
+              {loading ? <SkeletonCard /> : <SendMessage />}
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <ContactCard>
-                  <CardContent sx={{ p: 3 }}>
-                    <TextWidget
-                      bold
-                      size={20}
-                      sx={{
-                        mb: 3,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2
-                      }}
-                    >
-                      Quick Contact
-                    </TextWidget>
-                    {contact.map((method, index) => (
-                      <Box
-                        key={index}
-                        component={method.action ? 'a' : 'div'}
-                        href={method.action}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 2,
-                          p: 2,
-                          mb: 2,
-                          borderRadius: 2,
-                          textDecoration: 'none',
-                          background: theme.palette.secondary.main,
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            background: theme.palette.secondary.main
-                          }
-                        }}
-                      >
-                        {method.icon}
-                        <Box>
-                          <TextWidget bold>{method.title}</TextWidget>
-                          <TextWidget>{method.value}</TextWidget>
-                        </Box>
-                      </Box>
-                    ))}
-                  </CardContent>
-                </ContactCard>
-                <ContactCard>
-                  <CardContent sx={{ p: 3 }}>
-                    <TextWidget
-                      bold
-                      size={20}
-                      sx={{ mb: 3, textAlign: 'center' }}
-                    >
-                      Follow Me
-                    </TextWidget>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        flexWrap: 'wrap'
-                      }}
-                    >
-                      {social.map((socialItem, index) => (
-                        <SocialButton
-                          key={index}
-                          onClick={() => window.open(socialItem.url, '_blank')}
-                        >
-                          {socialItem.icon}
-                        </SocialButton>
-                      ))}
-                    </Box>
-                  </CardContent>
-                </ContactCard>
 
-                {/* Availability */}
-                <ContactCard>
-                  <CardContent sx={{ p: 3 }}>
-                    <TextWidget
-                      bold
-                      size={20}
-                      sx={{
-                        mb: 3,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
-                      }}
-                    >
-                      <AccessTime />
-                      Availability
-                    </TextWidget>
-                    {availability.map((slot, index) => (
-                      <Box key={index} sx={{ mb: 2 }}>
-                        <TextWidget bold>{slot.day}</TextWidget>
-                        <TextWidget
-                          sx={{ color: theme.palette.text.secondary }}
-                        >
-                          {slot.time}
-                        </TextWidget>
-                        {index < availability.length - 1 && (
-                          <Divider
-                            sx={{
-                              mt: 1,
-                              background: theme.palette.primary.main
-                            }}
-                          />
-                        )}
-                      </Box>
-                    ))}
-                  </CardContent>
-                </ContactCard>
-              </Box>
+            <Grid item xs={12} md={6}>
+              {loading ? <SkeletonInfo /> : <Information />}
             </Grid>
           </Grid>
 
-          {/* Response Time */}
           <Box sx={{ textAlign: 'center', mt: 6 }}>
             <Paper
               sx={{
@@ -382,29 +120,36 @@ function ContactPage() {
                 mx: 'auto'
               }}
             >
-              <TextWidget
-                bold
-                size={16}
-                sx={{
-                  mb: 2,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-              >
-                <Schedule /> Response Time
-              </TextWidget>
-              <TextWidget sx={{ lineHeight: 1.6 }}>
-                I typically respond to all inquiries within 24 hours. For urgent
-                matters, please don't hesitate to call or send a WhatsApp
-                message.
-              </TextWidget>
+              {loading ? (
+                <>
+                  <Skeleton variant="text" width={200} height={28} sx={{ mx: 'auto', mb: 2 }} />
+                  <Skeleton variant="text" width={400} height={48} sx={{ mx: 'auto' }} />
+                </>
+              ) : (
+                <>
+                  <TextWidget
+                    bold
+                    size={16}
+                    sx={{
+                      mb: 2,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: 1
+                    }}
+                  >
+                    <Schedule /> Response Time
+                  </TextWidget>
+                  <TextWidget sx={{ lineHeight: 1.6 }}>
+                    I typically respond to all inquiries within 24 hours. For urgent matters, please
+                    don't hesitate to call or send a WhatsApp message.
+                  </TextWidget>
+                </>
+              )}
             </Paper>
           </Box>
         </Container>
       </Box>
-
       <FooterPage />
     </>
   );

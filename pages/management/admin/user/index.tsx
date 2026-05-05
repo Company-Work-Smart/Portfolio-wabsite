@@ -1,4 +1,5 @@
-import { useState, useEffect, useContext } from 'react';
+'use client';
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -16,106 +17,40 @@ import {
   TableRow,
   TablePagination,
   Tooltip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  MenuItem,
   useTheme
 } from '@mui/material';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
-import { HttpClient } from '@/services/http-client';
 import { Pagination } from '@/constant/gagination';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import DialogWidget from '@/components/Dialog';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { useRouter } from 'next/router';
 
 const UserSuperAdminManagement = () => {
   const title = 'User Management';
-  const { showSnackbar } = useContext(SnackbarContext);
-  const http = new HttpClient();
-    const router = useRouter();
-  const [datasource, setDatasource] = useState<any[]>(null);
+  const theme = useTheme();
+  const router = useRouter();
+  const [datasource] = useState<any[]>(null);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(Pagination.pageSize);
-  const [totalItem, setTotalItem] = useState<number>(0);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [newRole, setNewRole] = useState<string>('');
+  const [totalItem] = useState<number>(0);
 
   const handlePageChange = (_event: any, newPageNumber: number): void => {
     setPageNumber(newPageNumber);
   };
 
-  const handleLimitChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleLimitChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setPageSize(parseInt(event.target.value));
   };
-  const theme = useTheme();
-
-  const getUsers = async () => {
-    const res = await http.get(`SuperAdmin/User`);
-    setDatasource(res);
-    setTotalItem(res.length);
-  };
-
-  const onRoleChange = async () => {
-    if (selectedUser && newRole) {
-      try {
-        await http.put(`SuperAdmin/assign-role/${selectedUser.id}`, {
-          Role: newRole
-        });
-        showSnackbar({ type: 'success', message: 'Successfully change roles' });
-        setOpenDialog(false);
-        getUsers();
-      } catch (e) {
-        showSnackbar({ type: 'success', message: `${e}` });
-      }
-    }
-  };
-
-  const handleOpenDialog = (user: any) => {
-    setSelectedUser(user);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedUser(null);
-    setNewRole('');
-  };
-
-  const onConfirm = async (id) => {
-    await http.delete(`SuperAdmin/${id}`);
-    getUsers();
-  };
-
-  useEffect(() => {
-    getUsers();
-  }, [pageNumber, pageSize]);
 
   return (
     <>
       <Grid item sx={{ p: 3 }}>
-        <Grid
-          container
-          direction="row"
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={3}
-        >
+        <Grid container direction="row" justifyContent="center" alignItems="stretch" spacing={3}>
           <Grid item xs={12}>
             <Card style={{ position: 'relative' }}>
-              {!datasource && (
-                <LinearProgress
-                  style={{ position: 'absolute', width: '100%' }}
-                />
-              )}
+              {!datasource && <LinearProgress style={{ position: 'absolute', width: '100%' }} />}
               <CardHeader
                 action={
                   <Box>
@@ -150,9 +85,7 @@ const UserSuperAdminManagement = () => {
                           <Tooltip title="Contact" arrow>
                             <IconButton
                               onClick={() =>
-                                router.push(
-                                  `/applications/superAdmin/messenger/${item.id}`
-                                )
+                                router.push(`/applications/superAdmin/messenger/${item.id}`)
                               }
                               color="primary"
                               size="small"
@@ -163,11 +96,7 @@ const UserSuperAdminManagement = () => {
                         </TableCell>
                         <TableCell align="right">
                           <Tooltip title="Edit Role" arrow>
-                            <IconButton
-                              onClick={() => handleOpenDialog(item)}
-                              color="primary"
-                              size="small"
-                            >
+                            <IconButton color="primary" size="small">
                               <EditTwoToneIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
@@ -176,12 +105,11 @@ const UserSuperAdminManagement = () => {
                               <DialogWidget
                                 variant="delete"
                                 message="Are you sure to delete this item?"
-                                onConfirm={() => onConfirm(item.id)}
                               >
                                 <IconButton
                                   sx={{
                                     '&:hover': {
-                                      background: theme.colors.error.lighter
+                                      background: theme.colors.error.light
                                     },
                                     color: theme.palette.error.main
                                   }}
@@ -214,38 +142,10 @@ const UserSuperAdminManagement = () => {
           </Grid>
         </Grid>
       </Grid>
-
-      {/* Dialog to assign role */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Assign Role</DialogTitle>
-        <DialogContent>
-          <TextField
-            select
-            fullWidth
-            label="Role"
-            value={newRole}
-            onChange={(e) => setNewRole(e.target.value)}
-            margin="normal"
-          >
-            <MenuItem value="Admin">Admin</MenuItem>
-            <MenuItem value="User">User</MenuItem>
-          </TextField>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={onRoleChange} color="primary">
-            Assign Role
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };
 
-UserSuperAdminManagement.getLayout = (page) => (
-  <SidebarLayout>{page}</SidebarLayout>
-);
+UserSuperAdminManagement.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
 
 export default UserSuperAdminManagement;

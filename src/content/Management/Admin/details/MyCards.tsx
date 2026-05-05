@@ -79,12 +79,12 @@ const CardAddAction = styled(Card)(
 
 const IconButtonError = styled(IconButton)(
   ({ theme }) => `
-     background: ${theme.colors.error.lighter};
+     background: ${theme.colors.error.light};
      color: ${theme.colors.error.main};
      padding: ${theme.spacing(0.5)};
 
      &:hover {
-      background: ${lighten(theme.colors.error.lighter, 0.4)};
+      background: ${lighten(theme.colors.error.light, 0.4)};
      }
 `
 );
@@ -117,9 +117,7 @@ function MyCards() {
   const [expiryMonthError, setExpiryMonthError] = useState('');
   const [expiryYearError, setExpiryYearError] = useState('');
   const [expiryCardError, setExpiryCardError] = useState('');
-  const [showFullNumberIds, setShowFullNumberIds] = useState<Set<string>>(
-    new Set()
-  );
+  const [showFullNumberIds, setShowFullNumberIds] = useState<Set<string>>(new Set());
   const [selectedValue, setSelectedValue] = useState('');
 
   const handleChangeCard = (id) => {
@@ -286,10 +284,7 @@ function MyCards() {
   return (
     <>
       <Card>
-        <CardHeader
-          subheader={`${datasource.length} saved cards`}
-          title="Cards"
-        />
+        <CardHeader subheader={`${datasource.length} saved cards`} title="Cards" />
         <Divider />
 
         <Box p={3}>
@@ -303,18 +298,11 @@ function MyCards() {
               return (
                 <Grid item xs={12} sm={6} key={item.id || index}>
                   <CardCc sx={{ px: 2, pt: 2, pb: 1 }}>
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
-                    >
+                    <Box display="flex" alignItems="center" justifyContent="space-between">
                       <Box display="flex" alignItems="center" flexGrow={1}>
                         {/* Card Logo */}
                         {item?.cardType === 'Visa' && (
-                          <CardLogo
-                            src="/static/images/placeholders/logo/visa.png"
-                            alt="Visa"
-                          />
+                          <CardLogo src="/static/images/placeholders/logo/visa.png" alt="Visa" />
                         )}
                         {item?.cardType === 'MasterCard' && (
                           <CardLogo
@@ -323,10 +311,7 @@ function MyCards() {
                           />
                         )}
                         {item?.cardType === 'Amex' && (
-                          <CardLogo
-                            src="/static/images/placeholders/logo/amex.png"
-                            alt="Amex"
-                          />
+                          <CardLogo src="/static/images/placeholders/logo/amex.png" alt="Amex" />
                         )}
 
                         {/* Card Info */}
@@ -354,14 +339,8 @@ function MyCards() {
                         </Box>
 
                         {/* Toggle visibility */}
-                        <Tooltip
-                          arrow
-                          title={showFull ? 'Hide number' : 'Show full number'}
-                        >
-                          <IconButton
-                            onClick={() => toggleShowNumber(item.id)}
-                            sx={{ ml: 2 }}
-                          >
+                        <Tooltip arrow title={showFull ? 'Hide number' : 'Show full number'}>
+                          <IconButton onClick={() => toggleShowNumber(item.id)} sx={{ ml: 2 }}>
                             {showFull ? (
                               <VisibilityOffIcon sx={{ fontSize: 20 }} />
                             ) : (
@@ -372,12 +351,7 @@ function MyCards() {
                       </Box>
                     </Box>
 
-                    <Box
-                      pt={3}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
-                    >
+                    <Box pt={3} display="flex" alignItems="center" justifyContent="space-between">
                       <FormControlLabel
                         control={
                           <Radio
@@ -398,9 +372,7 @@ function MyCards() {
                         </Tooltip>
 
                         <Tooltip arrow title="Remove this card">
-                          <IconButtonError
-                            onClick={() => handleDelete(item.id)}
-                          >
+                          <IconButtonError onClick={() => handleDelete(item.id)}>
                             <DeleteTwoToneIcon fontSize="small" />
                           </IconButtonError>
                         </Tooltip>

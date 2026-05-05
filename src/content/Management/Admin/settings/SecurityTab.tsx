@@ -62,16 +62,11 @@ function SecurityTab() {
   const [page, setPage] = useState(2);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const handleChangePage = (
-    _event: MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
+  const handleChangePage = (_event: MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -119,9 +114,7 @@ function SecurityTab() {
       <Grid item xs={12}>
         <Box pb={2}>
           <Typography variant="h3">Social Accounts</Typography>
-          <Typography variant="subtitle2">
-            Manage connected social accounts options
-          </Typography>
+          <Typography variant="subtitle2">Manage connected social accounts options</Typography>
         </Box>
         <Card>
           <List>
@@ -193,9 +186,7 @@ function SecurityTab() {
       <Grid item xs={12}>
         <Box pb={2}>
           <Typography variant="h3">Security</Typography>
-          <Typography variant="subtitle2">
-            Change your security preferences below
-          </Typography>
+          <Typography variant="subtitle2">Change your security preferences below</Typography>
         </Box>
         <Card>
           <List>
@@ -255,15 +246,13 @@ function SecurityTab() {
                     <TableCell>{log.browser}</TableCell>
                     <TableCell>{log.ipaddress}</TableCell>
                     <TableCell>{log.location}</TableCell>
-                    <TableCell>
-                      {format(log.date, 'dd MMMM, yyyy - h:mm:ss a')}
-                    </TableCell>
+                    <TableCell>{format(log.date, 'dd MMMM, yyyy - h:mm:ss a')}</TableCell>
                     <TableCell align="right">
                       <Tooltip placement="top" title="Delete" arrow>
                         <IconButton
                           sx={{
                             '&:hover': {
-                              background: theme.colors.error.lighter
+                              background: theme.colors.error.light
                             },
                             color: theme.palette.error.main
                           }}

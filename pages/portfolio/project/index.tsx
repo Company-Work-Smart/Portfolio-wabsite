@@ -3,95 +3,105 @@ import {
   Box,
   Container,
   Grid,
-  Card,
   CardContent,
   CardMedia,
-  Button,
-  Chip,
   IconButton,
-  Paper,
   Collapse,
   useTheme,
   Stack
 } from '@mui/material';
-import { GitHub, Launch, Search, Clear, FilterList } from '@mui/icons-material';
-
+import { GitHub, Launch, Search, FilterList } from '@mui/icons-material';
 import HeaderPage from '@/layouts/PageLayout/Header';
 import FooterPage from '@/layouts/PageLayout/Fooder';
-import { useState, useMemo } from 'react';
-import { categories, projects } from '@/database/project';
+import { useState, useEffect, useMemo } from 'react';
 import { TextWidget } from '@/components/Text';
 import { ButtonWidget } from '@/components/Button';
 import SearchWidget from '@/components/Search';
+import { HttpClient } from '@/services/http-client';
+import { datetimeDisplay } from '@/helpers/datetime';
+import { ChipWidget } from '@/components/Chip';
+import { CardWidget } from '@/components/Card';
+import { SkeletonCard } from '@/components/Skeleton';
 
 function ProjectPage() {
-  const title = 'Portfolio - Projects';
+  const title = 'Project';
   const theme = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const http = new HttpClient();
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
+  const [search, setSearch] = useState('');
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [sortByPopular, setSortByPopular] = useState(false);
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
+  const getProject = async () => {
+    try {
+      setLoading(true);
+      const res = await http.get('project');
+      setProjects(res);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-  };
+  useEffect(() => {
+    getProject();
+  }, []);
 
-  // Enhanced filtering logic
-  const filteredProjects = useMemo(() => {
-    let filtered = projects;
+  const appTypes = useMemo(
+    () => ['All', ...new Set(projects.map((p) => p.application))],
+    [projects]
+  );
 
-    // Filter by category
-    if (selectedCategory !== 'Al  l') {
-      filtered = filtered.filter(
-        (project) => project.category === selectedCategory
-      );
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (project) =>
-          project.title.toLowerCase().includes(query) ||
-          project.category.toLowerCase().includes(query)
-      );
-    }
-
-    return filtered;
-  }, [selectedCategory, searchQuery]);
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    let result = projects.filter((p) => {
+      const matchSearch =
+        !q ||
+        p.projectName?.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q) ||
+        p.technologies?.some((t: any) => t.language?.toLowerCase().includes(q));
+      const matchFilter = activeFilter === 'All' || p.application === activeFilter;
+      return matchSearch && matchFilter;
+    });
+    if (sortByPopular) result = [...result].sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
+    return result;
+  }, [projects, search, activeFilter, sortByPopular]);
 
   return (
     <>
       <Head>
         <title>{title}</title>
       </Head>
-
-      <Box
-        sx={{
-          background: theme.mode.background.default,
-          py: 4
-        }}
-      >
-        <Container>
+      <Box sx={{ background: theme.mode.background.default, py: 6 }}>
+        <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <TextWidget bold>My Projects</TextWidget>
+            <TextWidget bold size={22} sx={{ mb: 2 }}>
+              My Projects
+            </TextWidget>
             <TextWidget
+              size={16}
               sx={{
                 color: theme.mode.text.disabled,
                 maxWidth: 600,
                 mx: 'auto',
-                lineHeight: 1.8,
-                py: 2
+                mb: 3
               }}
             >
-              A collection of my work spanning web development, mobile
-              applications, and innovative digital solutions.
+              A collection of my work spanning web development, mobile applications, and innovative
+              digital solutions.
             </TextWidget>
           </Box>
-          <Box display="flex" justifyContent="space-between">
+
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <ButtonWidget
+              variant={sortByPopular ? 'contained' : 'outlined'}
+              startIcon={<FilterList />}
+              onClick={() => setSortByPopular(!sortByPopular)}
+            >
+              Popular
+            </ButtonWidget>
+            <SearchWidget radius="15px" onSearch={setSearch} />
             <ButtonWidget
               variant="outlined"
               startIcon={<FilterList />}
@@ -99,165 +109,82 @@ function ProjectPage() {
             >
               {showFilters ? 'Hide' : 'Show'} Filters
             </ButtonWidget>
-            <Box>
-              <SearchWidget radius="30px" onSearch={handleSearchChange} />
-            </Box>
-            <ButtonWidget
-              variant="outlined"
-              startIcon={<FilterList />}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              {showFilters ? 'Hide' : 'Show'} Clean
-            </ButtonWidget>
           </Box>
 
           <Collapse in={showFilters}>
             <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-                gap: 1.5,
-                py: 3
-              }}
+              sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1.5, py: 3 }}
             >
-              {categories.map((category) => {
-                const isSelected = selectedCategory === category;
-
-                return (
-                  <ButtonWidget
-                    key={category}
-                    variant={isSelected ? 'contained' : 'outlined'}
-                    onClick={() => handleCategoryChange(category)}
-                    sx={{
-                      borderRadius: 2
-                    }}
-                  >
-                    {category}
-                  </ButtonWidget>
-                );
-              })}
+              {appTypes.map((app, i) => (
+                <ButtonWidget
+                  key={i}
+                  variant={activeFilter === app ? 'contained' : 'outlined'}
+                  onClick={() => setActiveFilter(app)}
+                >
+                  {app}
+                </ButtonWidget>
+              ))}
             </Box>
           </Collapse>
 
-          {/* Projects Grid */}
-          {filteredProjects.length > 0 ? (
+          {loading ? (
             <Grid container spacing={3}>
-              {filteredProjects.map((project, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Grid item xs={12} sm={6} md={4} key={i}>
+                  <SkeletonCard />
+                </Grid>
+              ))}
+            </Grid>
+          ) : filtered.length > 0 ? (
+            <Grid container spacing={3} sx={{ pt: showFilters ? 0 : 3 }}>
+              {filtered.map((p, i) => (
+                <Grid item xs={12} sm={6} md={4} key={i}>
+                  <CardWidget
+                    radius="20px"
                     sx={{
-                      height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      borderRadius: 3,
-                      border: `1px solid ${theme.palette.divider}`,
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                      position: 'relative',
-                      overflow: 'hidden'
+                      border: `1px solid ${theme.mode.border[10]}`
                     }}
                   >
-                    {project.featured && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 12,
-                          right: 12,
-                          zIndex: 2,
-                          background: `linear-gradient(135deg, #fbbf24, #f59e0b)`,
-                          color: '#fff',
-                          px: 2,
-                          py: 0.5,
-                          borderRadius: 2,
-                          fontSize: '0.7rem',
-                          fontWeight: 800,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5,
-                          boxShadow: '0 4px 12px #f59e0b44'
-                        }}
-                      >
-                        ⭐ Featured
-                      </Box>
-                    )}
-
                     <CardMedia
                       component="div"
                       sx={{
                         height: 200,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                         position: 'relative',
                         '&::before': {
                           content: '""',
                           position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: project.image
-                            ? `url(${project.image}) center/cover`
-                            : 'none',
+                          inset: 0,
+                          background: p.image ? `url(${p.image}) center/cover` : 'none',
                           opacity: 0.15
                         }
                       }}
-                    ></CardMedia>
-
+                    />
                     <CardContent sx={{ flexGrow: 1, p: 3 }}>
                       <Stack spacing={2}>
-                        <TextWidget fontWeight={700}>
-                          {project.title}
+                        <TextWidget bold size={15}>
+                          {p.projectName}
                         </TextWidget>
-                        <Chip label={project.category} size="small" />
-
-                        {/* Description */}
+                        <ChipWidget label={p.application} size="small" />
                         <TextWidget
-                          variant="body2"
-                          sx={{
-                            color: theme.mode.text.disabled,
-                            lineHeight: 1.7,
-                            minHeight: 60
-                          }}
+                          sx={{ color: theme.mode.text.disabled, lineHeight: 1.7, minHeight: 60 }}
                         >
-                          {project.description}
+                          {p.description}
                         </TextWidget>
-
-                        {/* Technologies */}
                         <Box>
-                          <TextWidget
-                            variant="caption"
-                            fontWeight={700}
-                            sx={{ mb: 1, display: 'block' }}
-                          >
-                            Technologies:
-                          </TextWidget>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: 0.75
-                            }}
-                          >
-                            {project.technologies.map((tech, idx) => (
-                              <Chip
-                                key={idx}
-                                label={tech}
+                          <TextWidget sx={{ mb: 1, display: 'block' }}>Technologies:</TextWidget>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                            {p.technologies.map((tech: any, j: number) => (
+                              <ChipWidget
+                                key={j}
+                                label={tech.language}
                                 size="small"
-                                sx={{
-                                  fontSize: '0.7rem',
-                                  height: 24,
-                                  background: theme.mode.background.default,
-                                  border: `1px solid ${theme.palette.divider}`,
-                                  '&:hover': {
-                                    background: theme.palette.action.hover
-                                  }
-                                }}
+                                sx={{ fontSize: '0.6rem' }}
                               />
                             ))}
                           </Box>
                         </Box>
-
-                        {/* Footer */}
                         <Box
                           sx={{
                             display: 'flex',
@@ -269,96 +196,53 @@ function ProjectPage() {
                           }}
                         >
                           <TextWidget variant="caption" color="text.secondary">
-                            {project.date}
+                            {datetimeDisplay(p.createdAt)}
                           </TextWidget>
                           <Stack direction="row" spacing={1}>
-                            <IconButton
-                              href={project.github}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              size="small"
-                              sx={{
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-3px)'
-                                }
-                              }}
-                            >
-                              <GitHub fontSize="small" />
-                            </IconButton>
-                            <IconButton
-                              href={project.live}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              size="small"
-                              sx={{
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-3px)'
-                                }
-                              }}
-                            >
-                              <Launch fontSize="small" />
-                            </IconButton>
+                            {[
+                              {
+                                icon: <GitHub sx={{ color: theme.mode.text.default }} />,
+                                href: p.link
+                              },
+                              {
+                                icon: <Launch sx={{ color: theme.mode.text.default }} />,
+                                href: p.status
+                              }
+                            ].map(({ icon, href }, k) => (
+                              <IconButton
+                                key={k}
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                size="small"
+                                sx={{
+                                  transition: 'all 0.3s ease',
+                                  '&:hover': { transform: 'translateY(-3px)' }
+                                }}
+                              >
+                                {icon}
+                              </IconButton>
+                            ))}
                           </Stack>
                         </Box>
                       </Stack>
                     </CardContent>
-                  </Card>
+                  </CardWidget>
                 </Grid>
               ))}
             </Grid>
           ) : (
-            /* No Projects Found */
-            <Paper
-              elevation={0}
-              sx={{
-                textAlign: 'center',
-                py: 8,
-                px: 4,
-                borderRadius: 3,
-                border: `2px dashed ${theme.palette.divider}`
-              }}
-            >
-              <Box sx={{ mb: 3 }}>
-                <Search
-                  sx={{
-                    fontSize: 80,
-                    color: theme.mode.text.disabled,
-                    mb: 2
-                  }}
-                />
-              </Box>
-              <TextWidget variant="h5" fontWeight={700} sx={{ mb: 2 }}>
-                No projects found
-              </TextWidget>
-              <TextWidget variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                {searchQuery
-                  ? `No projects match your search "${searchQuery}"`
-                  : `No projects found in ${selectedCategory}`}
-              </TextWidget>
-              <Button
-                variant="contained"
-                startIcon={<Clear />}
-                sx={{
-                  borderRadius: 3,
-                  px: 4,
-                  py: 1.5,
-                  textTransform: 'none',
-                  fontWeight: 600
-                }}
-              >
-                Clear All Filters
-              </Button>
-            </Paper>
+            <Box sx={{ textAlign: 'center', py: 15, px: 4 }}>
+              <Search sx={{ fontSize: 50, color: theme.mode.text.disabled, mb: 3 }} />
+              <TextWidget bold>No projects found</TextWidget>
+            </Box>
           )}
         </Container>
       </Box>
-
       <FooterPage />
     </>
   );
 }
 
-ProjectPage.getLayout = (page) => <HeaderPage>{page}</HeaderPage>;
+ProjectPage.getLayout = (page: any) => <HeaderPage>{page}</HeaderPage>;
 export default ProjectPage;

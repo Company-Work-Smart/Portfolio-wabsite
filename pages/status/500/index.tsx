@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  Box,
-  Typography,
-  Hidden,
-  Container,
-  Button,
-  Grid,
-  styled
-} from '@mui/material';
+import { Box, Typography, Hidden, Container, Button, Grid, styled } from '@mui/material';
 import type { ReactElement } from 'react';
 import BaseLayout from 'src/layouts/BaseLayout';
 
@@ -17,7 +9,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 
 const GridWrapper = styled(Grid)(
   ({ theme }) => `
-    background: ${theme.colors.gradients.blueblack};
+    background: ${theme.mode.background.default};
 `
 );
 
@@ -57,38 +49,16 @@ function Status500() {
         <title>Status - 500</title>
       </Head>
       <MainContent>
-        <Grid
-          container
-          sx={{ height: '100%' }}
-          alignItems="stretch"
-          spacing={0}
-        >
-          <Grid
-            xs={12}
-            md={6}
-            alignItems="center"
-            display="flex"
-            justifyContent="center"
-            item
-          >
+        <Grid container sx={{ height: '100%' }} alignItems="stretch" spacing={0}>
+          <Grid xs={12} md={6} alignItems="center" display="flex" justifyContent="center" item>
             <Container maxWidth="sm">
               <Box textAlign="center">
-                <img
-                  alt="500"
-                  height={260}
-                  src="/static/images/status/500.svg"
-                />
+                <img alt="500" height={260} src="/static/images/status/500.svg" />
                 <Typography variant="h2" sx={{ my: 2 }}>
                   There was an error, please try again later
                 </Typography>
-                <Typography
-                  variant="h4"
-                  color="text.secondary"
-                  fontWeight="normal"
-                  sx={{ mb: 4 }}
-                >
-                  The server encountered an internal error and was not able to
-                  complete your request
+                <Typography variant="h4" color="text.secondary" fontWeight="normal" sx={{ mb: 4 }}>
+                  The server encountered an internal error and was not able to complete your request
                 </Typography>
                 <LoadingButton
                   onClick={handleClick}
@@ -119,14 +89,10 @@ function Status500() {
                   <TypographyPrimary variant="h1" sx={{ my: 2 }}>
                     Reservation Free White Next.js Typescript Admin Dashboard
                   </TypographyPrimary>
-                  <TypographySecondary
-                    variant="h4"
-                    fontWeight="normal"
-                    sx={{ mb: 4 }}
-                  >
-                    High performance React template built with lots of powerful
-                    Material-UI components across multiple product niches for
-                    fast & perfect apps development processes.
+                  <TypographySecondary variant="h4" fontWeight="normal" sx={{ mb: 4 }}>
+                    High performance React template built with lots of powerful Material-UI
+                    components across multiple product niches for fast & perfect apps development
+                    processes.
                   </TypographySecondary>
                   <Button href="/" size="large" variant="contained">
                     Overview

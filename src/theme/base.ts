@@ -25,30 +25,21 @@ export const quarterColor = (str: string) => {
 export const themeColors = {
   white: '#FFFFFF',
   black: '#000000',
-
-  blue: '#0066cc',
-  orange: '#FFA500',
-  purple: '#800080',
-  pink: '#FFC0CB',
-  green: '#4ade80',
-  red: '#FF0000',
-  yellow: '#FFFF00',
+  blue: '#1976d2',
+  orange: '#ed6c02',
+  purple: '#7b1fa2',
+  pink: '#c2185b',
+  green: '#2e7d32',
+  red: '#d32f2f',
+  yellow: '#f9a825',
 
   secondary: '#f2e9e4',
   primary: '#c9ada7',
   success: '#40916c',
-  warning: '#ffd60a',
   pending: '#ffbd00',
-  error: '#e5383b',
+  warning: '#ffd60a',
   info: '#61a5c2',
-
-  terminal_success: '#4ade80',
-
-  // == button == \\
-  button: '#0066cc',
-  hover_button: '#0052a3'
-
-  // == Noted == \\
+  error: '#e5383b',
 };
 
 export function themeCreator(theme: string): Theme {
@@ -58,105 +49,14 @@ export function themeCreator(theme: string): Theme {
 declare module '@mui/material/styles' {
   interface Theme {
     colors: {
-      gradients: {
-        // white
-        whiteblack: string;
-        whiteblue: string;
-        whiteorange: string;
-        whitepurple: string;
-        whitepink: string;
-        whitegreen: string;
-        whitered: string;
-        whiteyellow: string;
-
-        // black
-        blackwhite: string;
-        blackblue: string;
-        blackorange: string;
-        blackpurple: string;
-        blackpink: string;
-        blackgreen: string;
-        blackred: string;
-        blackyellow: string;
-
-        // blue
-        bluewhite: string;
-        blueblack: string;
-        blueorange: string;
-        bluepurple: string;
-        bluepink: string;
-        bluegreen: string;
-        bluered: string;
-        blueyellow: string;
-
-        // orange
-        orangewhite: string;
-        orangeblack: string;
-        orangeblue: string;
-        orangepurple: string;
-        orangepink: string;
-        orangegreen: string;
-        orangered: string;
-        orangeyellow: string;
-
-        // purple
-        purplewhite: string;
-        purpleblack: string;
-        purpleblue: string;
-        purpleorange: string;
-        purplepink: string;
-        purplegreen: string;
-        purplered: string;
-        purpleyellow: string;
-
-        // pink
-        pinkwhite: string;
-        pinkblack: string;
-        pinkblue: string;
-        pinkorange: string;
-        pinkpurple: string;
-        pinkgreen: string;
-        pinkred: string;
-        pinkyellow: string;
-
-        // green
-        greenwhite: string;
-        greenblack: string;
-        greenblue: string;
-        greenorange: string;
-        greenpurple: string;
-        greenpink: string;
-        greenred: string;
-        greenyellow: string;
-
-        // red
-        redwhite: string;
-        redblack: string;
-        redblue: string;
-        redorange: string;
-        redpurple: string;
-        redpink: string;
-        redgreen: string;
-        redyellow: string;
-
-        // yellow
-        yellowwhite: string;
-        yellowblack: string;
-        yellowblue: string;
-        yelloworange: string;
-        yellowpurple: string;
-        yellowpink: string;
-        yellowgreen: string;
-        yellowred: string;
-      };
+      gradients: {};
       shadows: {
-        card: string;
-        info: string;
         success: string;
         pending: string;
-        primary: string;
         warning: string;
+        info: string;
         error: string;
+        card: string;
       };
       alpha: {
         white: {
@@ -233,45 +133,38 @@ declare module '@mui/material/styles' {
         };
       };
       secondary: {
-        lighter: string;
-        light: string;
         main: string;
+        light: string;
         dark: string;
       };
       primary: {
-        lighter: string;
-        light: string;
         main: string;
+        light: string;
         dark: string;
       };
       success: {
-        lighter: string;
-        light: string;
         main: string;
+        light: string;
         dark: string;
       };
       warning: {
-        lighter: string;
-        light: string;
         main: string;
+        light: string;
         dark: string;
       };
       pending: {
-        lighter: string;
-        light: string;
         main: string;
+        light: string;
         dark: string;
       };
       error: {
-        lighter: string;
-        light: string;
         main: string;
+        light: string;
         dark: string;
       };
       info: {
-        lighter: string;
-        light: string;
         main: string;
+        light: string;
         dark: string;
       };
     };
@@ -312,22 +205,30 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
-
-      // == Background == \\
       background: {
         default: string;
         surface: string;
-        header: string;
         sidebar: string;
+        header: string;
+        body: string;
       };
-
-      // == TextWidget == \\
       text: {
         default: string;
         disabled: string;
+        success: string;
+        pending: string;
+        warning: string;
+        error: string;
+        info: string;
       };
-
-      // == CardWidget == \\
+      button: {
+        5: string;
+        10: string;
+        30: string;
+        50: string;
+        70: string;
+        100: string;
+      };
       card: {
         5: string;
         10: string;
@@ -336,8 +237,6 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
-
-      // == AvatarWidget == \\
       avatar: {
         5: string;
         10: string;
@@ -346,12 +245,10 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
-
       action: {
         hover: string;
         select: string;
       };
-
       border: {
         5: string;
         10: string;
@@ -360,110 +257,28 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
+      shadow: {
+         5: string;
+        10: string;
+        30: string;
+        50: string;
+        70: string;
+        100: string;
+      }
+
     };
   }
 
   interface ThemeOptions {
     colors: {
-      gradients: {
-        // white
-        whiteblack: string;
-        whiteblue: string;
-        whiteorange: string;
-        whitepurple: string;
-        whitepink: string;
-        whitegreen: string;
-        whitered: string;
-        whiteyellow: string;
-
-        // black
-        blackwhite: string;
-        blackblue: string;
-        blackorange: string;
-        blackpurple: string;
-        blackpink: string;
-        blackgreen: string;
-        blackred: string;
-        blackyellow: string;
-
-        // blue
-        bluewhite: string;
-        blueblack: string;
-        blueorange: string;
-        bluepurple: string;
-        bluepink: string;
-        bluegreen: string;
-        bluered: string;
-        blueyellow: string;
-
-        // orange
-        orangewhite: string;
-        orangeblack: string;
-        orangeblue: string;
-        orangepurple: string;
-        orangepink: string;
-        orangegreen: string;
-        orangered: string;
-        orangeyellow: string;
-
-        // purple
-        purplewhite: string;
-        purpleblack: string;
-        purpleblue: string;
-        purpleorange: string;
-        purplepink: string;
-        purplegreen: string;
-        purplered: string;
-        purpleyellow: string;
-
-        // pink
-        pinkwhite: string;
-        pinkblack: string;
-        pinkblue: string;
-        pinkorange: string;
-        pinkpurple: string;
-        pinkgreen: string;
-        pinkred: string;
-        pinkyellow: string;
-
-        // green
-        greenwhite: string;
-        greenblack: string;
-        greenblue: string;
-        greenorange: string;
-        greenpurple: string;
-        greenpink: string;
-        greenred: string;
-        greenyellow: string;
-
-        // red
-        redwhite: string;
-        redblack: string;
-        redblue: string;
-        redorange: string;
-        redpurple: string;
-        redpink: string;
-        redgreen: string;
-        redyellow: string;
-
-        // yellow
-        yellowwhite: string;
-        yellowblack: string;
-        yellowblue: string;
-        yelloworange: string;
-        yellowpurple: string;
-        yellowpink: string;
-        yellowgreen: string;
-        yellowred: string;
-      };
+      gradients: {};
       shadows: {
-        card: string;
-        info: string;
         success: string;
         pending: string;
-        primary: string;
         warning: string;
+        info: string;
         error: string;
+        card: string;
       };
       alpha: {
         white: {
@@ -540,43 +355,36 @@ declare module '@mui/material/styles' {
         };
       };
       secondary: {
-        lighter: string;
         light: string;
         main: string;
         dark: string;
       };
       primary: {
-        lighter: string;
         light: string;
         main: string;
         dark: string;
       };
       success: {
-        lighter: string;
         light: string;
         main: string;
         dark: string;
       };
       warning: {
-        lighter: string;
         light: string;
         main: string;
         dark: string;
       };
       pending: {
-        lighter: string;
         light: string;
         main: string;
         dark: string;
       };
       error: {
-        lighter: string;
         light: string;
         main: string;
         dark: string;
       };
       info: {
-        lighter: string;
         light: string;
         main: string;
         dark: string;
@@ -618,21 +426,30 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
-      // == Background == \\
       background: {
         default: string;
         surface: string;
-        header: string;
         sidebar: string;
+        header: string;
+        body: string;
       };
-
-      // == TextWidget == \\
       text: {
         default: string;
         disabled: string;
+        success: string;
+        pending: string;
+        warning: string;
+        error: string;
+        info: string;
       };
-
-      // == CardWidget == \\
+      button: {
+        5: string;
+        10: string;
+        30: string;
+        50: string;
+        70: string;
+        100: string;
+      };
       card: {
         5: string;
         10: string;
@@ -641,7 +458,6 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
-      // == AvatarWidget == \\
       avatar: {
         5: string;
         10: string;
@@ -650,13 +466,10 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
-
-      // == hover == \\
       action: {
         hover: string;
         select: string;
       };
-
       border: {
         5: string;
         10: string;
@@ -665,6 +478,14 @@ declare module '@mui/material/styles' {
         70: string;
         100: string;
       };
+       shadow: {
+         5: string;
+        10: string;
+        30: string;
+        50: string;
+        70: string;
+        100: string;
+      }
     };
   }
 }

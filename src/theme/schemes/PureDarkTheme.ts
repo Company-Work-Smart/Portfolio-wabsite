@@ -1,33 +1,32 @@
 import { alpha, createTheme, lighten, darken } from '@mui/material';
 import '@mui/lab/themeAugmentation';
 
-const Colors = {
+const BaseColors = {
   white: '#FFFFFF',
   black: '#000000',
-
-  blue: '#0000FF',
-  orange: '#FFA500',
-  purple: '#800080',
-  pink: '#FFC0CB',
-  green: '#008000',
-  red: '#FF0000',
-  yellow: '#FFFF00',
+  blue: '#1976d2',
+  orange: '#ed6c02',
+  purple: '#7b1fa2',
+  pink: '#c2185b',
+  green: '#2e7d32',
+  red: '#d32f2f',
+  yellow: '#f9a825',
 
   secondary: '#f2e9e4',
-  primary: '#dacac7',
+  primary: '#c9ada7',
   success: '#40916c',
-  warning: '#ffd60a',
   pending: '#ffbd00',
-  error: '#e5383b',
-  info: '#61a5c2'
+  warning: '#ffd60a',
+  info: '#61a5c2',
+  error: '#e5383b'
 };
 
 // 🌙 Dark Theme
-const darkTheme = {
-  header: '#122131',
+const DarkTheme = {
   background: '#000000',
-  sidebar: '#122131',
-  surface: '#122131',
+  header: '#2a2a3dd8',
+  sidebar: '#1a1a1a',
+  surface: '#1e1e1e',
 
   textSecondary: '#CCCCCC',
   border: '#333333',
@@ -36,463 +35,268 @@ const darkTheme = {
 };
 
 const colors = {
-  gradients: {
-    // white
-    whiteblack: 'linear-gradient(135deg, #ffffff 0%, #000000 100%)',
-    whiteblue: 'linear-gradient(135deg, #ffffff 0%, #0000FF 100%)',
-    whiteorange: 'linear-gradient(135deg, #ffffff 0%, #FFA500 100%)',
-    whitepurple: 'linear-gradient(135deg, #ffffff 0%, #800080 100%)',
-    whitepink: 'linear-gradient(135deg, #ffffff 0%, #FFC0CB 100%)',
-    whitegreen: 'linear-gradient(135deg, #ffffff 0%, #008000 100%)',
-    whitered: 'linear-gradient(135deg, #ffffff 0%, #FF0000 100%)',
-    whiteyellow: 'linear-gradient(135deg, #ffffff 0%, #FFFF00 100%)',
-
-    // black
-    blackwhite: 'linear-gradient(135deg, #000000 0%, #ffffff 100%)',
-    blackblue: 'linear-gradient(135deg, #000000 0%, #0000FF 100%)',
-    blackorange: 'linear-gradient(135deg, #000000 0%, #FFA500 100%)',
-    blackpurple: 'linear-gradient(135deg, #000000 0%, #800080 100%)',
-    blackpink: 'linear-gradient(135deg, #000000 0%, #FFC0CB 100%)',
-    blackgreen: 'linear-gradient(135deg, #000000 0%, #008000 100%)',
-    blackred: 'linear-gradient(135deg, #000000 0%, #FF0000 100%)',
-    blackyellow: 'linear-gradient(135deg, #000000 0%, #FFFF00 100%)',
-
-    // blue
-    bluewhite: 'linear-gradient(135deg, #0000FF 0%, #ffffff 100%)',
-    blueblack: 'linear-gradient(135deg, #0000FF 0%, #000000 100%)',
-    blueorange: 'linear-gradient(135deg, #0000FF 0%, #FFA500 100%)',
-    bluepurple: 'linear-gradient(135deg, #0000FF 0%, #800080 100%)',
-    bluepink: 'linear-gradient(135deg, #0000FF 0%, #FFC0CB 100%)',
-    bluegreen: 'linear-gradient(135deg, #0000FF 0%, #008000 100%)',
-    bluered: 'linear-gradient(135deg, #0000FF 0%, #FF0000 100%)',
-    blueyellow: 'linear-gradient(135deg, #0000FF 0%, #FFFF00 100%)',
-
-    // orange
-    orangewhite: 'linear-gradient(135deg, #FFA500 0%, #ffffff 100%)',
-    orangeblack: 'linear-gradient(135deg, #FFA500 0%, #000000 100%)',
-    orangeblue: 'linear-gradient(135deg, #FFA500 0%, #0000FF 100%)',
-    orangepurple: 'linear-gradient(135deg, #FFA500 0%, #800080 100%)',
-    orangepink: 'linear-gradient(135deg, #FFA500 0%, #FFC0CB 100%)',
-    orangegreen: 'linear-gradient(135deg, #FFA500 0%, #008000 100%)',
-    orangered: 'linear-gradient(135deg, #FFA500 0%, #FF0000 100%)',
-    orangeyellow: 'linear-gradient(135deg, #FFA500 0%, #FFFF00 100%)',
-
-    // purple
-    purplewhite: 'linear-gradient(135deg, #800080 0%, #ffffff 100%)',
-    purpleblack: 'linear-gradient(135deg, #800080 0%, #000000 100%)',
-    purpleblue: 'linear-gradient(135deg, #800080 0%, #0000FF 100%)',
-    purpleorange: 'linear-gradient(135deg, #800080 0%, #FFA500 100%)',
-    purplepink: 'linear-gradient(135deg, #800080 0%, #FFC0CB 100%)',
-    purplegreen: 'linear-gradient(135deg, #800080 0%, #008000 100%)',
-    purplered: 'linear-gradient(135deg, #800080 0%, #FF0000 100%)',
-    purpleyellow: 'linear-gradient(135deg, #800080 0%, #FFFF00 100%)',
-
-    // pink
-    pinkwhite: 'linear-gradient(135deg, #FFC0CB 0%, #ffffff 100%)',
-    pinkblack: 'linear-gradient(135deg, #FFC0CB 0%, #000000 100%)',
-    pinkblue: 'linear-gradient(135deg, #FFC0CB 0%, #0000FF 100%)',
-    pinkorange: 'linear-gradient(135deg, #FFC0CB 0%, #FFA500 100%)',
-    pinkpurple: 'linear-gradient(135deg, #FFC0CB 0%, #800080 100%)',
-    pinkgreen: 'linear-gradient(135deg, #FFC0CB 0%, #008000 100%)',
-    pinkred: 'linear-gradient(135deg, #FFC0CB 0%, #FF0000 100%)',
-    pinkyellow: 'linear-gradient(135deg, #FFC0CB 0%, #FFFF00 100%)',
-
-    // green
-    greenwhite: 'linear-gradient(135deg, #008000 0%, #ffffff 100%)',
-    greenblack: 'linear-gradient(135deg, #008000 0%, #000000 100%)',
-    greenblue: 'linear-gradient(135deg, #008000 0%, #0000FF 100%)',
-    greenorange: 'linear-gradient(135deg, #008000 0%, #FFA500 100%)',
-    greenpurple: 'linear-gradient(135deg, #008000 0%, #800080 100%)',
-    greenpink: 'linear-gradient(135deg, #008000 0%, #FFC0CB 100%)',
-    greenred: 'linear-gradient(135deg, #008000 0%, #FF0000 100%)',
-    greenyellow: 'linear-gradient(135deg, #008000 0%, #FFFF00 100%)',
-
-    // red
-    redwhite: 'linear-gradient(135deg, #FF0000 0%, #ffffff 100%)',
-    redblack: 'linear-gradient(135deg, #FF0000 0%, #000000 100%)',
-    redblue: 'linear-gradient(135deg, #FF0000 0%, #0000FF 100%)',
-    redorange: 'linear-gradient(135deg, #FF0000 0%, #FFA500 100%)',
-    redpurple: 'linear-gradient(135deg, #FF0000 0%, #800080 100%)',
-    redpink: 'linear-gradient(135deg, #FF0000 0%, #FFC0CB 100%)',
-    redgreen: 'linear-gradient(135deg, #FF0000 0%, #008000 100%)',
-    redyellow: 'linear-gradient(135deg, #FF0000 0%, #FFFF00 100%)',
-
-    // yellow
-    yellowwhite: 'linear-gradient(135deg, #FFFF00 0%, #ffffff 100%)',
-    yellowblack: 'linear-gradient(135deg, #FFFF00 0%, #000000 100%)',
-    yellowblue: 'linear-gradient(135deg, #FFFF00 0%, #0000FF 100%)',
-    yelloworange: 'linear-gradient(135deg, #FFFF00 0%, #FFA500 100%)',
-    yellowpurple: 'linear-gradient(135deg, #FFFF00 0%, #800080 100%)',
-    yellowpink: 'linear-gradient(135deg, #FFFF00 0%, #FFC0CB 100%)',
-    yellowgreen: 'linear-gradient(135deg, #FFFF00 0%, #008000 100%)',
-    yellowred: 'linear-gradient(135deg, #FFFF00 0%, #FF0000 100%)'
-  },
+  gradients: {},
   shadows: {
-    card: `0px 4px 8px ${alpha(Colors.white, 0.1)}`,
-    info: `0px 4px 8px ${alpha(Colors.info, 0.1)}`,
-    success: `0px 4px 8px ${alpha(Colors.success, 0.1)}`,
-    pending: `0px 4px 8px ${alpha(Colors.pending, 0.1)}`,
-    primary: `0px 4px 8px ${alpha(Colors.primary, 0.1)}`,
-    warning: `0px 4px 8px ${alpha(Colors.warning, 0.1)}`,
-    error: `0px 4px 8px ${alpha(Colors.error, 0.1)}`
+    card: `0px 4px 8px ${alpha(BaseColors.white, 0.1)}`,
+    info: `0px 4px 8px ${alpha(BaseColors.info, 0.1)}`,
+    success: `0px 4px 8px ${alpha(BaseColors.success, 0.1)}`,
+    pending: `0px 4px 8px ${alpha(BaseColors.pending, 0.1)}`,
+    primary: `0px 4px 8px ${alpha(BaseColors.primary, 0.1)}`,
+    warning: `0px 4px 8px ${alpha(BaseColors.warning, 0.1)}`,
+    error: `0px 4px 8px ${alpha(BaseColors.error, 0.1)}`
   },
   layout: {
     general: {
-      bodyBg: darkTheme.background
+      bodyBg: DarkTheme.background
     },
     sidebar: {
-      background: darkTheme.highlight,
-      textColor: Colors.white,
+      background: DarkTheme.sidebar,
+      textColor: BaseColors.white,
       dividerBg: '#f2f5f9',
       menuItemColor: '#242E6F',
-      menuItemColorActive: darkTheme.accent,
-      menuItemBg: darkTheme.highlight,
+      menuItemColorActive: DarkTheme.accent,
+      menuItemBg: DarkTheme.highlight,
       menuItemBgActive: '#f2f5f9',
-      menuItemIconColor: lighten(Colors.white, 0.3),
-      menuItemIconColorActive: darkTheme.accent,
-      menuItemHeadingColor: darken(Colors.white, 0.3)
+      menuItemIconColor: lighten(BaseColors.white, 0.3),
+      menuItemIconColorActive: DarkTheme.accent,
+      menuItemHeadingColor: darken(BaseColors.white, 0.3)
     },
     header: {
-      background: darkTheme.header,
-      boxShadow: darkTheme.highlight,
-      textColor: Colors.white
+      background: DarkTheme.header,
+      boxShadow: DarkTheme.highlight,
+      textColor: BaseColors.white
     }
   },
   alpha: {
     white: {
-      5: alpha(Colors.white, 0.02),
-      10: alpha(Colors.white, 0.1),
-      30: alpha(Colors.white, 0.3),
-      50: alpha(Colors.white, 0.5),
-      70: alpha(Colors.white, 0.7),
-      100: Colors.white
+      5: alpha(BaseColors.white, 0.02),
+      10: alpha(BaseColors.white, 0.1),
+      30: alpha(BaseColors.white, 0.3),
+      50: alpha(BaseColors.white, 0.5),
+      70: alpha(BaseColors.white, 0.7),
+      100: BaseColors.white
     },
     black: {
-      5: alpha(Colors.black, 0.02),
-      10: alpha(Colors.black, 0.1),
-      30: alpha(Colors.black, 0.3),
-      50: alpha(Colors.black, 0.5),
-      70: alpha(Colors.black, 0.7),
-      100: Colors.black
+      5: alpha(BaseColors.black, 0.02),
+      10: alpha(BaseColors.black, 0.1),
+      30: alpha(BaseColors.black, 0.3),
+      50: alpha(BaseColors.black, 0.5),
+      70: alpha(BaseColors.black, 0.7),
+      100: BaseColors.black
     },
     blue: {
-      5: alpha(Colors.blue, 0.02),
-      10: alpha(Colors.blue, 0.1),
-      30: alpha(Colors.blue, 0.3),
-      50: alpha(Colors.blue, 0.5),
-      70: alpha(Colors.blue, 0.7),
-      100: Colors.blue
+      5: alpha(BaseColors.blue, 0.02),
+      10: alpha(BaseColors.blue, 0.1),
+      30: alpha(BaseColors.blue, 0.3),
+      50: alpha(BaseColors.blue, 0.5),
+      70: alpha(BaseColors.blue, 0.7),
+      100: BaseColors.blue
     },
     orange: {
-      5: alpha(Colors.orange, 0.02),
-      10: alpha(Colors.orange, 0.1),
-      30: alpha(Colors.orange, 0.3),
-      50: alpha(Colors.orange, 0.5),
-      70: alpha(Colors.orange, 0.7),
-      100: Colors.orange
+      5: alpha(BaseColors.orange, 0.02),
+      10: alpha(BaseColors.orange, 0.1),
+      30: alpha(BaseColors.orange, 0.3),
+      50: alpha(BaseColors.orange, 0.5),
+      70: alpha(BaseColors.orange, 0.7),
+      100: BaseColors.orange
     },
     purple: {
-      5: alpha(Colors.purple, 0.02),
-      10: alpha(Colors.purple, 0.1),
-      30: alpha(Colors.purple, 0.3),
-      50: alpha(Colors.purple, 0.5),
-      70: alpha(Colors.purple, 0.7),
-      100: Colors.purple
+      5: alpha(BaseColors.purple, 0.02),
+      10: alpha(BaseColors.purple, 0.1),
+      30: alpha(BaseColors.purple, 0.3),
+      50: alpha(BaseColors.purple, 0.5),
+      70: alpha(BaseColors.purple, 0.7),
+      100: BaseColors.purple
     },
     pink: {
-      5: alpha(Colors.pink, 0.02),
-      10: alpha(Colors.pink, 0.1),
-      30: alpha(Colors.pink, 0.3),
-      50: alpha(Colors.pink, 0.5),
-      70: alpha(Colors.pink, 0.7),
-      100: Colors.pink
+      5: alpha(BaseColors.pink, 0.02),
+      10: alpha(BaseColors.pink, 0.1),
+      30: alpha(BaseColors.pink, 0.3),
+      50: alpha(BaseColors.pink, 0.5),
+      70: alpha(BaseColors.pink, 0.7),
+      100: BaseColors.pink
     },
     green: {
-      5: alpha(Colors.green, 0.02),
-      10: alpha(Colors.green, 0.1),
-      30: alpha(Colors.green, 0.3),
-      50: alpha(Colors.green, 0.5),
-      70: alpha(Colors.green, 0.7),
-      100: Colors.green
+      5: alpha(BaseColors.green, 0.02),
+      10: alpha(BaseColors.green, 0.1),
+      30: alpha(BaseColors.green, 0.3),
+      50: alpha(BaseColors.green, 0.5),
+      70: alpha(BaseColors.green, 0.7),
+      100: BaseColors.green
     },
     red: {
-      5: alpha(Colors.red, 0.02),
-      10: alpha(Colors.red, 0.1),
-      30: alpha(Colors.red, 0.3),
-      50: alpha(Colors.red, 0.5),
-      70: alpha(Colors.red, 0.7),
-      100: Colors.red
+      5: alpha(BaseColors.red, 0.02),
+      10: alpha(BaseColors.red, 0.1),
+      30: alpha(BaseColors.red, 0.3),
+      50: alpha(BaseColors.red, 0.5),
+      70: alpha(BaseColors.red, 0.7),
+      100: BaseColors.red
     },
     yellow: {
-      5: alpha(Colors.yellow, 0.02),
-      10: alpha(Colors.yellow, 0.1),
-      30: alpha(Colors.yellow, 0.3),
-      50: alpha(Colors.yellow, 0.5),
-      70: alpha(Colors.yellow, 0.7),
-      100: Colors.yellow
+      5: alpha(BaseColors.yellow, 0.02),
+      10: alpha(BaseColors.yellow, 0.1),
+      30: alpha(BaseColors.yellow, 0.3),
+      50: alpha(BaseColors.yellow, 0.5),
+      70: alpha(BaseColors.yellow, 0.7),
+      100: BaseColors.yellow
     }
   },
   secondary: {
-    lighter: lighten(Colors.secondary, 0.85),
-    light: lighten(Colors.secondary, 0.25),
-    main: Colors.secondary,
-    dark: darken(Colors.secondary, 0.2)
+    main: BaseColors.secondary,
+    light: lighten(BaseColors.secondary, 0.5),
+    dark: darken(BaseColors.secondary, 0.25)
   },
   primary: {
-    lighter: lighten(Colors.primary, 0.85),
-    light: lighten(Colors.primary, 0.3),
-    main: Colors.primary,
-    dark: darken(Colors.primary, 0.2)
+    main: BaseColors.primary,
+    light: lighten(BaseColors.primary, 0.5),
+    dark: darken(BaseColors.primary, 0.25)
   },
   success: {
-    lighter: lighten(Colors.success, 0.85),
-    light: lighten(Colors.success, 0.3),
-    main: Colors.success,
-    dark: darken(Colors.success, 0.2)
+    main: BaseColors.success,
+    light: lighten(BaseColors.success, 0.5),
+    dark: darken(BaseColors.success, 0.25)
   },
   warning: {
-    lighter: lighten(Colors.warning, 0.85),
-    light: lighten(Colors.warning, 0.3),
-    main: Colors.warning,
-    dark: darken(Colors.warning, 0.2)
+    main: BaseColors.warning,
+    light: lighten(BaseColors.warning, 0.5),
+    dark: darken(BaseColors.warning, 0.25)
   },
   pending: {
-    lighter: lighten(Colors.pending, 0.85),
-    light: lighten(Colors.pending, 0.3),
-    main: Colors.pending,
-    dark: darken(Colors.pending, 0.2)
+    main: BaseColors.pending,
+    light: lighten(BaseColors.pending, 0.5),
+    dark: darken(BaseColors.pending, 0.25)
   },
   error: {
-    lighter: lighten(Colors.error, 0.85),
-    light: lighten(Colors.error, 0.3),
-    main: Colors.error,
-    dark: darken(Colors.error, 0.2)
+    main: BaseColors.error,
+    light: lighten(BaseColors.error, 0.5),
+    dark: darken(BaseColors.error, 0.25)
   },
   info: {
-    lighter: lighten(Colors.info, 0.85),
-    light: lighten(Colors.info, 0.3),
-    main: Colors.info,
-    dark: darken(Colors.info, 0.2)
+    main: BaseColors.info,
+    light: lighten(BaseColors.info, 0.5),
+    dark: darken(BaseColors.info, 0.25)
   }
 };
 
 export const PureDarkTheme = createTheme({
   colors: {
-    gradients: {
-      // white
-      whiteblack: colors.gradients.whiteblack,
-      whiteblue: colors.gradients.whiteblue,
-      whiteorange: colors.gradients.whiteorange,
-      whitepurple: colors.gradients.whitepurple,
-      whitepink: colors.gradients.whitepink,
-      whitegreen: colors.gradients.whitegreen,
-      whitered: colors.gradients.whitered,
-      whiteyellow: colors.gradients.whiteyellow,
-
-      // black
-      blackwhite: colors.gradients.blackwhite,
-      blackblue: colors.gradients.blackblue,
-      blackorange: colors.gradients.blackorange,
-      blackpurple: colors.gradients.blackpurple,
-      blackpink: colors.gradients.blackpink,
-      blackgreen: colors.gradients.blackgreen,
-      blackred: colors.gradients.blackred,
-      blackyellow: colors.gradients.blackyellow,
-
-      // blue
-      bluewhite: colors.gradients.bluewhite,
-      blueblack: colors.gradients.blueblack,
-      blueorange: colors.gradients.blueorange,
-      bluepurple: colors.gradients.bluepurple,
-      bluepink: colors.gradients.bluepink,
-      bluegreen: colors.gradients.bluegreen,
-      bluered: colors.gradients.bluered,
-      blueyellow: colors.gradients.blueyellow,
-
-      // orange
-      orangewhite: colors.gradients.orangewhite,
-      orangeblack: colors.gradients.orangeblack,
-      orangeblue: colors.gradients.orangeblue,
-      orangepurple: colors.gradients.orangepurple,
-      orangepink: colors.gradients.orangepink,
-      orangegreen: colors.gradients.orangegreen,
-      orangered: colors.gradients.orangered,
-      orangeyellow: colors.gradients.orangeyellow,
-
-      // purple
-      purplewhite: colors.gradients.purplewhite,
-      purpleblack: colors.gradients.purpleblack,
-      purpleblue: colors.gradients.purpleblue,
-      purpleorange: colors.gradients.purpleorange,
-      purplepink: colors.gradients.purplepink,
-      purplegreen: colors.gradients.purplegreen,
-      purplered: colors.gradients.purplered,
-      purpleyellow: colors.gradients.purpleyellow,
-
-      // pink
-      pinkwhite: colors.gradients.pinkwhite,
-      pinkblack: colors.gradients.pinkblack,
-      pinkblue: colors.gradients.pinkblue,
-      pinkorange: colors.gradients.pinkorange,
-      pinkpurple: colors.gradients.pinkpurple,
-      pinkgreen: colors.gradients.pinkgreen,
-      pinkred: colors.gradients.pinkred,
-      pinkyellow: colors.gradients.pinkyellow,
-
-      // green
-      greenwhite: colors.gradients.greenwhite,
-      greenblack: colors.gradients.greenblack,
-      greenblue: colors.gradients.greenblue,
-      greenorange: colors.gradients.greenorange,
-      greenpurple: colors.gradients.greenpurple,
-      greenpink: colors.gradients.greenpink,
-      greenred: colors.gradients.greenred,
-      greenyellow: colors.gradients.greenyellow,
-
-      // red
-      redwhite: colors.gradients.redwhite,
-      redblack: colors.gradients.redblack,
-      redblue: colors.gradients.redblue,
-      redorange: colors.gradients.redorange,
-      redpurple: colors.gradients.redpurple,
-      redpink: colors.gradients.redpink,
-      redgreen: colors.gradients.redgreen,
-      redyellow: colors.gradients.redyellow,
-
-      // yellow
-      yellowwhite: colors.gradients.yellowwhite,
-      yellowblack: colors.gradients.yellowblack,
-      yellowblue: colors.gradients.yellowblue,
-      yelloworange: colors.gradients.yelloworange,
-      yellowpurple: colors.gradients.yellowpurple,
-      yellowpink: colors.gradients.yellowpink,
-      yellowgreen: colors.gradients.yellowgreen,
-      yellowred: colors.gradients.yellowred
-    },
+    gradients: {},
     shadows: {
-      card: colors.shadows.card,
-      info: colors.shadows.info,
       success: colors.shadows.success,
       pending: colors.shadows.pending,
-      primary: colors.shadows.primary,
       warning: colors.shadows.warning,
-      error: colors.shadows.error
+      info: colors.shadows.info,
+      error: colors.shadows.error,
+      card: colors.shadows.card
     },
     alpha: {
       white: {
-        5: alpha(Colors.white, 0.02),
-        10: alpha(Colors.white, 0.1),
-        30: alpha(Colors.white, 0.3),
-        50: alpha(Colors.white, 0.5),
-        70: alpha(Colors.white, 0.7),
-        100: Colors.white
+        5: alpha(BaseColors.white, 0.02),
+        10: alpha(BaseColors.white, 0.1),
+        30: alpha(BaseColors.white, 0.3),
+        50: alpha(BaseColors.white, 0.5),
+        70: alpha(BaseColors.white, 0.7),
+        100: BaseColors.white
       },
       black: {
-        5: alpha(Colors.black, 0.02),
-        10: alpha(Colors.black, 0.1),
-        30: alpha(Colors.black, 0.3),
-        50: alpha(Colors.black, 0.5),
-        70: alpha(Colors.black, 0.7),
-        100: Colors.black
+        5: alpha(BaseColors.black, 0.02),
+        10: alpha(BaseColors.black, 0.1),
+        30: alpha(BaseColors.black, 0.3),
+        50: alpha(BaseColors.black, 0.5),
+        70: alpha(BaseColors.black, 0.7),
+        100: BaseColors.black
       },
       blue: {
-        5: alpha(Colors.blue, 0.02),
-        10: alpha(Colors.blue, 0.1),
-        30: alpha(Colors.blue, 0.3),
-        50: alpha(Colors.blue, 0.5),
-        70: alpha(Colors.blue, 0.7),
-        100: Colors.blue
+        5: alpha(BaseColors.blue, 0.02),
+        10: alpha(BaseColors.blue, 0.1),
+        30: alpha(BaseColors.blue, 0.3),
+        50: alpha(BaseColors.blue, 0.5),
+        70: alpha(BaseColors.blue, 0.7),
+        100: BaseColors.blue
       },
       orange: {
-        5: alpha(Colors.orange, 0.02),
-        10: alpha(Colors.orange, 0.1),
-        30: alpha(Colors.orange, 0.3),
-        50: alpha(Colors.orange, 0.5),
-        70: alpha(Colors.orange, 0.7),
-        100: Colors.orange
+        5: alpha(BaseColors.orange, 0.02),
+        10: alpha(BaseColors.orange, 0.1),
+        30: alpha(BaseColors.orange, 0.3),
+        50: alpha(BaseColors.orange, 0.5),
+        70: alpha(BaseColors.orange, 0.7),
+        100: BaseColors.orange
       },
       purple: {
-        5: alpha(Colors.purple, 0.02),
-        10: alpha(Colors.purple, 0.1),
-        30: alpha(Colors.purple, 0.3),
-        50: alpha(Colors.purple, 0.5),
-        70: alpha(Colors.purple, 0.7),
-        100: Colors.purple
+        5: alpha(BaseColors.purple, 0.02),
+        10: alpha(BaseColors.purple, 0.1),
+        30: alpha(BaseColors.purple, 0.3),
+        50: alpha(BaseColors.purple, 0.5),
+        70: alpha(BaseColors.purple, 0.7),
+        100: BaseColors.purple
       },
       pink: {
-        5: alpha(Colors.pink, 0.02),
-        10: alpha(Colors.pink, 0.1),
-        30: alpha(Colors.pink, 0.3),
-        50: alpha(Colors.pink, 0.5),
-        70: alpha(Colors.pink, 0.7),
-        100: Colors.pink
+        5: alpha(BaseColors.pink, 0.02),
+        10: alpha(BaseColors.pink, 0.1),
+        30: alpha(BaseColors.pink, 0.3),
+        50: alpha(BaseColors.pink, 0.5),
+        70: alpha(BaseColors.pink, 0.7),
+        100: BaseColors.pink
       },
       green: {
-        5: alpha(Colors.green, 0.02),
-        10: alpha(Colors.green, 0.1),
-        30: alpha(Colors.green, 0.3),
-        50: alpha(Colors.green, 0.5),
-        70: alpha(Colors.green, 0.7),
-        100: Colors.green
+        5: alpha(BaseColors.green, 0.02),
+        10: alpha(BaseColors.green, 0.1),
+        30: alpha(BaseColors.green, 0.3),
+        50: alpha(BaseColors.green, 0.5),
+        70: alpha(BaseColors.green, 0.7),
+        100: BaseColors.green
       },
       red: {
-        5: alpha(Colors.red, 0.02),
-        10: alpha(Colors.red, 0.1),
-        30: alpha(Colors.red, 0.3),
-        50: alpha(Colors.red, 0.5),
-        70: alpha(Colors.red, 0.7),
-        100: Colors.red
+        5: alpha(BaseColors.red, 0.02),
+        10: alpha(BaseColors.red, 0.1),
+        30: alpha(BaseColors.red, 0.3),
+        50: alpha(BaseColors.red, 0.5),
+        70: alpha(BaseColors.red, 0.7),
+        100: BaseColors.red
       },
       yellow: {
-        5: alpha(Colors.yellow, 0.02),
-        10: alpha(Colors.yellow, 0.1),
-        30: alpha(Colors.yellow, 0.3),
-        50: alpha(Colors.yellow, 0.5),
-        70: alpha(Colors.yellow, 0.7),
-        100: Colors.yellow
+        5: alpha(BaseColors.yellow, 0.02),
+        10: alpha(BaseColors.yellow, 0.1),
+        30: alpha(BaseColors.yellow, 0.3),
+        50: alpha(BaseColors.yellow, 0.5),
+        70: alpha(BaseColors.yellow, 0.7),
+        100: BaseColors.yellow
       }
     },
     secondary: {
-      lighter: alpha(Colors.secondary, 0.1),
-      light: lighten(Colors.secondary, 0.3),
-      main: Colors.secondary,
-      dark: darken(Colors.secondary, 0.2)
+      main: BaseColors.secondary,
+      light: lighten(BaseColors.secondary, 0.5),
+      dark: darken(BaseColors.secondary, 0.25)
     },
     primary: {
-      lighter: alpha(Colors.primary, 0.1),
-      light: lighten(Colors.primary, 0.3),
-      main: Colors.primary,
-      dark: darken(Colors.primary, 0.2)
+      main: BaseColors.primary,
+      light: lighten(BaseColors.primary, 0.5),
+      dark: darken(BaseColors.primary, 0.25)
     },
     success: {
-      lighter: alpha(Colors.success, 0.1),
-      light: lighten(Colors.success, 0.3),
-      main: Colors.success,
-      dark: darken(Colors.success, 0.2)
+      main: BaseColors.success,
+      light: lighten(BaseColors.success, 0.5),
+      dark: darken(BaseColors.success, 0.25)
     },
     warning: {
-      lighter: alpha(Colors.warning, 0.1),
-      light: lighten(Colors.warning, 0.3),
-      main: Colors.warning,
-      dark: darken(Colors.warning, 0.2)
+      main: BaseColors.warning,
+      light: lighten(BaseColors.warning, 0.5),
+      dark: darken(BaseColors.warning, 0.25)
     },
     pending: {
-      lighter: alpha(Colors.pending, 0.1),
-      light: lighten(Colors.pending, 0.3),
-      main: Colors.pending,
-      dark: darken(Colors.pending, 0.2)
+      main: BaseColors.pending,
+      light: lighten(BaseColors.pending, 0.5),
+      dark: darken(BaseColors.pending, 0.25)
     },
     error: {
-      lighter: alpha(Colors.error, 0.1),
-      light: lighten(Colors.error, 0.3),
-      main: Colors.error,
-      dark: darken(Colors.error, 0.2)
+      main: BaseColors.error,
+      light: lighten(BaseColors.error, 0.5),
+      dark: darken(BaseColors.error, 0.25)
     },
     info: {
-      lighter: alpha(Colors.info, 0.1),
-      light: lighten(Colors.info, 0.3),
-      main: Colors.info,
-      dark: darken(Colors.info, 0.2)
+      main: BaseColors.info,
+      light: lighten(BaseColors.info, 0.5),
+      dark: darken(BaseColors.info, 0.5)
     }
   },
   general: {
@@ -505,8 +309,7 @@ export const PureDarkTheme = createTheme({
   sidebar: {
     width: '280px',
     background: colors.layout.sidebar.background,
-    boxShadow:
-      '2px 0 3px rgba(159, 162, 191, .18), 1px 0 1px rgba(159, 162, 191, 0.32)',
+    boxShadow: '2px 0 3px rgba(159, 162, 191, .18), 1px 0 1px rgba(159, 162, 191, 0.32)',
     textColor: colors.layout.sidebar.textColor,
     dividerBg: colors.layout.sidebar.dividerBg,
     menuItemColor: colors.layout.sidebar.menuItemColor,
@@ -520,59 +323,83 @@ export const PureDarkTheme = createTheme({
   header: {
     height: '80px',
     background: colors.layout.header.background,
-    boxShadow:
-      '2px 0 3px rgba(159, 162, 191, .18), 1px 0 1px rgba(159, 162, 191, 0.32)',
+    boxShadow: '2px 0 3px rgba(159, 162, 191, .18), 1px 0 1px rgba(159, 162, 191, 0.32)',
     textColor: colors.layout.header.textColor
   },
   mode: {
     main: {
-      5: alpha(Colors.black, 0.02),
-      10: alpha(Colors.black, 0.1),
-      30: alpha(Colors.black, 0.3),
-      50: alpha(Colors.black, 0.5),
-      70: alpha(Colors.black, 0.7),
-      100: Colors.black
+      5: alpha(BaseColors.black, 0.02),
+      10: alpha(BaseColors.black, 0.1),
+      30: alpha(BaseColors.black, 0.3),
+      50: alpha(BaseColors.black, 0.5),
+      70: alpha(BaseColors.black, 0.7),
+      100: BaseColors.black
     },
     // == Background == \\
     background: {
-      default: darkTheme.background,
-      surface: darkTheme.surface,
-      header: darkTheme.header,
-      sidebar: darkTheme.sidebar
+      default: DarkTheme.background,
+      surface: DarkTheme.surface,
+      header: DarkTheme.header,
+      sidebar: DarkTheme.sidebar,
+      body: DarkTheme.background
     },
     // == TextWidget == \\
     text: {
       default: colors.alpha.white[100],
-      disabled: colors.alpha.white[50]
+      disabled: colors.alpha.white[50],
+      success: BaseColors.success,
+      pending: BaseColors.pending,
+      warning: BaseColors.warning,
+      error: BaseColors.error,
+      info: BaseColors.info
+    },
+
+    button: {
+      5: alpha(BaseColors.blue, 0.02),
+      10: alpha(BaseColors.blue, 0.1),
+      30: alpha(BaseColors.blue, 0.3),
+      50: alpha(BaseColors.blue, 0.5),
+      70: alpha(BaseColors.blue, 0.7),
+      100: BaseColors.blue
     },
 
     card: {
-      5: alpha(Colors.white, 0.02),
-      10: alpha(Colors.white, 0.1),
-      30: alpha(Colors.white, 0.3),
-      50: alpha(Colors.white, 0.5),
-      70: alpha(Colors.white, 0.7),
-      100: Colors.white
+      5: alpha(BaseColors.white, 0.02),
+      10: alpha(BaseColors.white, 0.1),
+      30: alpha(BaseColors.white, 0.3),
+      50: alpha(BaseColors.white, 0.5),
+      70: alpha(BaseColors.white, 0.7),
+      100: BaseColors.white
     },
+
     avatar: {
-      5: alpha(Colors.white, 0.02),
-      10: alpha(Colors.white, 0.1),
-      30: alpha(Colors.white, 0.3),
-      50: alpha(Colors.white, 0.5),
-      70: alpha(Colors.white, 0.7),
-      100: Colors.white
+      5: alpha(BaseColors.white, 0.02),
+      10: alpha(BaseColors.white, 0.1),
+      30: alpha(BaseColors.white, 0.3),
+      50: alpha(BaseColors.white, 0.5),
+      70: alpha(BaseColors.white, 0.7),
+      100: BaseColors.white
     },
+
     action: {
       hover: colors.alpha.white[10],
       select: colors.alpha.white[10]
     },
     border: {
-      5: alpha(Colors.white, 0.02),
-      10: alpha(Colors.white, 0.1),
-      30: alpha(Colors.white, 0.3),
-      50: alpha(Colors.white, 0.5),
-      70: alpha(Colors.white, 0.7),
-      100: Colors.white
+      5: alpha(BaseColors.white, 0.02),
+      10: alpha(BaseColors.white, 0.1),
+      30: alpha(BaseColors.white, 0.3),
+      50: alpha(BaseColors.white, 0.5),
+      70: alpha(BaseColors.white, 0.7),
+      100: BaseColors.white
+    },
+    shadow: {
+      5: alpha(BaseColors.white, 0.02),
+      10: alpha(BaseColors.white, 0.1),
+      30: alpha(BaseColors.white, 0.3),
+      50: alpha(BaseColors.white, 0.5),
+      70: alpha(BaseColors.white, 0.7),
+      100: BaseColors.white
     }
   },
   spacing: 9,
@@ -622,12 +449,12 @@ export const PureDarkTheme = createTheme({
       disabled: colors.alpha.white[50]
     },
     background: {
-      paper: darkTheme.surface,
-      default: darkTheme.background
+      paper: DarkTheme.surface,
+      default: DarkTheme.background
     },
     action: {
       active: colors.alpha.black[100],
-      hover: darkTheme.highlight,
+      hover: DarkTheme.highlight,
       hoverOpacity: 0.1,
       selected: colors.alpha.black[10],
       selectedOpacity: 0.1,
@@ -653,7 +480,7 @@ export const PureDarkTheme = createTheme({
     MuiBackdrop: {
       styleOverrides: {
         root: {
-          backgroundColor: alpha(darken(darkTheme.highlight, 0.4), 0.2),
+          backgroundColor: alpha(darken(DarkTheme.highlight, 0.4), 0.2),
           backdropFilter: 'blur(2px)',
 
           '&.MuiBackdrop-invisible': {
@@ -707,24 +534,20 @@ export const PureDarkTheme = createTheme({
           pointerEvents: 'none'
         },
         '#nprogress .bar': {
-          background: colors.primary.lighter
+          background: colors.primary.light
         },
         '#nprogress .spinner-icon': {
-          borderTopColor: colors.primary.lighter,
-          borderLeftColor: colors.primary.lighter
+          borderTopColor: colors.primary.light,
+          borderLeftColor: colors.primary.light
         },
         '#nprogress .peg': {
-          boxShadow:
-            '0 0 15px ' +
-            colors.primary.lighter +
-            ', 0 0 8px' +
-            colors.primary.light
+          boxShadow: '0 0 15px ' + colors.primary.light + ', 0 0 8px' + colors.primary.light
         },
         ':root': {
           '--swiper-theme-color': colors.primary.main
         },
         code: {
-          background: colors.info.lighter,
+          background: colors.info.light,
           color: colors.info.dark,
           borderRadius: 4,
           padding: 4
@@ -1123,10 +946,10 @@ export const PureDarkTheme = createTheme({
             }
           },
           '& .MuiListItem-root.MuiButtonBase-root.Mui-selected': {
-            backgroundColor: alpha(colors.primary.lighter, 0.4)
+            backgroundColor: alpha(colors.primary.light, 0.4)
           },
           '& .MuiMenuItem-root.MuiButtonBase-root:active': {
-            backgroundColor: alpha(colors.primary.lighter, 0.4)
+            backgroundColor: alpha(colors.primary.light, 0.4)
           },
           '& .MuiMenuItem-root.MuiButtonBase-root .MuiTouchRipple-root': {
             opacity: 0.2
@@ -1208,7 +1031,7 @@ export const PureDarkTheme = createTheme({
 
             '&:hover, &:active, &.active, &.Mui-selected': {
               color: colors.alpha.black[100],
-              background: alpha(colors.primary.lighter, 0.4)
+              background: alpha(colors.primary.light, 0.4)
             }
           }
         }
@@ -1222,10 +1045,10 @@ export const PureDarkTheme = createTheme({
 
           '&:hover, &:active, &.active, &.Mui-selected': {
             color: colors.alpha.black[100],
-            background: alpha(colors.primary.lighter, 0.4)
+            background: alpha(colors.primary.light, 0.4)
           },
           '&.Mui-selected:hover': {
-            background: alpha(colors.primary.lighter, 0.4)
+            background: alpha(colors.primary.light, 0.4)
           }
         }
       }
@@ -1238,7 +1061,7 @@ export const PureDarkTheme = createTheme({
 
             '&:hover, &:active, &.active, &.Mui-selected': {
               color: colors.alpha.black[100],
-              background: lighten(colors.primary.lighter, 0.5)
+              background: lighten(colors.primary.light, 0.5)
             }
           }
         }
@@ -1250,18 +1073,17 @@ export const PureDarkTheme = createTheme({
           margin: 1
         },
         root: {
-          '.MuiAutocomplete-inputRoot.MuiOutlinedInput-root .MuiAutocomplete-endAdornment':
-            {
-              right: 14
-            }
+          '.MuiAutocomplete-inputRoot.MuiOutlinedInput-root .MuiAutocomplete-endAdornment': {
+            right: 14
+          }
         },
         clearIndicator: {
-          background: colors.error.lighter,
+          background: colors.error.light,
           color: colors.error.main,
           marginRight: 8,
 
           '&:hover': {
-            background: colors.error.lighter,
+            background: colors.error.light,
             color: colors.error.dark
           }
         },
@@ -1269,7 +1091,7 @@ export const PureDarkTheme = createTheme({
           color: colors.alpha.black[50],
 
           '&:hover': {
-            background: colors.primary.lighter,
+            background: colors.primary.light,
             color: colors.primary.main
           }
         }
@@ -1421,10 +1243,7 @@ export const PureDarkTheme = createTheme({
         thumb: {
           border: '1px solid ' + colors.alpha.black[30],
           boxShadow:
-            '0px 9px 14px ' +
-            colors.alpha.black[10] +
-            ', 0px 2px 2px ' +
-            colors.alpha.black[10]
+            '0px 9px 14px ' + colors.alpha.black[10] + ', 0px 2px 2px ' + colors.alpha.black[10]
         },
         track: {
           backgroundColor: colors.alpha.black[5],

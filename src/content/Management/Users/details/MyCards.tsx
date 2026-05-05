@@ -65,12 +65,12 @@ const CardAddAction = styled(Card)(
 
 const IconButtonError = styled(IconButton)(
   ({ theme }) => `
-     background: ${theme.colors.error.lighter};
+     background: ${theme.colors.error.light};
      color: ${theme.colors.error.main};
      padding: ${theme.spacing(0.5)};
 
      &:hover {
-      background: ${lighten(theme.colors.error.lighter, 0.4)};
+      background: ${lighten(theme.colors.error.light, 0.4)};
      }
 `
 );
@@ -106,21 +106,13 @@ function MyCards() {
           <Grid item xs={12} sm={6}>
             <CardCc sx={{ px: 2, pt: 2, pb: 1 }}>
               <Box display="flex" alignItems="center">
-                <CardLogo
-                  src="/static/images/placeholders/logo/visa.png"
-                  alt="Visa"
-                />
+                <CardLogo src="/static/images/placeholders/logo/visa.png" alt="Visa" />
                 <Box>
                   <TextWidget>•••• 6879</TextWidget>
                   <TextWidget variant="subtitle2">Expires: 12/24</TextWidget>
                 </Box>
               </Box>
-              <Box
-                pt={3}
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-              >
+              <Box pt={3} display="flex" alignItems="center" justifyContent="space-between">
                 <FormControlLabel
                   value="a"
                   control={
@@ -145,21 +137,13 @@ function MyCards() {
           <Grid item xs={12} sm={6}>
             <CardCc sx={{ px: 2, pt: 2, pb: 1 }}>
               <Box display="flex" alignItems="center">
-                <CardLogo
-                  src="/static/images/placeholders/logo/mastercard.png"
-                  alt="Visa"
-                />
+                <CardLogo src="/static/images/placeholders/logo/mastercard.png" alt="Visa" />
                 <Box>
                   <TextWidget>•••• 4634</TextWidget>
                   <TextWidget variant="subtitle2">Expires: 6/22</TextWidget>
                 </Box>
               </Box>
-              <Box
-                pt={3}
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-              >
+              <Box pt={3} display="flex" alignItems="center" justifyContent="space-between">
                 <FormControlLabel
                   value="b"
                   control={

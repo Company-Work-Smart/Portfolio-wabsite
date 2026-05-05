@@ -16,8 +16,7 @@ export const services: Service[] = [
       />
     ),
     title: 'Web Development',
-    description:
-      'Full-stack web applications with modern technologies and best practices.'
+    description: 'Full-stack web applications with modern technologies and best practices.'
   },
   {
     icon: (
@@ -39,8 +38,7 @@ export const services: Service[] = [
       />
     ),
     title: 'Backend Engineering',
-    description:
-      'Robust and scalable server-side systems, APIs, and database management.'
+    description: 'Robust and scalable server-side systems, APIs, and database management.'
   },
   {
     icon: (
@@ -51,7 +49,6 @@ export const services: Service[] = [
       />
     ),
     title: 'UI/UX Design',
-    description:
-      'User-focused interface design with responsive and accessible layouts.'
+    description: 'User-focused interface design with responsive and accessible layouts.'
   }
 ];

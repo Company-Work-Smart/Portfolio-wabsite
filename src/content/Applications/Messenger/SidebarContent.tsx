@@ -31,7 +31,7 @@ import Link from 'src/components/Link';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
-          background-color: ${theme.colors.success.lighter};
+          background-color: ${theme.colors.success.light};
           color: ${theme.colors.success.main};
           width: ${theme.spacing(8)};
           height: ${theme.spacing(8)};
@@ -132,11 +132,7 @@ function SidebarContent() {
             flex: 1
           }}
         >
-          <Box
-            display="flex"
-            alignItems="flex-start"
-            justifyContent="space-between"
-          >
+          <Box display="flex" alignItems="flex-start" justifyContent="space-between">
             <Box>
               <Typography variant="h5" noWrap>
                 {user.name}

@@ -18,21 +18,21 @@ import { TextWidget } from '@/components/Text';
 
 const AvatarWrapperError = styled(Avatar)(
   ({ theme }) => `
-      background-color: ${theme.colors.error.lighter};
+      background-color: ${theme.colors.error.light};
       color:  ${theme.colors.error.main};
 `
 );
 
 const AvatarWrapperSuccess = styled(Avatar)(
   ({ theme }) => `
-      background-color: ${theme.colors.success.lighter};
+      background-color: ${theme.colors.success.light};
       color:  ${theme.colors.success.main};
 `
 );
 
 const AvatarWrapperWarning = styled(Avatar)(
   ({ theme }) => `
-      background-color: ${theme.colors.warning.lighter};
+      background-color: ${theme.colors.warning.light};
       color:  ${theme.colors.warning.main};
 `
 );

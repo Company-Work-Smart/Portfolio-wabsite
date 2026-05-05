@@ -18,9 +18,7 @@ function Footer() {
         justifyContent="space-between"
       >
         <Box>
-          <TextWidget variant="subtitle1">
-            ® 2025 SENG VICHET. All rights reserved.
-          </TextWidget>
+          <TextWidget variant="subtitle1">® 2025 SENG VICHET. All rights reserved.</TextWidget>
         </Box>
         <TextWidget
           sx={{
@@ -29,11 +27,7 @@ function Footer() {
           variant="subtitle1"
         >
           Crafted by{' '}
-          <Link
-            href={'https://jabjit.site'}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <Link href={'https://jabjit.site'} target="_blank" rel="noopener noreferrer">
             sengvichet.com
           </Link>
         </TextWidget>

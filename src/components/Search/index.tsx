@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  OutlinedInput,
-  InputAdornment,
-  FormControl,
-  styled,
-  useTheme
-} from '@mui/material';
+import { OutlinedInput, InputAdornment, FormControl, styled, useTheme } from '@mui/material';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import { ButtonWidget } from '../Button';
 
@@ -15,16 +9,8 @@ const OutlinedInputWrapper = styled(OutlinedInput)<{
 }>(({ theme, radius, height }) => ({
   backgroundColor: theme.mode.background.default,
   userSelect: 'none',
-  border: `0.1px solid ${theme.mode.text.disabled}`,
   borderRadius: radius || '10px',
-  height: height,
-  '&:hover': {
-    border: `0.1px solid ${theme.mode.text.disabled}`
-  },
-  '&:focus': {
-    border: `0.1px solid ${theme.mode.text.disabled}`,
-    outline: 'none'
-  }
+  height: height
 }));
 
 interface SearchBarProps {
@@ -67,20 +53,13 @@ const SearchWidget: React.FC<SearchBarProps> = ({
         onKeyDown={handleKeyDown}
         startAdornment={
           <InputAdornment position="start">
-            <SearchTwoToneIcon sx={{ color: theme.palette.primary.main }} />
+            <SearchTwoToneIcon sx={{ color: theme.mode.text.disabled }} />
           </InputAdornment>
         }
         endAdornment={
-          <InputAdornment
-            position="end"
-            style={{ display: 'flex', gap: '8px' }}
-          >
+          <InputAdornment position="end" style={{ display: 'flex' }}>
             {searchQuery && (
-              <ButtonWidget
-                variant="outlined"
-                height="30px"
-                onClick={() => setSearchQuery('')}
-              >
+              <ButtonWidget variant="outlined" height="30px" onClick={() => setSearchQuery('')}>
                 Clear
               </ButtonWidget>
             )}

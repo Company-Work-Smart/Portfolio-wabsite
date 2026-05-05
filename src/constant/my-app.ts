@@ -6,7 +6,7 @@ export interface UserBoxProps {
 }
 
 export const AppConfig = {
-  url: 'https://api.jabjit.site',
+  url: 'https://endpoint-portfolio.free.mockoapp.net',
   keys: {
     userId: 'userId',
     username: 'username',

@@ -10,8 +10,7 @@ export class HttpClient {
   }
 
   private buildHeader() {
-    this.headers['Authorization'] =
-      'Bearer ' + localStorage.getItem(MyApp.UserInfo().accessToken);
+    this.headers['Authorization'] = 'Bearer ' + localStorage.getItem(MyApp.UserInfo().accessToken);
   }
 
   async postuploadFile(path: string, request: FormData): ResponseType {
@@ -61,11 +60,7 @@ export class HttpClient {
     return await this.handleError(path, payload);
   }
 
-  private async handleError(
-    path: string,
-    payload: any,
-    useJsonHeader = true
-  ): ResponseType {
+  private async handleError(path: string, payload: any, useJsonHeader = true): ResponseType {
     this.buildHeader();
     if (useJsonHeader) {
       payload['headers'] = {
@@ -88,6 +83,6 @@ export class HttpClient {
       window.location.href = '/auth/login';
       return null;
     }
-    return await response.text();
+    return await response.json();
   }
 }
