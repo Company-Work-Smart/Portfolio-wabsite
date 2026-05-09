@@ -84,7 +84,7 @@ function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
 
@@ -93,21 +93,24 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await httpClient.post(`AnonymousAuth/Login`, formData);
+      const response = await httpClient.get(`anonymous/login`);
+      const foundUser = response.find(
+        (u: any) => u.username === formData.username && u.password === formData.password
+      );
       if (typeof response === 'string') {
         showSnackbar({ type: 'error', message: response });
         setLoading(false);
         return;
       }
 
-      if (response.accessToken) {
-        localStorage.setItem(MyApp.UserInfo().userId, response.userId);
-        localStorage.setItem(MyApp.UserInfo().accessToken, response.accessToken);
-        localStorage.setItem(MyApp.UserInfo().role, response.role);
-        localStorage.setItem(MyApp.UserInfo().username, response.username);
+      if (foundUser.accessToken) {
+        localStorage.setItem(MyApp.UserInfo().userId, foundUser.userId);
+        localStorage.setItem(MyApp.UserInfo().accessToken, foundUser.accessToken);
+        localStorage.setItem(MyApp.UserInfo().role, foundUser.role);
+        localStorage.setItem(MyApp.UserInfo().username, foundUser.username);
 
         showSnackbar({ type: 'success', message: 'Successfully logged in!' });
-        const role = `${response.role[0].toLowerCase()}${response.role.substring(1)}`;
+        const role = `${foundUser.role[0].toLowerCase()}${foundUser.role.substring(1)}`;
         if (role === 'user') router.push(`/`);
         else router.push(`/dashboards/dashboard/${role}`);
       } else {
@@ -139,14 +142,12 @@ function LoginPage() {
 
         <form onSubmit={submitForm}>
           <Box mb={3}>
-            <TextWidget sx={{ mb: 1, color: theme.palette.text.secondary }}>
-              Email Address
-            </TextWidget>
+            <TextWidget sx={{ mb: 1, color: theme.palette.text.secondary }}>Username</TextWidget>
             <TextField
               fullWidth
               required
-              placeholder="email"
-              name="email"
+              placeholder="username"
+              name="username"
               onChange={handleInput}
               sx={{
                 '& .MuiOutlinedInput-root': {

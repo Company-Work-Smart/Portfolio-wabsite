@@ -10,8 +10,7 @@ import {
   ListItemButton,
   ListItemText,
   useMediaQuery,
-  useTheme,
-  Button
+  useTheme
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -19,6 +18,7 @@ import { useRouter } from 'next/router';
 import { MyApp, UserBoxProps } from '@/constant/my-app';
 import ThemeButton from '@/components/ThemeButton';
 import { TextWidget } from '@/components/Text';
+import { ButtonWidget } from '@/components/Button';
 
 interface HeaderLayoutProps {
   children?: ReactNode;
@@ -125,20 +125,9 @@ const HeaderPage: FC<HeaderLayoutProps> = ({ children }) => {
               <ThemeButton />
             </Box>
             {!user?.username ? (
-              <Button
-                variant="contained"
-                href={'/auth/login'}
-                sx={{
-                  background: theme.palette.text.primary,
-                  color: theme.palette.background.default,
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    background: theme.palette.text.primary
-                  }
-                }}
-              >
+              <ButtonWidget variant="contained" href={'/auth/login'}>
                 Login
-              </Button>
+              </ButtonWidget>
             ) : (
               <TextWidget
                 onClick={() => router.push('/applications/user/profile')}

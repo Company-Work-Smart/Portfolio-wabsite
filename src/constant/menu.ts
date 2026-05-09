@@ -138,7 +138,7 @@ export const Menu: any[] = [
         title: 'Menu2',
         url: '/management/place/admin',
         roles: ['Admin']
-      },
+      }
     ]
   }
 ];
