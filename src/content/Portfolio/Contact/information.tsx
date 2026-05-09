@@ -2,16 +2,7 @@ import { CardWidget } from '@/components/Card';
 import { TextWidget } from '@/components/Text';
 import { availability, contact, social } from '@/database/contact';
 import { AccessTime } from '@mui/icons-material';
-import { Box, CardContent, Divider, IconButton, styled, useTheme } from '@mui/material';
-
-const SocialButton = styled(IconButton)(({ theme }) => ({
-  color: theme.palette.text.primary,
-  margin: 8,
-  width: 56,
-  height: 56,
-  transition: 'all 0.3s ease',
-  '&:hover': { transform: 'translateY(-3px) scale(1.1)' }
-}));
+import { Box, CardContent, Divider, IconButton, useTheme } from '@mui/material';
 
 export const Information = () => {
   const theme = useTheme();
